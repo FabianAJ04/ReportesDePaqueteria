@@ -63,7 +63,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Folder Include="MVVVM\Models\" />
 	  <Folder Include="MVVVM\Converters\" />
 	  <Folder Include="MVVVM\Views\" />
 	  <Folder Include="MVVVM\ViewModels\" />
