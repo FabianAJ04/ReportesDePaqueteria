@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage x:Class="ReportesDePaqueteria.MVVM.Views.IncidentListPage"
+             xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             Title="Incidentes">
+
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <Color x:Key="Primary">#FF8302</Color>
+            <Color x:Key="TextDark">#111827</Color>
+            <Color x:Key="TextLight">#6B7280</Color>
+            <Color x:Key="CardBg">#FFFFFF</Color>
+            <Color x:Key="ChipBg">#E5E7EB</Color>
+
+            <Style TargetType="Label" x:Key="TitleLabel">
+                <Setter Property="FontSize" Value="22"/>
+                <Setter Property="FontAttributes" Value="Bold"/>
+                <Setter Property="TextColor" Value="{StaticResource TextDark}"/>
+            </Style>
+
+            <Style TargetType="Frame" x:Key="Card">
+                <Setter Property="Padding" Value="12"/>
+                <Setter Property="Margin" Value="0,6"/>
+                <Setter Property="BackgroundColor" Value="{StaticResource CardBg}"/>
+                <Setter Property="CornerRadius" Value="14"/>
+                <Setter Property="HasShadow" Value="True"/>
+            </Style>
+
+            <Style TargetType="Frame" x:Key="Chip">
+                <Setter Property="Padding" Value="8,4"/>
+                <Setter Property="HasShadow" Value="False"/>
+                <Setter Property="CornerRadius" Value="16"/>
+                <Setter Property="BackgroundColor" Value="{StaticResource ChipBg}"/>
+            </Style>
+
+            <Style TargetType="Button" x:Key="PrimaryButton">
+                <Setter Property="BackgroundColor" Value="{StaticResource Primary}"/>
+                <Setter Property="TextColor" Value="White"/>
+                <Setter Property="CornerRadius" Value="10"/>
+                <Setter Property="Padding" Value="16,12"/>
+            </Style>
+
+            <Style TargetType="Button" x:Key="FlatButton">
+                <Setter Property="BackgroundColor" Value="Transparent"/>
+                <Setter Property="TextColor" Value="{StaticResource Primary}"/>
+                <Setter Property="Padding" Value="8,6"/>
+            </Style>
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
+    <ScrollView>
+        <VerticalStackLayout Padding="16" Spacing="8">
+
+            <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,6">
+                <Label Text="Incidentes" Style="{StaticResource TitleLabel}"/>
+                <!--<Button Grid.Column="1" Text="Nuevo"
+                        Style="{StaticResource PrimaryButton}"
+                        Clicked="OnNuevoClicked"/>-->
+            </Grid>
+
+            <!-- Búsqueda por texto -->
+            <SearchBar Placeholder="Buscar por palabra clave…"
+                       x:Name="SearchBar"
+                       Margin="0,0,0,6"
+                       Text="{Binding SearchText}" />
+
+            <!-- Filtros principales -->
+            <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,Auto" ColumnSpacing="10">
+                <Picker Title="Categoría"
+                        Grid.Row="0" Grid.Column="0"
+                        ItemsSource="{Binding Categorias}" SelectedItem="{Binding CategoriaSel}" />
+                <Picker Title="Estado"
+                        Grid.Row="0" Grid.Column="1"
+                        ItemsSource="{Binding Estados}" SelectedItem="{Binding EstadoSel}" />
+                <Picker Title="Prioridad"
+                        Grid.Row="1" Grid.Column="0"
+                        ItemsSource="{Binding Prioridades}" SelectedItem="{Binding PrioridadSel}" />
+                <Picker Title="Impacto"
+                        Grid.Row="1" Grid.Column="1"
+                        ItemsSource="{Binding Impactos}" SelectedItem="{Binding ImpactoSel}" />
+                <Grid Grid.Row="2" Grid.ColumnSpan="2" ColumnDefinitions="*,*" ColumnSpacing="10">
+                    <DatePicker Date="{Binding FechaDesde}" />
+                    <DatePicker Grid.Column="1" Date="{Binding FechaHasta}" />
+                </Grid>
+            </Grid>
+
+            <Grid ColumnDefinitions="*,Auto" Margin="0,4,0,12">
+                <Button Text="Aplicar filtros" Style="{StaticResource PrimaryButton}" />
+                <Button Grid.Column="1" Text="Limpiar" Style="{StaticResource FlatButton}" />
+            </Grid>
+
+            <RefreshView IsRefreshing="{Binding IsRefreshing}">
+                <CollectionView ItemsSource="{Binding Incidentes}"
+                                SelectionMode="None">
+                    <CollectionView.EmptyView>
+                        <VerticalStackLayout Padding="24" Spacing="6" HorizontalOptions="Center" VerticalOptions="Center">
+                            <Label Text="Sin resultados" FontAttributes="Bold" />
+                            <Label Text="Ajusta la búsqueda o los filtros." TextColor="{StaticResource TextLight}" />
+                        </VerticalStackLayout>
+                    </CollectionView.EmptyView>
+
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <Frame Style="{StaticResource Card}">
+                                <Grid RowDefinitions="Auto,Auto,Auto" ColumnDefinitions="*,Auto" ColumnSpacing="10">
+                                    <!-- Título -->
+                                    <Label Grid.ColumnSpan="2"
+                                           Text="{Binding Titulo}"
+                                           FontAttributes="Bold" FontSize="16"/>
+
+                                    <!-- Chips -->
+                                    <HorizontalStackLayout Grid.Row="1" Spacing="8">
+                                        <Frame Style="{StaticResource Chip}">
+                                            <Label Text="{Binding Prioridad}" FontSize="12"/>
+                                            <Frame.Triggers>
+                                                <DataTrigger TargetType="Frame"
+                                                             Binding="{Binding Prioridad}" Value="Alta">
+                                                    <Setter Property="BackgroundColor" Value="#FEE2E2"/>
+                                                </DataTrigger>
+                                                <DataTrigger TargetType="Frame"
+                                                             Binding="{Binding Prioridad}" Value="Media">
+                                                    <Setter Property="BackgroundColor" Value="#FEF3C7"/>
+                                                </DataTrigger>
+                                                <DataTrigger TargetType="Frame"
+                                                             Binding="{Binding Prioridad}" Value="Baja">
+                                                    <Setter Property="BackgroundColor" Value="#DCFCE7"/>
+                                                </DataTrigger>
+                                            </Frame.Triggers>
+                                        </Frame>
+
+                                        <Frame Style="{StaticResource Chip}">
+                                            <Label Text="{Binding Estado}" FontSize="12"/>
+                                        </Frame>
+
+                                        <Frame Style="{StaticResource Chip}">
+                                            <Label Text="{Binding Categoria}" FontSize="12"/>
+                                        </Frame>
+                                    </HorizontalStackLayout>
+
+                                    <Label Grid.Row="2" Grid.ColumnSpan="2"
+                                           Text="{Binding Descripcion}"
+                                           TextColor="{StaticResource TextLight}"
+                                           LineBreakMode="TailTruncation" MaxLines="2"/>
+
+                                    <VerticalStackLayout Grid.Row="0" Grid.Column="1" Spacing="2" HorizontalOptions="End">
+                                        <Label Text="{Binding Fecha, StringFormat='{0:dd/MM/yyyy}'}"
+                                               FontSize="12" TextColor="{StaticResource TextLight}"
+                                               HorizontalTextAlignment="End"/>
+                                        <Label Text="{Binding Responsable, StringFormat='Asig.: {0}'}"
+                                               FontSize="12" TextColor="{StaticResource TextLight}"
+                                               HorizontalTextAlignment="End"/>
+                                    </VerticalStackLayout>
+
+                                    <HorizontalStackLayout Grid.RowSpan="3" Grid.Column="1"
+                                                           VerticalOptions="End" Spacing="8">
+                                        <Button Text="Ver" Style="{StaticResource FlatButton}"
+                                                CommandParameter="{Binding .}"
+                                                Clicked="OnVerClicked"/>
+                                        <!--<Button Text="Editar" Style="{StaticResource FlatButton}"
+                                                CommandParameter="{Binding .}"
+                                                Clicked="OnEditarClicked"/>-->
+                                    </HorizontalStackLayout>
+                                </Grid>
+                            </Frame>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </RefreshView>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

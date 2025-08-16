@@ -6,16 +6,10 @@
     xmlns:local="clr-namespace:ReportesDePaqueteria"
     xmlns:views="clr-namespace:ReportesDePaqueteria.MVVVM.Views"
     Shell.FlyoutBehavior="Disabled"
-    Title="ReportesDePaqueteria">
+    Title="ReportesDePaqueteria"
+    xmlns:views="clr-namespace:ReportesDePaqueteria.MVVM.Views">
 
-    <ShellContent
-        Title="Sign In"
-        ContentTemplate="{DataTemplate views:SignInView}"
-        Route="SignIn" />
+    <ShellContent Title="Inicio" ContentTemplate="{DataTemplate views:AuthLandingPage}" />
 
-    <ShellContent
-        Title="Sign Up"
-        ContentTemplate="{DataTemplate views:SignUpView}"
-        Route="SignUp" />
 
 </Shell>
