@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="ReportesDePaqueteria.MVVVM.Views.SignInView"
+             Title="Iniciar sesión"
+             BackgroundColor="#DFF1DE">
+
+    <VerticalStackLayout Spacing="0" BackgroundColor="Transparent">
+
+        <!-- Encabezado superior -->
+        <Grid BackgroundColor="Blue" HeightRequest="150" Padding="0">
+            <Label Text="Login"
+                   HorizontalOptions="Center"
+                   VerticalOptions="End"
+                   FontSize="32"
+                   FontAttributes="Bold, Italic"
+                   TextDecorations="Underline"
+                   TextColor="Black"
+                   Margin="0,0,0,15"/>
+        </Grid>
+
+        <VerticalStackLayout Padding="30" Spacing="25"
+                             VerticalOptions="CenterAndExpand"
+                             HorizontalOptions="FillAndExpand"
+                             BackgroundColor="#DFF1DE">
+
+            <!-- Título -->
+            <Label Text="INICIAR SESION"
+                   FontSize="24"
+                   FontAttributes="Bold"
+                   HorizontalOptions="Center"
+                   TextColor="Black"
+                   Margin="0,20,0,0"/>
+
+            <!-- Correo -->
+            <Frame CornerRadius="30"
+                   BackgroundColor="DarkCyan"
+                   HasShadow="False"
+                   Padding="0"
+                   BorderColor="Transparent"
+                   HeightRequest="60">
+                <Entry Placeholder="Correo"
+                       Text="{Binding Email}"
+                       Keyboard="Email"
+                       BackgroundColor="Transparent"
+                       TextColor="White"
+                       PlaceholderColor="White"
+                       FontSize="14"/>
+            </Frame>
+
+            <!-- Contraseña -->
+            <Frame CornerRadius="30"
+                   BackgroundColor="DarkCyan"
+                   HasShadow="False"
+                   Padding="0"
+                   BorderColor="Transparent"
+                   HeightRequest="50">
+                <Entry Placeholder="Contraseña"
+                       Text="{Binding Password}"
+                       IsPassword="True"
+                       BackgroundColor="Transparent"
+                       TextColor="White"
+                       PlaceholderColor="White"
+                       FontSize="14"/>
+            </Frame>
+
+            <!-- Botón -->
+            <Button Text="INICIAR SESION"
+                    Command="{Binding SignInCommand}"
+                    BackgroundColor="#2C2C2C"
+                    TextColor="White"
+                    CornerRadius="30"
+                    HeightRequest="50"
+                    FontAttributes="Bold"
+                    FontSize="16"
+                    HorizontalOptions="FillAndExpand"/>
+            <HorizontalStackLayout HorizontalOptions="Center">
+                <Label Text="¿No tienes una cuenta?" TextColor="Gray"/>
+                <Label Text=" Regístrate"
+                       TextColor="DarkBlue"
+                       FontAttributes="Bold">
+                    <Label.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding NavigateSignUpCommand}" />
+                    </Label.GestureRecognizers>
+                </Label>
+            </HorizontalStackLayout>
+
+        </VerticalStackLayout>
+
+    </VerticalStackLayout>
+</ContentPage>

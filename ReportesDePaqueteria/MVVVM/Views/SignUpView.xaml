@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="ReportesDePaqueteria.MVVVM.Views.SignUpView"
+             Title="Registro"
+             BackgroundColor="#DFF1DE">
+
+    <VerticalStackLayout Spacing="0" BackgroundColor="Transparent">
+
+        <!-- Encabezado superior -->
+        <Grid BackgroundColor="Blue" HeightRequest="150" Padding="0">
+            <Label Text="Login"
+                   HorizontalOptions="Center"
+                   VerticalOptions="End"
+                   FontSize="32"
+                   FontAttributes="Bold, Italic"
+                   TextDecorations="Underline"
+                   TextColor="Black"
+                   Margin="0,0,0,15"/>
+        </Grid>
+
+        <VerticalStackLayout Padding="30" Spacing="20"
+                             VerticalOptions="CenterAndExpand"
+                             HorizontalOptions="FillAndExpand"
+                             BackgroundColor="#DFF1DE">
+
+            <!-- Título -->
+            <Label Text="CREAR CUENTA"
+                   FontSize="24"
+                   FontAttributes="Bold"
+                   HorizontalOptions="Center"
+                   TextColor="Black"
+                   Margin="0,20,0,0"/>
+
+            <!-- Entradas -->
+            <Frame CornerRadius="30" BackgroundColor="DarkCyan" HasShadow="False" Padding="10" HeightRequest="60">
+                <Entry Placeholder="Nombre"
+                       Text="{Binding Nombre}"
+                       BackgroundColor="Transparent"
+                       TextColor="White"
+                       PlaceholderColor="White"
+                       FontSize="14"/>
+            </Frame>
+
+            <Frame CornerRadius="30" BackgroundColor="DarkCyan" HasShadow="False" Padding="10" HeightRequest="60">
+                <Entry Placeholder="Apellido"
+                       Text="{Binding Apellido}"
+                       BackgroundColor="Transparent"
+                       TextColor="White"
+                       PlaceholderColor="White"
+                       FontSize="14"/>
+            </Frame>
+
+            <Frame CornerRadius="30" BackgroundColor="DarkCyan" HasShadow="False" Padding="10" HeightRequest="60">
+                <Entry Placeholder="Email"
+                       Text="{Binding Email}"
+                       Keyboard="Email"
+                       BackgroundColor="Transparent"
+                       TextColor="White"
+                       PlaceholderColor="White"
+                       FontSize="14"/>
+            </Frame>
+
+            <Frame CornerRadius="30" BackgroundColor="DarkCyan" HasShadow="False" Padding="10" HeightRequest="60">
+                <Entry Placeholder="Username"
+                       Text="{Binding Username}"
+                       BackgroundColor="Transparent"
+                       TextColor="White"
+                       PlaceholderColor="White"
+                       FontSize="14"/>
+            </Frame>
+
+            <Frame CornerRadius="30" BackgroundColor="DarkCyan" HasShadow="False" Padding="10" HeightRequest="60">
+                <Entry Placeholder="Password"
+                       Text="{Binding Password}"
+                       IsPassword="True"
+                       BackgroundColor="Transparent"
+                       TextColor="White"
+                       PlaceholderColor="White"
+                       FontSize="14"/>
+            </Frame>
+
+            <!-- Botón de registro -->
+            <Button Text="REGISTRARSE"
+                    Command="{Binding SignUpCommand}"
+                    BackgroundColor="#2C2C2C"
+                    TextColor="White"
+                    CornerRadius="30"
+                    HeightRequest="60"
+                    FontAttributes="Bold"
+                    FontSize="16"
+                    HorizontalOptions="FillAndExpand"/>
+
+            <!-- Volver a inicio de sesión -->
+            <HorizontalStackLayout HorizontalOptions="Center">
+                <Label Text="¿Ya tienes una cuenta?" TextColor="#757575"/>
+                <Label Text=" Inicia sesión"
+                       TextColor="Blue"
+                       FontAttributes="Bold">
+                    <Label.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding NavigateSignInCommand}" />
+                    </Label.GestureRecognizers>
+                </Label>
+            </HorizontalStackLayout>
+
+        </VerticalStackLayout>
+    </VerticalStackLayout>
+</ContentPage>
