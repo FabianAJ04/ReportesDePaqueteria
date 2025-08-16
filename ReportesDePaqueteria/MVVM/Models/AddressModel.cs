@@ -8,6 +8,7 @@ namespace ReportesDePaqueteria.MVVVM.Models
 {
     public class AddressModel //Aqui cualquier cosa Copilot me ayudo con los comentarios
     {
+        public string Code { get; set; } // Codigo relacionado a direccion, intentemos generarlo
         public string Street { get; set; } // Calle de la dirección
         public string City { get; set; } // Tomemos esto como canton
         public string State { get; set; } // Tomemos esto como provincia

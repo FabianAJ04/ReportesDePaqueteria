@@ -1,8 +1,8 @@
 ﻿using Firebase.Auth;
 using Firebase.Auth.Providers;
 using Microsoft.Extensions.Logging;
-using ReportesDePaqueteria.MVVVM.ViewModels;
-using ReportesDePaqueteria.MVVVM.Views;
+using ReportesDePaqueteria.MVVM.ViewModels;
+using ReportesDePaqueteria.MVVM.Views;
 
 namespace ReportesDePaqueteria
 {

@@ -63,66 +63,66 @@
 		<PackageReference Include="Microsoft.Maui.Controls" Version="$(MauiVersion)" />
 		<PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="$(MauiVersion)" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="8.0.1" />
+		<PackageReference Include="PropertyChanged.Fody" Version="4.1.0" />
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Folder Include="MVVVM\Converters\" />
-	  <Folder Include="MVVVM\ViewModels\" />
+	  <Folder Include="MVVM\Converters\" />
 	</ItemGroup>
 
 	<ItemGroup>
-	  <MauiXaml Update="MVVVM\Views\SignInView.xaml">
+	  <MauiXaml Update="MVVM\Views\SignInView.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="MVVVM\Views\SignUpView.xaml">
+	  <MauiXaml Update="MVVM\Views\SignUpView.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Compile Update="MVVVM\Views\IncidentListPage.xaml.cs">
+	  <Compile Update="MVVM\Views\IncidentListPage.xaml.cs">
 	    <DependentUpon>IncidentListPage.xaml</DependentUpon>
 	  </Compile>
-	  <Compile Update="MVVVM\Views\IncidentFormPage.xaml.cs">
+	  <Compile Update="MVVM\Views\IncidentFormPage.xaml.cs">
 	    <DependentUpon>IncidentFormPage.xaml</DependentUpon>
 	  </Compile>
-	  <Compile Update="MVVVM\Views\IncidentDetailPage.xaml.cs">
+	  <Compile Update="MVVM\Views\IncidentDetailPage.xaml.cs">
 	    <DependentUpon>IncidentDetailPage.xaml</DependentUpon>
 	  </Compile>
-	  <Compile Update="MVVVM\Views\UserListPage.xaml.cs">
+	  <Compile Update="MVVM\Views\UserListPage.xaml.cs">
 	    <DependentUpon>UserListPage.xaml</DependentUpon>
 	  </Compile>
 	</ItemGroup>
 
 	<ItemGroup>
-	  <MauiXaml Update="MVVVM\Views\AuthLandingPage.xaml">
+	  <MauiXaml Update="MVVM\Views\AuthLandingPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="MVVVM\Views\HomePage.xaml">
+	  <MauiXaml Update="MVVM\Views\HomePage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="MVVVM\Views\IncidentListPage.xaml">
+	  <MauiXaml Update="MVVM\Views\IncidentListPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="MVVVM\Views\IncidentFormPage.xaml">
+	  <MauiXaml Update="MVVM\Views\IncidentFormPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="MVVVM\Views\IncidentDetailPage.xaml">
+	  <MauiXaml Update="MVVM\Views\IncidentDetailPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="MVVVM\Views\NotificationsPage.xaml">
+	  <MauiXaml Update="MVVM\Views\NotificationsPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="MVVVM\Views\ShipmentFormPage.xaml">
+	  <MauiXaml Update="MVVM\Views\ShipmentFormPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="MVVVM\Views\ShipmentListPage.xaml">
+	  <MauiXaml Update="MVVM\Views\ShipmentListPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="MVVVM\Views\UserListPage.xaml">
+	  <MauiXaml Update="MVVM\Views\UserListPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="MVVVM\Views\UserProfilePage.xaml">
+	  <MauiXaml Update="MVVM\Views\UserProfilePage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	</ItemGroup>
