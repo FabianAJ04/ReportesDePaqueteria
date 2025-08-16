@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage x:Class="ReportesDePaqueteria.MVVM.Views.HomePage"
+             xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             Title="Inicio"
+             BackgroundColor="#F5F6F8"
+             Shell.NavBarIsVisible="False">
+
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <Color x:Key="Primary">#FF8302</Color>
+            <Color x:Key="PrimarySoft">#FFF0E0</Color>
+            <Color x:Key="TextDark">#111827</Color>
+            <Color x:Key="TextLight">#6B7280</Color>
+            <Color x:Key="CardBg">#FFFFFF</Color>
+            <Color x:Key="Separator">#E5E7EB</Color>
+
+            <Style TargetType="Label" x:Key="H1">
+                <Setter Property="FontSize" Value="24"/>
+                <Setter Property="FontAttributes" Value="Bold"/>
+                <Setter Property="TextColor" Value="{StaticResource TextDark}"/>
+            </Style>
+            <Style TargetType="Label" x:Key="Sub">
+                <Setter Property="FontSize" Value="13"/>
+                <Setter Property="TextColor" Value="{StaticResource TextLight}"/>
+            </Style>
+
+            <Style TargetType="Frame" x:Key="Tile">
+                <Setter Property="Padding" Value="18"/>
+                <Setter Property="Margin" Value="0,10"/>
+                <Setter Property="HasShadow" Value="True"/>
+                <Setter Property="CornerRadius" Value="16"/>
+                <Setter Property="BackgroundColor" Value="{StaticResource CardBg}"/>
+            </Style>
+
+            <Style TargetType="Button" x:Key="PrimaryButton">
+                <Setter Property="BackgroundColor" Value="{StaticResource Primary}"/>
+                <Setter Property="TextColor" Value="White"/>
+                <Setter Property="CornerRadius" Value="14"/>
+                <Setter Property="Padding" Value="16,14"/>
+            </Style>
+            <Style TargetType="Button" x:Key="GhostButton">
+                <Setter Property="BackgroundColor" Value="{StaticResource PrimarySoft}"/>
+                <Setter Property="TextColor" Value="{StaticResource Primary}"/>
+                <Setter Property="CornerRadius" Value="14"/>
+                <Setter Property="Padding" Value="14,12"/>
+            </Style>
+
+            <Style TargetType="Button" x:Key="NavButtonBase">
+                <Setter Property="BackgroundColor" Value="Transparent"/>
+                <Setter Property="TextColor" Value="{StaticResource TextLight}"/>
+                <Setter Property="FontSize" Value="12"/>
+                <Setter Property="CornerRadius" Value="12"/>
+                <Setter Property="Padding" Value="10,8"/>
+                <Setter Property="HeightRequest" Value="56"/>
+                <Setter Property="ContentLayout" Value="Top,4"/>
+            </Style>
+
+            <Style TargetType="Button" x:Key="NavButtonActive" BasedOn="{StaticResource NavButtonBase}">
+                <Setter Property="BackgroundColor" Value="{StaticResource PrimarySoft}"/>
+                <Setter Property="TextColor" Value="{StaticResource Primary}"/>
+            </Style>
+
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
+    <Grid RowDefinitions="Auto,*,Auto">
+
+        <Grid Grid.Row="0" Padding="20,20,20,14">
+            <Grid.Background>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                    <GradientStop Color="#FF9F3A" Offset="0"/>
+                    <GradientStop Color="#FF8302" Offset="1"/>
+                </LinearGradientBrush>
+            </Grid.Background>
+
+            <Grid ColumnDefinitions="*,Auto">
+                <VerticalStackLayout Spacing="2">
+                    <Label Text="Panel de Incidencias" TextColor="White" FontSize="22" FontAttributes="Bold"/>
+                    <Label Text="Elige una opción para comenzar" TextColor="#FFFFFFCC" FontSize="13"/>
+                </VerticalStackLayout>
+
+                <ImageButton Grid.Column="1"
+                     Source="bell.png"
+                     WidthRequest="40" HeightRequest="40"
+                     BackgroundColor="#FFFFFF"
+                     CornerRadius="20"
+                     Padding="6"
+                     Clicked="OnNotificationsClicked"/>
+            </Grid>
+        </Grid>
+
+        <ScrollView Grid.Row="1">
+            <VerticalStackLayout Padding="20" Spacing="12">
+
+                <Frame Style="{StaticResource Tile}">
+                    <Grid RowDefinitions="Auto,Auto,Auto" ColumnDefinitions="Auto,*" ColumnSpacing="12">
+                        <Frame WidthRequest="48" HeightRequest="48" CornerRadius="12"
+    BackgroundColor="{StaticResource PrimarySoft}" HasShadow="False"
+    VerticalOptions="Start">
+                            <Image Source="box.png" WidthRequest="28" HeightRequest="28" HorizontalOptions="Center" VerticalOptions="Center"/>
+                        </Frame>
+
+                        <VerticalStackLayout Grid.Column="1" Spacing="2">
+                            <Label Text="Paquetes" Style="{StaticResource H1}" />
+                            <Label Text="Consulta, busca y da seguimiento a los paquetes." Style="{StaticResource Sub}" />
+                        </VerticalStackLayout>
+
+                        <Grid Grid.Row="2" Grid.ColumnSpan="2"
+      ColumnDefinitions="*,*"
+      ColumnSpacing="10"
+      Margin="0,8,0,0">
+                            <Button Text="Ver envíos"
+            Style="{StaticResource PrimaryButton}"
+            Clicked="OnShipmentsClicked"/>
+
+                            <Button Grid.Column="1"
+            Text="➕ Nuevo envío"
+            Style="{StaticResource GhostButton}"
+            Clicked="OnNuevoShipmentClicked"/>
+                        </Grid>
+
+                    </Grid>
+                </Frame>
+
+                <Frame Style="{StaticResource Tile}">
+                    <Grid RowDefinitions="Auto,Auto,Auto" ColumnDefinitions="Auto,*" ColumnSpacing="12">
+                        <Frame WidthRequest="48" HeightRequest="48" CornerRadius="12"
+                   BackgroundColor="{StaticResource PrimarySoft}" HasShadow="False"
+                   VerticalOptions="Start">
+                            <Image Source="box.png" WidthRequest="28" HeightRequest="28" HorizontalOptions="Center" VerticalOptions="Center"/>
+                        </Frame>
+
+                        <VerticalStackLayout Grid.Column="1" Spacing="2">
+                            <Label Text="Incidentes" Style="{StaticResource H1}" />
+                            <Label Text="Consulta, busca y da seguimiento a los incidentes." Style="{StaticResource Sub}" />
+                        </VerticalStackLayout>
+
+                        <Grid Grid.Row="2" Grid.ColumnSpan="2"
+ColumnDefinitions="*,*"
+ColumnSpacing="10"
+Margin="0,8,0,0">
+                            <Button Text="Ver incidentes"
+      Style="{StaticResource PrimaryButton}"
+      Clicked="OnIncidentesClicked"/>
+
+                            <Button Grid.Column="1"
+      Text="➕ Nuevo incidente"
+      Style="{StaticResource GhostButton}"
+      Clicked="OnNuevoIncidenteClicked"/>
+                        </Grid>
+
+                    </Grid>
+                </Frame>
+
+                <Grid ColumnDefinitions="*,*,*" ColumnSpacing="10" Margin="0,4,0,80">
+                    <Frame Style="{StaticResource Tile}">
+                        <VerticalStackLayout Spacing="2" HorizontalOptions="Center">
+                            <Label Text="12" FontSize="20" FontAttributes="Bold" TextColor="{StaticResource Primary}"/>
+                            <Label Text="Abiertos" Style="{StaticResource Sub}" />
+                        </VerticalStackLayout>
+                    </Frame>
+                    <Frame Style="{StaticResource Tile}">
+                        <VerticalStackLayout Spacing="2" HorizontalOptions="Center">
+                            <Label Text="7" FontSize="20" FontAttributes="Bold" TextColor="{StaticResource Primary}"/>
+                            <Label Text="En proceso" Style="{StaticResource Sub}" />
+                        </VerticalStackLayout>
+                    </Frame>
+                    <Frame Style="{StaticResource Tile}">
+                        <VerticalStackLayout Spacing="2" HorizontalOptions="Center">
+                            <Label Text="23" FontSize="20" FontAttributes="Bold" TextColor="{StaticResource Primary}"/>
+                            <Label Text="Resueltos" Style="{StaticResource Sub}" />
+                        </VerticalStackLayout>
+                    </Frame>
+                </Grid>
+
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <Grid Grid.Row="2" Padding="0" BackgroundColor="Transparent">
+            <Border Stroke="{StaticResource Separator}"
+              StrokeThickness="1"
+              BackgroundColor="White"
+              Padding="12,8">
+
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="20,20,0,0" />
+                </Border.StrokeShape>
+
+                <Border.Shadow>
+                    <OnPlatform x:TypeArguments="Shadow">
+                        <On Platform="iOS,Android">
+                            <Shadow Brush="Black" Opacity="0.12" Offset="0,2" Radius="8"/>
+                        </On>
+                        <On Platform="WinUI">
+                            <Shadow Opacity="0"/>
+                        </On>
+                    </OnPlatform>
+                </Border.Shadow>
+
+                <Grid ColumnDefinitions="*,2,*" VerticalOptions="End" HeightRequest="72">
+                    <Button Grid.Column="0"
+                  Style="{StaticResource NavButtonActive}"
+                  Text="Inicio"
+                  ImageSource="home.png"
+                  Clicked="OnNavHomeClicked"/>
+
+                    <BoxView Grid.Column="1" WidthRequest="2" Color="{StaticResource Separator}" VerticalOptions="Fill" />
+
+                    <Button Grid.Column="2"
+                  Style="{StaticResource NavButtonBase}"
+                  Text="Mi perfil"
+                  ImageSource="user1.png"
+                  Clicked="OnNavProfileClicked"/>
+                </Grid>
+            </Border>
+        </Grid>
+
+    </Grid>
+</ContentPage>

@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage x:Class="ReportesDePaqueteria.MVVM.Views.NotificationsPage"
+             xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             Title="Notificaciones"
+             BackgroundColor="#F5F6F8"
+             Shell.NavBarIsVisible="False">
+
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <Color x:Key="Primary">#FF8302</Color>
+            <Color x:Key="PrimarySoft">#FFF0E0</Color>
+            <Color x:Key="TextDark">#111827</Color>
+            <Color x:Key="TextLight">#6B7280</Color>
+            <Color x:Key="CardBg">#FFFFFF</Color>
+            <Color x:Key="ChipBg">#E5E7EB</Color>
+
+            <Style TargetType="Label" x:Key="H1">
+                <Setter Property="FontSize" Value="22"/>
+                <Setter Property="FontAttributes" Value="Bold"/>
+                <Setter Property="TextColor" Value="White"/>
+            </Style>
+            <Style TargetType="Label" x:Key="SubWhite">
+                <Setter Property="FontSize" Value="13"/>
+                <Setter Property="TextColor" Value="#FFFFFFCC"/>
+            </Style>
+
+            <Style TargetType="Frame" x:Key="Card">
+                <Setter Property="Padding" Value="12"/>
+                <Setter Property="Margin" Value="0,6"/>
+                <Setter Property="BackgroundColor" Value="{StaticResource CardBg}"/>
+                <Setter Property="CornerRadius" Value="14"/>
+                <Setter Property="HasShadow" Value="True"/>
+            </Style>
+            <Style TargetType="Frame" x:Key="Chip">
+                <Setter Property="Padding" Value="8,4"/>
+                <Setter Property="HasShadow" Value="False"/>
+                <Setter Property="CornerRadius" Value="16"/>
+                <Setter Property="BackgroundColor" Value="{StaticResource ChipBg}"/>
+            </Style>
+            <Style TargetType="Button" x:Key="PrimaryButton">
+                <Setter Property="BackgroundColor" Value="{StaticResource Primary}"/>
+                <Setter Property="TextColor" Value="White"/>
+                <Setter Property="CornerRadius" Value="12"/>
+                <Setter Property="Padding" Value="14,12"/>
+            </Style>
+            <Style TargetType="Button" x:Key="FlatButton">
+                <Setter Property="BackgroundColor" Value="Transparent"/>
+                <Setter Property="TextColor" Value="{StaticResource Primary}"/>
+                <Setter Property="Padding" Value="10,8"/>
+            </Style>
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
+    <Grid RowDefinitions="Auto,*">
+
+        <Grid Grid.Row="0" Padding="20,20,20,14">
+            <Grid.Background>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                    <GradientStop Color="#FF9F3A" Offset="0"/>
+                    <GradientStop Color="#FF8302" Offset="1"/>
+                </LinearGradientBrush>
+            </Grid.Background>
+
+            <Grid ColumnDefinitions="*,Auto">
+                <VerticalStackLayout Spacing="2">
+                    <Label Text="Notificaciones" Style="{StaticResource H1}"/>
+                    <Label Text="Revisa actualizaciones y avisos del sistema" Style="{StaticResource SubWhite}"/>
+                </VerticalStackLayout>
+
+                <HorizontalStackLayout Grid.Column="1" Spacing="8" VerticalOptions="Center">
+                    <Button Text="Marcar todo leído" Style="{StaticResource FlatButton}" Clicked="OnMarkAllReadClicked"/>
+                    <Button Text="Limpiar" Style="{StaticResource FlatButton}" Clicked="OnClearAllClicked"/>
+                </HorizontalStackLayout>
+            </Grid>
+        </Grid>
+
+        <ScrollView Grid.Row="1">
+            <VerticalStackLayout Padding="20" Spacing="10">
+
+                <SearchBar Placeholder="Buscar por texto…" Text="{Binding Search}" />
+
+                <Grid ColumnDefinitions="*,*,*" ColumnSpacing="10">
+                    <Picker Title="Estado" ItemsSource="{Binding Estados}" SelectedItem="{Binding EstadoSel}" />
+                    <Picker Grid.Column="1" Title="Tipo" ItemsSource="{Binding Tipos}" SelectedItem="{Binding TipoSel}" />
+                    <Button Grid.Column="2" Text="Aplicar" Style="{StaticResource PrimaryButton}" Clicked="OnApplyFiltersClicked"/>
+                </Grid>
+
+                <CollectionView ItemsSource="{Binding Notificaciones}" SelectionMode="None">
+                    <CollectionView.EmptyView>
+                        <VerticalStackLayout Padding="24" Spacing="6" HorizontalOptions="Center" VerticalOptions="Center">
+                            <Label Text="No hay notificaciones" FontAttributes="Bold" />
+                            <Label Text="Cuando existan avisos, aparecerán aquí." TextColor="{StaticResource TextLight}" />
+                        </VerticalStackLayout>
+                    </CollectionView.EmptyView>
+
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <SwipeView>
+                                <SwipeView.RightItems>
+                                    <SwipeItems Mode="Reveal">
+                                        <SwipeItem Text="Leído" BackgroundColor="#22C55E"
+                               Invoked="OnMarkReadSwipe"/>
+                                        <SwipeItem Text="Eliminar" BackgroundColor="#EF4444"
+                               Invoked="OnDeleteSwipe"/>
+                                    </SwipeItems>
+                                </SwipeView.RightItems>
+
+                                <Grid Padding="0,2">
+                                    <Frame Style="{StaticResource Card}">
+                                        <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto" ColumnSpacing="12">
+
+                                            <Frame WidthRequest="44" HeightRequest="44" CornerRadius="12"
+                             HasShadow="False">
+                                                <Frame.Triggers>
+                                                    <DataTrigger TargetType="Frame" Binding="{Binding Tipo}" Value="Incidente">
+                                                        <Setter Property="BackgroundColor" Value="#FEE2E2"/>
+                                                    </DataTrigger>
+                                                    <DataTrigger TargetType="Frame" Binding="{Binding Tipo}" Value="Asignación">
+                                                        <Setter Property="BackgroundColor" Value="#FEF3C7"/>
+                                                    </DataTrigger>
+                                                    <DataTrigger TargetType="Frame" Binding="{Binding Tipo}" Value="Sistema">
+                                                        <Setter Property="BackgroundColor" Value="#E0E7FF"/>
+                                                    </DataTrigger>
+                                                </Frame.Triggers>
+                                                <Image Source="{Binding Icono}" WidthRequest="24" HeightRequest="24"
+                               HorizontalOptions="Center" VerticalOptions="Center"/>
+                                            </Frame>
+
+                                            <VerticalStackLayout Grid.Column="1" Spacing="2">
+                                                <Label Text="{Binding Titulo}">
+                                                    <Label.Triggers>
+                                                        <DataTrigger TargetType="Label" Binding="{Binding Leida}" Value="False">
+                                                            <Setter Property="FontAttributes" Value="Bold"/>
+                                                        </DataTrigger>
+                                                    </Label.Triggers>
+                                                </Label>
+                                                <Label Text="{Binding Mensaje}" TextColor="{StaticResource TextLight}" LineBreakMode="TailTruncation" MaxLines="2"/>
+
+                                                <Grid ColumnDefinitions="*,Auto" Margin="0,4,0,0">
+                                                    <Frame Style="{StaticResource Chip}" Padding="8,3">
+                                                        <Label Text="{Binding Tipo}" FontSize="12"/>
+                                                    </Frame>
+                                                    <Label Grid.Column="1"
+                                 Text="{Binding Fecha, StringFormat='{0:dd/MM/yyyy HH:mm}'}"
+                                 FontSize="12" TextColor="{StaticResource TextLight}"
+                                 VerticalTextAlignment="Center"/>
+                                                </Grid>
+                                            </VerticalStackLayout>
+                                        </Grid>
+                                    </Frame>
+                                </Grid>
+                            </SwipeView>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
+</ContentPage>

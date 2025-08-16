@@ -5,11 +5,9 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:local="clr-namespace:ReportesDePaqueteria"
     Shell.FlyoutBehavior="Disabled"
-    Title="ReportesDePaqueteria">
+    Title="ReportesDePaqueteria"
+    xmlns:views="clr-namespace:ReportesDePaqueteria.MVVM.Views">
 
-    <ShellContent
-        Title="Home"
-        ContentTemplate="{DataTemplate local:MainPage}"
-        Route="MainPage" />
+    <ShellContent Title="Inicio" ContentTemplate="{DataTemplate views:AuthLandingPage}" />
 
 </Shell>

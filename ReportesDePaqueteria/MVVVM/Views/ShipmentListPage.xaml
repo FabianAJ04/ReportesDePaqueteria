@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage x:Class="ReportesDePaqueteria.MVVM.Views.ShipmentListPage"
+             xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             Title="Envíos"
+             BackgroundColor="#F5F6F8">
+
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <Color x:Key="Primary">#FF8302</Color>
+            <Color x:Key="TextDark">#111827</Color>
+            <Color x:Key="TextLight">#6B7280</Color>
+            <Color x:Key="CardBg">#FFFFFF</Color>
+            <Color x:Key="ChipBg">#E5E7EB</Color>
+
+            <Style TargetType="Label" x:Key="H1">
+                <Setter Property="FontSize" Value="22"/>
+                <Setter Property="FontAttributes" Value="Bold"/>
+                <Setter Property="TextColor" Value="{StaticResource TextDark}"/>
+            </Style>
+            <Style TargetType="Frame" x:Key="Card">
+                <Setter Property="Padding" Value="12"/>
+                <Setter Property="Margin" Value="0,6"/>
+                <Setter Property="BackgroundColor" Value="{StaticResource CardBg}"/>
+                <Setter Property="CornerRadius" Value="14"/>
+                <Setter Property="HasShadow" Value="True"/>
+            </Style>
+            <Style TargetType="Frame" x:Key="Chip">
+                <Setter Property="Padding" Value="8,4"/>
+                <Setter Property="HasShadow" Value="False"/>
+                <Setter Property="CornerRadius" Value="16"/>
+                <Setter Property="BackgroundColor" Value="{StaticResource ChipBg}"/>
+            </Style>
+            <Style TargetType="Button" x:Key="PrimaryButton">
+                <Setter Property="BackgroundColor" Value="{StaticResource Primary}"/>
+                <Setter Property="TextColor" Value="White"/>
+                <Setter Property="CornerRadius" Value="12"/>
+                <Setter Property="Padding" Value="14,12"/>
+            </Style>
+            <Style TargetType="Button" x:Key="FlatButton">
+                <Setter Property="BackgroundColor" Value="Transparent"/>
+                <Setter Property="TextColor" Value="{StaticResource Primary}"/>
+                <Setter Property="Padding" Value="8,6"/>
+            </Style>
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
+    <ScrollView>
+        <VerticalStackLayout Padding="16" Spacing="10">
+
+            <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,6">
+                <Label Text="Envíos" Style="{StaticResource H1}"/>
+                <Button Grid.Column="1" Text="Nuevo envío"
+                Style="{StaticResource PrimaryButton}"
+                Clicked="OnNuevoClicked"/>
+            </Grid>
+
+            <SearchBar Placeholder="Buscar por tracking o destinatario…" Text="{Binding Search}"/>
+
+            <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto" ColumnSpacing="10">
+                <Picker Title="Estado" Grid.Row="0" Grid.Column="0"
+                ItemsSource="{Binding Estados}" SelectedItem="{Binding EstadoSel}"/>
+                <Grid Grid.Row="0" Grid.Column="1" ColumnDefinitions="*,*">
+                    <DatePicker Date="{Binding FechaDesde}"/>
+                    <DatePicker Grid.Column="1" Date="{Binding FechaHasta}"/>
+                </Grid>
+                <Grid Grid.Row="1" Grid.ColumnSpan="2" ColumnDefinitions="*,Auto" Margin="0,4,0,0">
+                    <Button Text="Aplicar filtros" Style="{StaticResource PrimaryButton}" Clicked="OnAplicarFiltros"/>
+                    <Button Grid.Column="1" Text="Limpiar" Style="{StaticResource FlatButton}" Clicked="OnLimpiarFiltros"/>
+                </Grid>
+            </Grid>
+
+            <CollectionView ItemsSource="{Binding Envios}" SelectionMode="None">
+                <CollectionView.EmptyView>
+                    <VerticalStackLayout Padding="24" Spacing="6" HorizontalOptions="Center" VerticalOptions="Center">
+                        <Label Text="Sin envíos" FontAttributes="Bold"/>
+                        <Label Text="Crea un nuevo envío para comenzar." TextColor="{StaticResource TextLight}"/>
+                    </VerticalStackLayout>
+                </CollectionView.EmptyView>
+
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Frame Style="{StaticResource Card}">
+                            <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto" ColumnSpacing="10">
+
+                                <HorizontalStackLayout Grid.ColumnSpan="2" Spacing="8">
+                                    <Label Text="{Binding Tracking}" FontAttributes="Bold" FontSize="16"/>
+                                    <Frame Style="{StaticResource Chip}">
+                                        <Label Text="{Binding Estado}" FontSize="12"/>
+                                    </Frame>
+                                </HorizontalStackLayout>
+
+                                <Label Grid.Row="1" Grid.ColumnSpan="2"
+                       Text="{Binding ResumenRuta}"
+                       TextColor="{StaticResource TextLight}"/>
+
+                                <Grid Grid.Row="2" ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                                    <Label Text="{Binding FechaEnvio, StringFormat='Enviado: {0:dd/MM/yyyy}'}"
+                         TextColor="{StaticResource TextLight}" />
+                                    <HorizontalStackLayout Grid.Column="1" Spacing="8">
+                                        <Button Text="Ver" Style="{StaticResource FlatButton}" Clicked="OnVerClicked" CommandParameter="{Binding .}"/>
+                                        <Button Text="Etiqueta" Style="{StaticResource FlatButton}" Clicked="OnEtiquetaClicked" CommandParameter="{Binding .}"/>
+                                    </HorizontalStackLayout>
+                                </Grid>
+
+                            </Grid>
+                        </Frame>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage x:Class="ReportesDePaqueteria.MVVM.Views.UserProfilePage"
+             xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             Title="Mi perfil"
+             BackgroundColor="#F5F6F8">
+
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <Color x:Key="Primary">#FF8302</Color>
+            <Color x:Key="TextDark">#111827</Color>
+            <Color x:Key="TextLight">#6B7280</Color>
+            <Color x:Key="CardBg">#FFFFFF</Color>
+
+            <Style TargetType="Label" x:Key="H1">
+                <Setter Property="FontSize" Value="22"/>
+                <Setter Property="FontAttributes" Value="Bold"/>
+                <Setter Property="TextColor" Value="{StaticResource TextDark}"/>
+            </Style>
+            <Style TargetType="Label" x:Key="Section">
+                <Setter Property="FontSize" Value="16"/>
+                <Setter Property="FontAttributes" Value="Bold"/>
+                <Setter Property="Margin" Value="0,12,0,8"/>
+                <Setter Property="TextColor" Value="{StaticResource TextDark}"/>
+            </Style>
+            <Style TargetType="Frame" x:Key="Card">
+                <Setter Property="Padding" Value="16"/>
+                <Setter Property="Margin" Value="0,10"/>
+                <Setter Property="BackgroundColor" Value="{StaticResource CardBg}"/>
+                <Setter Property="CornerRadius" Value="16"/>
+                <Setter Property="HasShadow" Value="True"/>
+            </Style>
+            <Style TargetType="Button" x:Key="PrimaryButton">
+                <Setter Property="BackgroundColor" Value="#FF8302"/>
+                <Setter Property="TextColor" Value="White"/>
+                <Setter Property="CornerRadius" Value="12"/>
+                <Setter Property="Padding" Value="16,12"/>
+            </Style>
+            <Style TargetType="Button" x:Key="FlatButton">
+                <Setter Property="BackgroundColor" Value="Transparent"/>
+                <Setter Property="TextColor" Value="#FF8302"/>
+                <Setter Property="Padding" Value="10,8"/>
+            </Style>
+            <Style TargetType="Entry">
+                <Setter Property="Margin" Value="0,4"/>
+            </Style>
+            <Style TargetType="Label" x:Key="Hint">
+                <Setter Property="FontSize" Value="12"/>
+                <Setter Property="TextColor" Value="{StaticResource TextLight}"/>
+            </Style>
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="8">
+
+            <Label Text="Mi perfil" Style="{StaticResource H1}" />
+
+            <Frame Style="{StaticResource Card}">
+                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="16">
+                    <Grid>
+                        <Frame WidthRequest="90" HeightRequest="90" CornerRadius="45"
+                   BackgroundColor="#FFF0E0" HasShadow="False">
+                            <Image Source="user.png" WidthRequest="60" HeightRequest="60"
+                     HorizontalOptions="Center" VerticalOptions="Center"/>
+                        </Frame>
+                        <Button Text="Cambiar foto" Style="{StaticResource FlatButton}"
+                    HorizontalOptions="Center" Margin="0,90,0,0"
+                    Clicked="OnChangePhotoClicked"/>
+                    </Grid>
+
+                    <VerticalStackLayout Grid.Column="1">
+                        <Label Text="Datos personales" Style="{StaticResource Section}" />
+                        <Entry Placeholder="Nombre completo" Text="{Binding Nombre}" />
+                        <Entry Placeholder="Correo" Keyboard="Email" Text="{Binding Correo}" />
+                        <Grid ColumnDefinitions="*,Auto" Margin="0,6,0,0">
+                            <Label Text="{Binding Rol, StringFormat='Rol: {0}'}" TextColor="{StaticResource TextLight}" />
+                            <Switch Grid.Column="1" IsToggled="{Binding EsAdmin}" IsEnabled="False" />
+                        </Grid>
+                        <Label Text="El rol es informativo (solo lectura)." Style="{StaticResource Hint}"/>
+                    </VerticalStackLayout>
+                </Grid>
+            </Frame>
+
+            <Frame Style="{StaticResource Card}">
+                <Label Text="Seguridad" Style="{StaticResource Section}" />
+                <Entry Placeholder="Contraseña actual" IsPassword="True" Text="{Binding OldPassword}" />
+                <Entry Placeholder="Nueva contraseña" IsPassword="True" Text="{Binding NewPassword}" />
+                <Entry Placeholder="Confirmar nueva contraseña" IsPassword="True" Text="{Binding NewPassword2}" />
+                <Grid ColumnDefinitions="*,Auto">
+                    <Label Text="Usa al menos 8 caracteres." Style="{StaticResource Hint}" />
+                    <Button Grid.Column="1" Text="Actualizar contraseña" Style="{StaticResource FlatButton}"
+                  Clicked="OnChangePasswordClicked"/>
+                </Grid>
+            </Frame>
+
+            <Frame Style="{StaticResource Card}">
+                <Label Text="Preferencias" Style="{StaticResource Section}" />
+                <Grid RowDefinitions="Auto,Auto,Auto" ColumnDefinitions="*,Auto" ColumnSpacing="10" RowSpacing="8">
+                    <Label Text="Notificar por correo" />
+                    <Switch Grid.Column="1" IsToggled="{Binding NotificarCorreo}" />
+                    <Label Grid.Row="1" Text="Notificar en la app" />
+                    <Switch Grid.Row="1" Grid.Column="1" IsToggled="{Binding NotificarPush}" />
+                    <Label Grid.Row="2" Text="Tema oscuro" />
+                    <Switch Grid.Row="2" Grid.Column="1" IsToggled="{Binding TemaOscuro}" />
+                </Grid>
+            </Frame>
+
+            <Grid ColumnDefinitions="*,Auto">
+                <Button Text="Guardar cambios" Style="{StaticResource PrimaryButton}"
+                Clicked="OnSaveClicked"/>
+                <Button Grid.Column="1" Text="Cerrar sesión" Style="{StaticResource FlatButton}"
+                Clicked="OnLogoutClicked"/>
+            </Grid>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>
