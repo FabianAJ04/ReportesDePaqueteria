@@ -34,7 +34,7 @@ namespace ReportesDePaqueteria.MVVVM.ViewModels
                 // Buscar al usuario en Realtime DB para redirección
                 var userRepo = new UserRepository();
                 // Verificar existencia del usuario en DB y obtener datos adicionales
-                var usuario = await userRepo.ObtenerUsuarioPorId(userId);
+                var usuario = await userRepo.GetUserById(userId);
 
                 if (usuario == null)
                 {

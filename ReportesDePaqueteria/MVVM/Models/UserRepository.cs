@@ -40,6 +40,24 @@ public class UserRepository
         }
     }
 
+
+    public async Task<UserModel?> GetUserById(string ID)
+    {
+        return await _client
+            .Child("Usuarios")
+            .Child(ID)
+            .OnceSingleAsync<UserModel>();
+    }
+
+    public async Task<List<UserModel>> GetAllUsers()
+    {
+        var usuarios = await _client
+            .Child("Usuarios")
+            .OnceAsync<UserModel>();
+
+        return usuarios.Select(u => u.Object).ToList();
+    }
+
     // 3. Método Update
     public async Task UpdateDocumentAsync(UserModel User, string Key)
     {

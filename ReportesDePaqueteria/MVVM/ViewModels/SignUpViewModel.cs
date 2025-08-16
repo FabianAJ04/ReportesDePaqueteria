@@ -34,14 +34,14 @@ namespace ReportesDePaqueteria.MVVVM.ViewModels
 
             var user = new UserModel
             {
-                ID = authResult.User.Uid,
+                Id = authResult.User.Uid,
                 Name = Name,
                 Email = Email,
                 Role = 4 // Rol 4: Usuario normal
             };
 
             var repo = new UserRepository();
-            await repo.GuardarUsuario(user);
+            await repo.CreateDocumentAsync(user);
 
             await Application.Current.MainPage.DisplayAlert("Registro", "¡Usuario registrado correctamente!", "OK");
 
