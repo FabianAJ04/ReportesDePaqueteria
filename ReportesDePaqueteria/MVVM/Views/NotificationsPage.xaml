@@ -81,8 +81,8 @@
                 <SearchBar Placeholder="Buscar por texto…" Text="{Binding Search}" />
 
                 <Grid ColumnDefinitions="*,*,*" ColumnSpacing="10">
-                    <Picker Title="Estado" ItemsSource="{Binding Estados}" SelectedItem="{Binding EstadoSel}" />
-                    <Picker Grid.Column="1" Title="Tipo" ItemsSource="{Binding Tipos}" SelectedItem="{Binding TipoSel}" />
+                    <Picker Title="Estado" ItemsSource="{Binding State}" SelectedItem="{Binding StateSelected}" />
+                    <Picker Grid.Column="1" Title="Tipo" ItemsSource="{Binding Type}" SelectedItem="{Binding TypeSelected}" />
                     <Button Grid.Column="2" Text="Aplicar" Style="{StaticResource PrimaryButton}" Clicked="OnApplyFiltersClicked"/>
                 </Grid>
 
@@ -123,26 +123,26 @@
                                                         <Setter Property="BackgroundColor" Value="#E0E7FF"/>
                                                     </DataTrigger>
                                                 </Frame.Triggers>
-                                                <Image Source="{Binding Icono}" WidthRequest="24" HeightRequest="24"
+                                                <Image Source="{Binding Icon}" WidthRequest="24" HeightRequest="24"
                                HorizontalOptions="Center" VerticalOptions="Center"/>
                                             </Frame>
 
                                             <VerticalStackLayout Grid.Column="1" Spacing="2">
-                                                <Label Text="{Binding Titulo}">
+                                                <Label Text="{Binding Title}">
                                                     <Label.Triggers>
-                                                        <DataTrigger TargetType="Label" Binding="{Binding Leida}" Value="False">
+                                                        <DataTrigger TargetType="Label" Binding="{Binding Read}" Value="False">
                                                             <Setter Property="FontAttributes" Value="Bold"/>
                                                         </DataTrigger>
                                                     </Label.Triggers>
                                                 </Label>
-                                                <Label Text="{Binding Mensaje}" TextColor="{StaticResource TextLight}" LineBreakMode="TailTruncation" MaxLines="2"/>
+                                                <Label Text="{Binding Message}" TextColor="{StaticResource TextLight}" LineBreakMode="TailTruncation" MaxLines="2"/>
 
                                                 <Grid ColumnDefinitions="*,Auto" Margin="0,4,0,0">
                                                     <Frame Style="{StaticResource Chip}" Padding="8,3">
-                                                        <Label Text="{Binding Tipo}" FontSize="12"/>
+                                                        <Label Text="{Binding Type}" FontSize="12"/>
                                                     </Frame>
                                                     <Label Grid.Column="1"
-                                 Text="{Binding Fecha, StringFormat='{0:dd/MM/yyyy HH:mm}'}"
+                                 Text="{Binding Timestamp, StringFormat='{0:dd/MM/yyyy HH:mm}'}"
                                  FontSize="12" TextColor="{StaticResource TextLight}"
                                  VerticalTextAlignment="Center"/>
                                                 </Grid>

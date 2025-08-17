@@ -2,7 +2,7 @@
 using CommunityToolkit.Mvvm.Input;
 using Firebase.Auth;
 
-namespace ReportesDePaqueteria.MVVVM.ViewModels
+namespace ReportesDePaqueteria.MVVM.ViewModels
 {
 
     public partial class SignInViewModel : ObservableObject

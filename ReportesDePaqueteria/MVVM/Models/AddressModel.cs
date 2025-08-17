@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ReportesDePaqueteria.MVVVM.Models
+namespace ReportesDePaqueteria.MVVM.Models
 {
     public class AddressModel //Aqui cualquier cosa Copilot me ayudo con los comentarios
     {

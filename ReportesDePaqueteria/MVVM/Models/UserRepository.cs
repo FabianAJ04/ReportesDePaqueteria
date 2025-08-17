@@ -1,6 +1,6 @@
 ﻿using Firebase.Database;
 using Firebase.Database.Query;
-using ReportesDePaqueteria.MVVVM.Models;
+using ReportesDePaqueteria.MVVM.Models;
 
 public class UserRepository
 {

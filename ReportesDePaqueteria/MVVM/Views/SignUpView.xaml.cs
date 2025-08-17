@@ -1,6 +1,6 @@
-using ReportesDePaqueteria.MVVVM.ViewModels;
+using ReportesDePaqueteria.MVVM.ViewModels;
 
-namespace ReportesDePaqueteria.MVVVM.Views;
+namespace ReportesDePaqueteria.MVVM.Views;
 
 public partial class SignUpView : ContentPage
 {

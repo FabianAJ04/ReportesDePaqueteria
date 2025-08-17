@@ -1,10 +1,10 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Firebase.Auth;
-using ReportesDePaqueteria.MVVVM.Models;
+using ReportesDePaqueteria.MVVM.Models;
 
 
-namespace ReportesDePaqueteria.MVVVM.ViewModels
+namespace ReportesDePaqueteria.MVVM.ViewModels
 {
     public partial class SignUpViewModel : ObservableObject
     {

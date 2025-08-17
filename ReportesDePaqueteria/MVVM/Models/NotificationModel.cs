@@ -1,4 +1,4 @@
-﻿using ReportesDePaqueteria.MVVVM.Models;
+﻿using ReportesDePaqueteria.MVVM.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,6 +13,7 @@ namespace ReportesDePaqueteria.MVVM.Models
         public string Title { get; set; } // Título de la notificación.
         public string Message { get; set; } // Mensaje corto de la notificación.
         public int Priority { get; set; } // Prioridad de la notificación, 1: Low, 2: Medium, 3: High.
+        public bool IsRead { get; set; } // Indica si la notificación ha sido leída o no.
         public DateTime Timestamp { get; set; } // Fecha y hora de la notificación.
         public ShipmentModel Shipment { get; set; } //Shipment asociado con la notificación. Este modelo ya contiene información sobre del envio, y los usuarios a ser notificados.
     }

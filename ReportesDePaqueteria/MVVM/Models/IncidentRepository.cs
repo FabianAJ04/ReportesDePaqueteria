@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Firebase.Database;
 using Firebase.Database.Query;
 using ReportesDePaqueteria.MVVM.Models;
-using ReportesDePaqueteria.MVVVM.Models;
+using ReportesDePaqueteria.MVVM.Models;
 
 namespace ReportesDePaqueteria.MVVM.Models
 {
