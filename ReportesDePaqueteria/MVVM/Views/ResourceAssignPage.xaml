@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage x:Class="ReportesDePaqueteria.MVVM.Views.ResourceAssignPage"
+             xmlns:converters="clr-namespace:ReportesDePaqueteria.Converters"
+             xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             Title="Asignar recursos"
+             BackgroundColor="#F5F6F8"
+             Shell.NavBarIsVisible="False">
+
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <Color x:Key="Primary">#FF8302</Color>
+            <Color x:Key="PrimarySoft">#FFF0E0</Color>
+            <Color x:Key="TextDark">#111827</Color>
+            <Color x:Key="TextLight">#6B7280</Color>
+            <Color x:Key="CardBg">#FFFFFF</Color>
+            <Color x:Key="Separator">#E5E7EB</Color>
+
+            <Style TargetType="Button" x:Key="PrimaryButton">
+                <Setter Property="BackgroundColor" Value="{StaticResource Primary}"/>
+                <Setter Property="TextColor" Value="White"/>
+                <Setter Property="CornerRadius" Value="12"/>
+                <Setter Property="Padding" Value="14,12"/>
+            </Style>
+            <Style TargetType="Frame" x:Key="Card">
+                <Setter Property="Padding" Value="12"/>
+                <Setter Property="Margin" Value="0,6"/>
+                <Setter Property="BackgroundColor" Value="{StaticResource CardBg}"/>
+                <Setter Property="CornerRadius" Value="14"/>
+                <Setter Property="HasShadow" Value="True"/>
+            </Style>
+            <Style TargetType="Frame" x:Key="Chip">
+                <Setter Property="Padding" Value="8,4"/>
+                <Setter Property="HasShadow" Value="False"/>
+                <Setter Property="CornerRadius" Value="16"/>
+                <Setter Property="BackgroundColor" Value="{StaticResource PrimarySoft}"/>
+            </Style>
+            <!-- Botón tipo "segmented" -->
+            <Style TargetType="Button" x:Key="Segment">
+                <Setter Property="BackgroundColor" Value="White"/>
+                <Setter Property="TextColor" Value="{StaticResource TextDark}"/>
+                <Setter Property="Padding" Value="10,8"/>
+                <Setter Property="CornerRadius" Value="10"/>
+            </Style>
+            <Style TargetType="Button" x:Key="SegmentActive" BasedOn="{StaticResource Segment}">
+                <Setter Property="BackgroundColor" Value="{StaticResource Primary}"/>
+                <Setter Property="TextColor" Value="White"/>
+            </Style>
+     
+            <converters:BoolToStyleConverter x:Key="BoolToStyleConverter"/>
+        </ResourceDictionary>
+
+    </ContentPage.Resources>
+
+    <Grid RowDefinitions="Auto,*,Auto">
+
+        <!-- Header -->
+        <Grid Grid.Row="0" Padding="20,20,20,14">
+            <Grid.Background>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                    <GradientStop Color="#FF9F3A" Offset="0"/>
+                    <GradientStop Color="#FF8302" Offset="1"/>
+                </LinearGradientBrush>
+            </Grid.Background>
+
+            <Grid ColumnDefinitions="*,Auto">
+                <VerticalStackLayout Spacing="2">
+                    <Label Text="Asignar recursos" FontSize="22" FontAttributes="Bold" TextColor="White"/>
+                    <Label Text="Selecciona personas, paquetes o equipos" FontSize="13" TextColor="#FFFFFFCC"/>
+                </VerticalStackLayout>
+                <Button Grid.Column="1" Text="Cerrar" BackgroundColor="#FFFFFF22" TextColor="White" CornerRadius="10" Clicked="OnCloseClicked"/>
+            </Grid>
+        </Grid>
+
+        <!-- Contenido -->
+        <VerticalStackLayout Grid.Row="1" Padding="16" Spacing="10">
+
+            <Border Stroke="{StaticResource Separator}"
+        StrokeThickness="1"
+        StrokeShape="RoundRectangle 12"
+        BackgroundColor="White"
+        Padding="6">
+
+                <Grid ColumnDefinitions="*,*,*" ColumnSpacing="6">
+                    <Button Text="Personas"
+            Style="{Binding PersonasActiva, Converter={StaticResource BoolToStyleConverter}, ConverterParameter='SegmentActive|Segment'}"
+            Clicked="OnTabPersonas"/>
+
+                    <Button Grid.Column="1" Text="Paquetes"
+            Style="{Binding PaquetesActiva, Converter={StaticResource BoolToStyleConverter}, ConverterParameter='SegmentActive|Segment'}"
+            Clicked="OnTabPaquetes"/>
+
+                    <Button Grid.Column="2" Text="Equipos/Vehículos"
+            Style="{Binding EquiposActiva, Converter={StaticResource BoolToStyleConverter}, ConverterParameter='SegmentActive|Segment'}"
+            Clicked="OnTabEquipos"/>
+                </Grid>
+
+            </Border>
+
+
+            <!-- Búsqueda -->
+            <SearchBar Placeholder="Buscar por nombre, código o placa…" Text="{Binding Search}" />
+
+            <!-- Lista -->
+            <CollectionView ItemsSource="{Binding ItemsFiltrados}" SelectionMode="None">
+                <CollectionView.EmptyView>
+                    <VerticalStackLayout Padding="24" Spacing="6" HorizontalOptions="Center" VerticalOptions="Center">
+                        <Label Text="Sin resultados" FontAttributes="Bold"/>
+                        <Label Text="Ajusta el texto de búsqueda." TextColor="{StaticResource TextLight}"/>
+                    </VerticalStackLayout>
+                </CollectionView.EmptyView>
+
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Frame Style="{StaticResource Card}">
+                            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10" VerticalOptions="Center">
+
+                                <!-- Avatar / Icono -->
+                                <Frame WidthRequest="44" HeightRequest="44" CornerRadius="22" HasShadow="False"
+                       BackgroundColor="{StaticResource PrimarySoft}">
+                                    <Image Source="{Binding Icono}" WidthRequest="22" HeightRequest="22"
+                         HorizontalOptions="Center" VerticalOptions="Center"/>
+                                </Frame>
+
+                                <!-- Info -->
+                                <VerticalStackLayout Grid.Column="1" Spacing="2">
+                                    <Label Text="{Binding Nombre}" FontAttributes="Bold"/>
+                                    <Label Text="{Binding Detalle}" TextColor="{StaticResource TextLight}" FontSize="12"/>
+                                    <HorizontalStackLayout Spacing="8">
+                                        <Frame Style="{StaticResource Chip}">
+                                            <Label Text="{Binding Tipo}" FontSize="12"/>
+                                        </Frame>
+                                        <Frame Style="{StaticResource Chip}">
+                                            <Label Text="{Binding Estado}" FontSize="12"/>
+                                        </Frame>
+                                    </HorizontalStackLayout>
+                                </VerticalStackLayout>
+
+                                <!-- Selección -->
+                                <CheckBox Grid.Column="2" IsChecked="{Binding Seleccionado}" VerticalOptions="Center"/>
+                            </Grid>
+                        </Frame>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </VerticalStackLayout>
+
+        <Border Grid.Row="2"
+        Padding="0"
+        BackgroundColor="Transparent">
+
+            <!-- Borde y esquinas solo arriba -->
+            <Border Stroke="{StaticResource Separator}"
+          StrokeThickness="1"
+          BackgroundColor="White"
+          Padding="16"
+          >
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="16,16,0,0"/>
+                </Border.StrokeShape>
+
+                <!-- (Opcional) Sombra -->
+                <Border.Shadow>
+                    <OnPlatform x:TypeArguments="Shadow">
+                        <On Platform="iOS,Android">
+                            <Shadow Brush="Black" Opacity="0.12" Offset="0,2" Radius="8"/>
+                        </On>
+                        <On Platform="WinUI">
+                            <Shadow Opacity="0"/>
+                        </On>
+                    </OnPlatform>
+                </Border.Shadow>
+
+                <!-- Tu contenido -->
+                <Grid ColumnDefinitions="*,Auto">
+                    <Label Text="{Binding SeleccionadosTexto}"
+             VerticalTextAlignment="Center"
+             TextColor="{StaticResource TextDark}"/>
+                    <Button Grid.Column="1"
+              Text="Asignar seleccionados"
+              Style="{StaticResource PrimaryButton}"
+              Clicked="OnAsignarClicked"/>
+                </Grid>
+            </Border>
+        </Border>
+
+
+    </Grid>
+</ContentPage>

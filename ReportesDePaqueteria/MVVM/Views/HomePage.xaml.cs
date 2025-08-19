@@ -28,6 +28,9 @@ namespace ReportesDePaqueteria.MVVM.Views
             => await Shell.Current.GoToAsync(nameof(ShipmentListPage));
         private async void OnNuevoShipmentClicked(object sender, System.EventArgs e)
             => await Shell.Current.GoToAsync(nameof(ShipmentFormPage));
+        private async void OnRecursosClicked(object sender, System.EventArgs e)
+            => await Shell.Current.GoToAsync(nameof(ResourceAssignPage));
+
 
     }
 }

@@ -35,10 +35,10 @@ namespace ReportesDePaqueteria
             }));
 
 #endif
-            builder.Services.AddSingleton<SignInView>();
-            builder.Services.AddSingleton<SignInViewModel>();
-            builder.Services.AddSingleton<SignUpView>();
-            builder.Services.AddSingleton<SignUpViewModel>();
+            //builder.Services.AddSingleton<SignInView>();
+            //builder.Services.AddSingleton<SignInViewModel>();
+            //builder.Services.AddSingleton<SignUpView>();
+            //builder.Services.AddSingleton<SignUpViewModel>();
 
             return builder.Build();
         }

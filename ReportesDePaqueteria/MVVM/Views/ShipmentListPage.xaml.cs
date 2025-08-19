@@ -72,7 +72,14 @@ namespace ReportesDePaqueteria.MVVM.Views
             => await Shell.Current.GoToAsync(nameof(ShipmentFormPage));
 
         private async void OnVerClicked(object sender, EventArgs e)
-            => await DisplayAlert("Detalle", "La vista de detalle aún no está creada.", "OK");
+        {
+            if (sender is Button btn && btn.CommandParameter is ShipmentItem item && item != null)
+            {
+                var route = $"{nameof(ShipmentDetailPage)}?tracking={Uri.EscapeDataString(item.Tracking)}";
+                await Shell.Current.GoToAsync(route);
+            }
+        }
+
 
         private async void OnEtiquetaClicked(object sender, EventArgs e)
             => await DisplayAlert("Etiqueta", "Generación de etiqueta (UI demo).", "OK");

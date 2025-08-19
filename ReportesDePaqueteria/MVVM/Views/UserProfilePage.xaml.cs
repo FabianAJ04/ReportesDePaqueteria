@@ -13,8 +13,9 @@ namespace ReportesDePaqueteria.MVVM.Views
         private async void OnChangePhotoClicked(object sender, System.EventArgs e)
             => await DisplayAlert("Foto", ".", "OK");
 
-        private async void OnChangePasswordClicked(object sender, System.EventArgs e)
-            => await DisplayAlert("Contraseña", "", "OK");
+        private async void OnChangePasswordClicked(object sender, EventArgs e)
+      => await Shell.Current.GoToAsync(nameof(ChangePasswordPage));
+
 
         private async void OnSaveClicked(object sender, System.EventArgs e)
             => await DisplayAlert("Perfil", "", "OK");
