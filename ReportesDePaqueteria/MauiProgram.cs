@@ -11,34 +11,51 @@ namespace ReportesDePaqueteria
         public static MauiApp CreateMauiApp()
         {
             var builder = MauiApp.CreateBuilder();
+
             builder
                 .UseMauiApp<App>()
+                // .UseMauiCommunityToolkit()
                 .ConfigureFonts(fonts =>
                 {
                     fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
                     fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
                 });
 
-
 #if DEBUG
-    		builder.Logging.AddDebug();
-
-            //Conexion con firebaseAuth
-            builder.Services.AddSingleton(new FirebaseAuthClient(new FirebaseAuthConfig()
-            {
-                ApiKey = "AIzaSyC0WbYXtxk49ABY3Bb-VX9GFuoZWT9shHU",
-                AuthDomain = "ruby-on-rails-10454.firebaseapp.com",
-                Providers = new FirebaseAuthProvider[]
-    {
-                    new EmailProvider()
-    }
-            }));
-
+            builder.Logging.AddDebug();
 #endif
-            builder.Services.AddSingleton<SignInView>();
-            builder.Services.AddSingleton<SignInViewModel>();
-            builder.Services.AddSingleton<SignUpView>();
-            builder.Services.AddSingleton<SignUpViewModel>();
+
+            var firebaseConfig = new FirebaseAuthConfig
+            {
+                ApiKey = "AIzaSyCb7zzUVwbLrlSi1R8V9gUeO49_NmZmbWo",  
+                AuthDomain = "react-firebase-6c246.firebaseapp.com", 
+                Providers = new FirebaseAuthProvider[]
+     {
+        new EmailProvider()
+     },
+            };
+            builder.Services.AddSingleton(new FirebaseAuthClient(firebaseConfig));
+
+            builder.Services.AddSingleton<IUserRepository, UserRepository>();
+
+            // ViewModels
+            builder.Services.AddTransient<SignInViewModel>();
+            builder.Services.AddTransient<SignUpViewModel>();
+
+            builder.Services.AddTransient<SignInView>();
+            builder.Services.AddTransient<SignUpView>();
+
+            builder.Services.AddTransient<HomePageViewModel>();
+            builder.Services.AddTransient<HomePage>();
+            builder.Services.AddTransient<UserListPage>();
+            builder.Services.AddTransient<UserListViewModel>();
+            builder.Services.AddTransient<UserListPage>();
+
+            builder.Services.AddTransient<UserProfileViewModel>();
+            builder.Services.AddTransient<UserProfilePage>();
+
+
+
 
             return builder.Build();
         }

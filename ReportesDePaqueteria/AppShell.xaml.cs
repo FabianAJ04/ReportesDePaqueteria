@@ -16,6 +16,14 @@ namespace ReportesDePaqueteria
             Routing.RegisterRoute(nameof(NotificationsPage), typeof(NotificationsPage));
             Routing.RegisterRoute(nameof(ShipmentListPage), typeof(ShipmentListPage));
             Routing.RegisterRoute(nameof(ShipmentFormPage), typeof(ShipmentFormPage));
+            Routing.RegisterRoute(nameof(ResourceAssignPage), typeof(ResourceAssignPage));
+            Routing.RegisterRoute(nameof(ShipmentDetailPage), typeof(ShipmentDetailPage));
+            Routing.RegisterRoute(nameof(ChangePasswordPage), typeof(ChangePasswordPage));
+            Routing.RegisterRoute(nameof(UserListPage), typeof(UserListPage));
+
+
+
+            //Routing.RegisterRoute(nameof(SignInView), typeof(SignInView));
 
 
             //Routing.RegisterRoute(nameof(ResourceListPage), typeof(ResourceListPage));

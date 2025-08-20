@@ -8,7 +8,23 @@
     Title="ReportesDePaqueteria"
     xmlns:views="clr-namespace:ReportesDePaqueteria.MVVM.Views">
 
-    <ShellContent Title="Inicio" ContentTemplate="{DataTemplate views:AuthLandingPage}" />
+    <ShellContent
+        Route="AuthLandingPage"
+        ContentTemplate="{DataTemplate views:AuthLandingPage}" />
 
+    <!-- Login -->
+    <ShellContent
+        Route="SignIn"
+        ContentTemplate="{DataTemplate views:SignInView}" />
+
+    <!-- Registro -->
+    <ShellContent
+        Route="SignUp"
+        ContentTemplate="{DataTemplate views:SignUpView}" />
+
+    <!-- Home -->
+    <ShellContent
+        Route="HomePage"
+        ContentTemplate="{DataTemplate views:HomePage}" />
 
 </Shell>

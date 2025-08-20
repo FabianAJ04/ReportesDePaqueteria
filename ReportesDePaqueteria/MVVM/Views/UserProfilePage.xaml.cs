@@ -1,26 +1,23 @@
-using Microsoft.Maui.Controls;
+using ReportesDePaqueteria.MVVM.ViewModels;
 
-namespace ReportesDePaqueteria.MVVM.Views
+namespace ReportesDePaqueteria.MVVM.Views;
+
+public partial class UserProfilePage : ContentPage
 {
-    public partial class UserProfilePage : ContentPage
+    private readonly UserProfileViewModel _vm;
+
+    public UserProfilePage(UserProfileViewModel vm)
     {
-        public UserProfilePage()
-        {
-            InitializeComponent();
-           
-        }
-
-        private async void OnChangePhotoClicked(object sender, System.EventArgs e)
-            => await DisplayAlert("Foto", ".", "OK");
-
-        private async void OnChangePasswordClicked(object sender, System.EventArgs e)
-            => await DisplayAlert("Contraseña", "", "OK");
-
-        private async void OnSaveClicked(object sender, System.EventArgs e)
-            => await DisplayAlert("Perfil", "", "OK");
-
-        private async void OnLogoutClicked(object sender, System.EventArgs e)
-            => await DisplayAlert("Sesión", "", "OK");
+        InitializeComponent();
+        BindingContext = _vm = vm;
     }
 
+    protected override void OnAppearing()
+    {
+        base.OnAppearing();
+        _vm.LoadAsync(); 
+    }
+    private async void OnChangePasswordClicked(object sender, EventArgs e)
+    => await Shell.Current.GoToAsync(nameof(ChangePasswordPage));
 }
+
