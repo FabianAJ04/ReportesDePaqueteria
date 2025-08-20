@@ -4,6 +4,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              Title="Inicio"
              BackgroundColor="#F5F6F8"
+             x:Name="HomePageRoot"
              Shell.NavBarIsVisible="False">
 
     <ContentPage.Resources>
@@ -184,8 +185,38 @@
                     </Grid>
                 </Frame>
 
+                <Frame Style="{StaticResource Tile}"
+           IsVisible="{Binding BindingContext.IsAdmin, Source={x:Reference HomePageRoot}}">
+                    <Grid RowDefinitions="Auto,Auto,Auto" ColumnDefinitions="Auto,*" ColumnSpacing="12">
+                        <Frame WidthRequest="48" HeightRequest="48" CornerRadius="12"
+                   BackgroundColor="{StaticResource PrimarySoft}" HasShadow="False"
+                   VerticalOptions="Start">
+                            <Image Source="users.png" WidthRequest="28" HeightRequest="28"
+                       HorizontalOptions="Center" VerticalOptions="Center"/>
+                        </Frame>
 
-                <Grid ColumnDefinitions="*,*,*" ColumnSpacing="10" Margin="0,4,0,80">
+                        <VerticalStackLayout Grid.Column="1" Spacing="2">
+                            <Label Text="Usuarios" Style="{StaticResource H1}" />
+                            <Label Text="Administra roles y elimina usuarios." Style="{StaticResource Sub}" />
+                        </VerticalStackLayout>
+
+                        <Grid Grid.Row="2" Grid.ColumnSpan="2"
+                  ColumnDefinitions="*,*"
+                  ColumnSpacing="10"
+                  Margin="0,8,0,0">
+                            <Button Text="Ver usuarios"
+                        Style="{StaticResource PrimaryButton}"
+                        Clicked="OnUsuariosClicked"/>
+                            <Button Grid.Column="1"
+                        Text="Cambiar roles"
+                        Style="{StaticResource GhostButton}"
+                        Clicked="OnUsuariosClicked"/>
+                        </Grid>
+                    </Grid>
+                </Frame>
+
+
+                <!--<Grid ColumnDefinitions="*,*,*" ColumnSpacing="10" Margin="0,4,0,80">
                     <Frame Style="{StaticResource Tile}">
                         <VerticalStackLayout Spacing="2" HorizontalOptions="Center">
                             <Label Text="12" FontSize="20" FontAttributes="Bold" TextColor="{StaticResource Primary}"/>
@@ -204,7 +235,7 @@
                             <Label Text="Resueltos" Style="{StaticResource Sub}" />
                         </VerticalStackLayout>
                     </Frame>
-                </Grid>
+                </Grid>-->
 
             </VerticalStackLayout>
         </ScrollView>

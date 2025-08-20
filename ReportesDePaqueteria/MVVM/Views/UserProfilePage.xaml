@@ -2,11 +2,14 @@
 <ContentPage x:Class="ReportesDePaqueteria.MVVM.Views.UserProfilePage"
              xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:conv="clr-namespace:ReportesDePaqueteria.MVVM.Converters"
              Title="Mi perfil"
              BackgroundColor="#F5F6F8">
 
     <ContentPage.Resources>
         <ResourceDictionary>
+            <conv:RoleToTextConverter x:Key="RoleToTextConverter"/>
+
             <Color x:Key="Primary">#FF8302</Color>
             <Color x:Key="TextDark">#111827</Color>
             <Color x:Key="TextLight">#6B7280</Color>
@@ -60,24 +63,27 @@
                 <Grid ColumnDefinitions="Auto,*" ColumnSpacing="16">
                     <Grid>
                         <Frame WidthRequest="90" HeightRequest="90" CornerRadius="45"
-                   BackgroundColor="#FFF0E0" HasShadow="False">
+                               BackgroundColor="#FFF0E0" HasShadow="False">
                             <Image Source="user.png" WidthRequest="60" HeightRequest="60"
-                     HorizontalOptions="Center" VerticalOptions="Center"/>
+                                   HorizontalOptions="Center" VerticalOptions="Center"/>
                         </Frame>
-                        <Button Text="Cambiar foto" Style="{StaticResource FlatButton}"
-                    HorizontalOptions="Center" Margin="0,90,0,0"
-                    Clicked="OnChangePhotoClicked"/>
+                        <Button Text="Cambiar foto"
+                                Style="{StaticResource FlatButton}"
+                                HorizontalOptions="Center" Margin="0,90,0,0"
+                                Command="{Binding ChangePhotoCommand}"/>
                     </Grid>
 
                     <VerticalStackLayout Grid.Column="1">
                         <Label Text="Datos personales" Style="{StaticResource Section}" />
-                        <Entry Placeholder="Nombre completo" Text="{Binding Nombre}" />
-                        <Entry Placeholder="Correo" Keyboard="Email" Text="{Binding Correo}" />
+
+                        <Entry Placeholder="Nombre completo" Text="{Binding Name}" />
+                        <Entry Placeholder="Correo" Keyboard="Email" Text="{Binding Email}" />
+
                         <Grid ColumnDefinitions="*,Auto" Margin="0,6,0,0">
-                            <Label Text="{Binding Rol, StringFormat='Rol: {0}'}" TextColor="{StaticResource TextLight}" />
-                            <Switch Grid.Column="1" IsToggled="{Binding EsAdmin}" IsEnabled="False" />
+                            <Label Text="{Binding Role, Converter={StaticResource RoleToTextConverter}, StringFormat='Rol: {0}'}"
+                                   TextColor="{StaticResource TextLight}" />
+                            <Switch Grid.Column="1" IsToggled="{Binding IsAdmin}" IsEnabled="False" />
                         </Grid>
-                        <Label Text="El rol es informativo (solo lectura)." Style="{StaticResource Hint}"/>
                     </VerticalStackLayout>
                 </Grid>
             </Frame>
@@ -87,8 +93,8 @@
                 <VerticalStackLayout Spacing="8">
                     <Label Text="Seguridad" Style="{StaticResource Section}" />
                     <Button Text="Cambiar contraseña"
-            Style="{StaticResource FlatButton}"
-            Clicked="OnChangePasswordClicked"/>
+                            Style="{StaticResource FlatButton}"
+                            Command="{Binding ChangePasswordCommand}"/>
                 </VerticalStackLayout>
             </Frame>
 
@@ -97,29 +103,35 @@
                 <VerticalStackLayout Spacing="8">
                     <Label Text="Preferencias" Style="{StaticResource Section}" />
                     <Grid RowDefinitions="Auto,Auto,Auto"
-          ColumnDefinitions="*,Auto"
-          ColumnSpacing="10"
-          RowSpacing="8">
+                          ColumnDefinitions="*,Auto"
+                          ColumnSpacing="10"
+                          RowSpacing="8">
                         <Label Text="Notificar por correo" />
-                        <Switch Grid.Column="1" IsToggled="{Binding NotificarCorreo}" />
+                        <Switch Grid.Column="1" IsToggled="{Binding NotifyEmail}" />
 
                         <Label Grid.Row="1" Text="Notificar en la app" />
-                        <Switch Grid.Row="1" Grid.Column="1" IsToggled="{Binding NotificarPush}" />
+                        <Switch Grid.Row="1" Grid.Column="1" IsToggled="{Binding NotifyPush}" />
 
                         <Label Grid.Row="2" Text="Tema oscuro" />
-                        <Switch Grid.Row="2" Grid.Column="1" IsToggled="{Binding TemaOscuro}" />
+                        <Switch Grid.Row="2" Grid.Column="1" IsToggled="{Binding DarkTheme}" />
                     </Grid>
                 </VerticalStackLayout>
             </Frame>
 
-
             <Grid ColumnDefinitions="*,Auto">
-                <Button Text="Guardar cambios" Style="{StaticResource PrimaryButton}"
-                Clicked="OnSaveClicked"/>
-                <Button Grid.Column="1" Text="Cerrar sesión" Style="{StaticResource FlatButton}"
-                Clicked="OnLogoutClicked"/>
+                <Button Text="Guardar cambios"
+                        Style="{StaticResource PrimaryButton}"
+                        Command="{Binding SaveCommand}"/>
+
+                <Button Grid.Column="1"
+                        Text="Cerrar sesión"
+                        Style="{StaticResource FlatButton}"
+                        Command="{Binding LogoutCommand}"/>
             </Grid>
 
+            <ActivityIndicator IsRunning="{Binding IsBusy}"
+                               IsVisible="{Binding IsBusy}"
+                               Color="{StaticResource Primary}" />
         </VerticalStackLayout>
     </ScrollView>
 </ContentPage>

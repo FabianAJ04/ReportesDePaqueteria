@@ -3,106 +3,114 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="ReportesDePaqueteria.MVVM.Views.SignUpView"
              Title="Registro"
-             BackgroundColor="#DFF1DE">
+             BackgroundColor="#F5F6F8"
+             Shell.NavBarIsVisible="False">
 
-    <VerticalStackLayout Spacing="0" BackgroundColor="Transparent">
+    <Grid RowDefinitions="Auto,*">
 
-        <!-- Encabezado superior -->
-        <Grid BackgroundColor="Blue" HeightRequest="150" Padding="0">
-            <Label Text="Login"
-                   HorizontalOptions="Center"
-                   VerticalOptions="End"
-                   FontSize="32"
-                   FontAttributes="Bold, Italic"
-                   TextDecorations="Underline"
-                   TextColor="Black"
-                   Margin="0,0,0,15"/>
+        <!-- Header naranja -->
+        <Grid Grid.Row="0" Padding="20,28" >
+            <Grid.Background>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                    <GradientStop Color="#FF9F3A" Offset="0"/>
+                    <GradientStop Color="#FF8302" Offset="1"/>
+                </LinearGradientBrush>
+            </Grid.Background>
+
+            <Label Text="Crear cuenta"
+                   FontSize="28"
+                   FontAttributes="Bold"
+                   TextColor="White"
+                   HorizontalOptions="Center"/>
         </Grid>
 
-        <VerticalStackLayout Padding="30" Spacing="20"
-                             VerticalOptions="CenterAndExpand"
-                             HorizontalOptions="FillAndExpand"
-                             BackgroundColor="#DFF1DE">
+        <!-- Contenido -->
+        <ScrollView Grid.Row="1">
+            <VerticalStackLayout Padding="20" Spacing="16">
 
-            <!-- Título -->
-            <Label Text="CREAR CUENTA"
-                   FontSize="24"
-                   FontAttributes="Bold"
-                   HorizontalOptions="Center"
-                   TextColor="Black"
-                   Margin="0,20,0,0"/>
+                <!-- Mensaje de error (opcional) -->
+                <Label Text="{Binding ErrorMessage}"
+                       TextColor="#EF4444"
+                       IsVisible="{Binding ErrorMessage, Converter={StaticResource StringNotEmptyConverter}}"/>
 
-            <!-- Entradas -->
-            <Frame CornerRadius="30" BackgroundColor="DarkCyan" HasShadow="False" Padding="10" HeightRequest="60">
-                <Entry Placeholder="Nombre"
-                       Text="{Binding Nombre}"
-                       BackgroundColor="Transparent"
-                       TextColor="White"
-                       PlaceholderColor="White"
-                       FontSize="14"/>
-            </Frame>
+                <!-- Nombre -->
+                <Frame Style="{StaticResource Card}">
+                    <VerticalStackLayout Spacing="4">
+                        <Label Text="Nombre"
+                               FontSize="14"
+                               TextColor="{StaticResource TextLight}"/>
+                        <Entry Placeholder="Tu nombre completo"
+                               Text="{Binding Name}"
+                               BackgroundColor="Transparent"
+                               TextColor="{StaticResource TextDark}"/>
+                    </VerticalStackLayout>
+                </Frame>
 
-            <Frame CornerRadius="30" BackgroundColor="DarkCyan" HasShadow="False" Padding="10" HeightRequest="60">
-                <Entry Placeholder="Apellido"
-                       Text="{Binding Apellido}"
-                       BackgroundColor="Transparent"
-                       TextColor="White"
-                       PlaceholderColor="White"
-                       FontSize="14"/>
-            </Frame>
+                <!-- Email -->
+                <Frame Style="{StaticResource Card}">
+                    <VerticalStackLayout Spacing="4">
+                        <Label Text="Correo electrónico"
+                               FontSize="14"
+                               TextColor="{StaticResource TextLight}"/>
+                        <Entry Placeholder="tucorreo@ejemplo.com"
+                               Text="{Binding Email}"
+                               Keyboard="Email"
+                               BackgroundColor="Transparent"
+                               TextColor="{StaticResource TextDark}"/>
+                    </VerticalStackLayout>
+                </Frame>
 
-            <Frame CornerRadius="30" BackgroundColor="DarkCyan" HasShadow="False" Padding="10" HeightRequest="60">
-                <Entry Placeholder="Email"
-                       Text="{Binding Email}"
-                       Keyboard="Email"
-                       BackgroundColor="Transparent"
-                       TextColor="White"
-                       PlaceholderColor="White"
-                       FontSize="14"/>
-            </Frame>
+                <!-- Username -->
+                <Frame Style="{StaticResource Card}">
+                    <VerticalStackLayout Spacing="4">
+                        <Label Text="Usuario"
+                               FontSize="14"
+                               TextColor="{StaticResource TextLight}"/>
+                        <Entry Placeholder="Nombre de usuario"
+                               Text="{Binding Username}"
+                               BackgroundColor="Transparent"
+                               TextColor="{StaticResource TextDark}"/>
+                    </VerticalStackLayout>
+                </Frame>
 
-            <Frame CornerRadius="30" BackgroundColor="DarkCyan" HasShadow="False" Padding="10" HeightRequest="60">
-                <Entry Placeholder="Username"
-                       Text="{Binding Username}"
-                       BackgroundColor="Transparent"
-                       TextColor="White"
-                       PlaceholderColor="White"
-                       FontSize="14"/>
-            </Frame>
+                <!-- Password -->
+                <Frame Style="{StaticResource Card}">
+                    <VerticalStackLayout Spacing="4">
+                        <Label Text="Contraseña"
+                               FontSize="14"
+                               TextColor="{StaticResource TextLight}"/>
+                        <Entry Placeholder="Mínimo 6 caracteres"
+                               Text="{Binding Password}"
+                               IsPassword="True"
+                               BackgroundColor="Transparent"
+                               TextColor="{StaticResource TextDark}"/>
+                    </VerticalStackLayout>
+                </Frame>
 
-            <Frame CornerRadius="30" BackgroundColor="DarkCyan" HasShadow="False" Padding="10" HeightRequest="60">
-                <Entry Placeholder="Password"
-                       Text="{Binding Password}"
-                       IsPassword="True"
-                       BackgroundColor="Transparent"
-                       TextColor="White"
-                       PlaceholderColor="White"
-                       FontSize="14"/>
-            </Frame>
+                <!-- Botón principal -->
+                <Button Text="Registrarme"
+                        Command="{Binding SignUpCommand}"
+                        Style="{StaticResource PrimaryButton}"
+                        HeightRequest="50"/>
 
-            <!-- Botón de registro -->
-            <Button Text="REGISTRARSE"
-                    Command="{Binding SignUpCommand}"
-                    BackgroundColor="#2C2C2C"
-                    TextColor="White"
-                    CornerRadius="30"
-                    HeightRequest="60"
-                    FontAttributes="Bold"
-                    FontSize="16"
-                    HorizontalOptions="FillAndExpand"/>
+                <!-- Cargando -->
+                <ActivityIndicator IsVisible="{Binding IsBusy}"
+                                   IsRunning="{Binding IsBusy}" />
 
-            <!-- Volver a inicio de sesión -->
-            <HorizontalStackLayout HorizontalOptions="Center">
-                <Label Text="¿Ya tienes una cuenta?" TextColor="#757575"/>
-                <Label Text=" Inicia sesión"
-                       TextColor="Blue"
-                       FontAttributes="Bold">
-                    <Label.GestureRecognizers>
-                        <TapGestureRecognizer Command="{Binding NavigateSignInCommand}" />
-                    </Label.GestureRecognizers>
-                </Label>
-            </HorizontalStackLayout>
+                <!-- Link a inicio de sesión -->
+                <HorizontalStackLayout HorizontalOptions="Center" Spacing="6" Margin="0,6,0,20">
+                    <Label Text="¿Ya tienes una cuenta?"
+                           TextColor="{StaticResource TextLight}"/>
+                    <Label Text="Inicia sesión"
+                           TextColor="{StaticResource Primary}"
+                           FontAttributes="Bold">
+                        <Label.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding NavigateSignInCommand}" />
+                        </Label.GestureRecognizers>
+                    </Label>
+                </HorizontalStackLayout>
 
-        </VerticalStackLayout>
-    </VerticalStackLayout>
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
 </ContentPage>

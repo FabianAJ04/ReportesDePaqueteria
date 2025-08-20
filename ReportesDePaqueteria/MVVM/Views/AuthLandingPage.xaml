@@ -60,7 +60,7 @@
             </VerticalStackLayout>
 
             <Button Grid.Row="2"
-              Text="Login"
+              Text="Iniciar Sesion"
               Style="{StaticResource PillButton}"
               BackgroundColor="#FF5F43" TextColor="White"
               Clicked="OnLoginClicked"
@@ -68,9 +68,10 @@
               HorizontalOptions="Center" />
 
             <Button Grid.Row="3"
-              Text="Sign up"
+              Text="Registrarse"
               Style="{StaticResource PillButton}"
               BackgroundColor="#FFFFFF"
+              Clicked="OnSignUpClicked"
               TextColor="{StaticResource Primary}"
               Margin="16,8,16,0"
               HorizontalOptions="Center" />

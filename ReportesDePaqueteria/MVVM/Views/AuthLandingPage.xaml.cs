@@ -10,11 +10,11 @@ namespace ReportesDePaqueteria.MVVM.Views
         }
 
         private async void OnLoginClicked(object sender, System.EventArgs e)
-            => await Shell.Current.GoToAsync(nameof(HomePage)); 
+    => await Shell.Current.GoToAsync("//SignIn");
+
 
         private async void OnSignUpClicked(object sender, System.EventArgs e)
-            => await DisplayAlert("Sign up", "", "OK");
+ => await Shell.Current.GoToAsync("//SignUp");
 
-      
     }
 }

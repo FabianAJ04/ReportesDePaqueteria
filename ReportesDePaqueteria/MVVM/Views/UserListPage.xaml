@@ -1,28 +1,36 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage x:Class="ReportesDePaqueteria.MVVM.Views.UserListPage"
+             x:Name="UsuariosPage"
              xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             Title="Usuarios">
+             xmlns:converters="clr-namespace:ReportesDePaqueteria.MVVM.Converters"
+             Title="Usuarios"
+             BackgroundColor="#F5F6F8">
 
     <ContentPage.Resources>
         <ResourceDictionary>
+            <converters:RoleToTextConverter x:Key="RoleToTextConverter" />
+
+            <!-- Paleta -->
             <Color x:Key="Primary">#FF8302</Color>
             <Color x:Key="TextDark">#111827</Color>
             <Color x:Key="TextLight">#6B7280</Color>
             <Color x:Key="CardBg">#FFFFFF</Color>
             <Color x:Key="ChipBg">#E5E7EB</Color>
 
+            <!-- Tipografía -->
             <Style TargetType="Label" x:Key="TitleLabel">
                 <Setter Property="FontSize" Value="22"/>
                 <Setter Property="FontAttributes" Value="Bold"/>
                 <Setter Property="TextColor" Value="{StaticResource TextDark}"/>
             </Style>
 
+            <!-- Contenedores -->
             <Style TargetType="Frame" x:Key="Card">
-                <Setter Property="Padding" Value="12"/>
-                <Setter Property="Margin" Value="0,6"/>
+                <Setter Property="Padding" Value="14"/>
+                <Setter Property="Margin" Value="0,8"/>
                 <Setter Property="BackgroundColor" Value="{StaticResource CardBg}"/>
-                <Setter Property="CornerRadius" Value="14"/>
+                <Setter Property="CornerRadius" Value="16"/>
                 <Setter Property="HasShadow" Value="True"/>
             </Style>
 
@@ -33,11 +41,12 @@
                 <Setter Property="BackgroundColor" Value="{StaticResource ChipBg}"/>
             </Style>
 
+            <!-- Botones -->
             <Style TargetType="Button" x:Key="PrimaryButton">
                 <Setter Property="BackgroundColor" Value="{StaticResource Primary}"/>
                 <Setter Property="TextColor" Value="White"/>
-                <Setter Property="CornerRadius" Value="10"/>
-                <Setter Property="Padding" Value="16,12"/>
+                <Setter Property="CornerRadius" Value="12"/>
+                <Setter Property="Padding" Value="14,12"/>
             </Style>
 
             <Style TargetType="Button" x:Key="FlatButton">
@@ -48,61 +57,93 @@
         </ResourceDictionary>
     </ContentPage.Resources>
 
-    <ScrollView>
-        <VerticalStackLayout Padding="16" Spacing="8">
+    <!-- Pull to refresh ligado al LoadAsync del VM -->
+    <RefreshView IsRefreshing="{Binding IsBusy}"
+                 Command="{Binding LoadAsyncCommand}">
+        <ScrollView>
+            <VerticalStackLayout Padding="16" Spacing="10">
 
-            <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,6">
-                <Label Text="Usuarios" Style="{StaticResource TitleLabel}"/>
-                <Button Grid.Column="1" Text="Nuevo" Style="{StaticResource PrimaryButton}" Clicked="OnNuevoClicked"/>
-            </Grid>
+                <!-- Header -->
+                <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,6">
+                    <Label Text="Usuarios" Style="{StaticResource TitleLabel}"/>
+                    <Button Grid.Column="1"
+                            Text="Nuevo"
+                            Style="{StaticResource PrimaryButton}"
+                            Command="{Binding NuevoCommand}"/>
+                </Grid>
 
-            <SearchBar Placeholder="Buscar por nombre o correo…" Text="{Binding SearchText}" />
-            <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
-                <Picker Title="Rol" ItemsSource="{Binding Roles}" SelectedItem="{Binding RolSel}"/>
-                <Picker Title="Estado" Grid.Column="1" ItemsSource="{Binding Estados}" SelectedItem="{Binding EstadoSel}"/>
-            </Grid>
+                <!-- Indicador de carga -->
+                <ActivityIndicator IsRunning="{Binding IsBusy}"
+                                   IsVisible="{Binding IsBusy}"
+                                   Color="{StaticResource Primary}" />
 
-            <Grid ColumnDefinitions="*,Auto" Margin="0,4,0,12">
-                <Button Text="Aplicar filtros" Style="{StaticResource PrimaryButton}"/>
-                <Button Grid.Column="1" Text="Limpiar" Style="{StaticResource FlatButton}"/>
-            </Grid>
+                <!-- Buscador -->
+                <SearchBar Placeholder="Buscar por nombre o correo…"
+                           Text="{Binding SearchText}" />
 
-            <CollectionView ItemsSource="{Binding Usuarios}" SelectionMode="None">
-                <CollectionView.EmptyView>
-                    <VerticalStackLayout Padding="24" Spacing="6" HorizontalOptions="Center" VerticalOptions="Center">
-                        <Label Text="Sin usuarios" FontAttributes="Bold" />
-                        <Label Text="Crea un usuario nuevo para comenzar." TextColor="{StaticResource TextLight}" />
-                    </VerticalStackLayout>
-                </CollectionView.EmptyView>
+                <!-- Listado -->
+                <CollectionView ItemsSource="{Binding UsersView}"
+                                SelectionMode="None">
+                    <CollectionView.EmptyView>
+                        <VerticalStackLayout Padding="24" Spacing="6"
+                                             HorizontalOptions="Center" VerticalOptions="Center">
+                            <Label Text="Sin usuarios" FontAttributes="Bold" />
+                            <Label Text="Crea un usuario nuevo para comenzar."
+                                   TextColor="{StaticResource TextLight}" />
+                        </VerticalStackLayout>
+                    </CollectionView.EmptyView>
 
-                <CollectionView.ItemTemplate>
-                    <DataTemplate>
-                        <Frame Style="{StaticResource Card}">
-                            <Grid ColumnDefinitions="*,Auto" RowSpacing="4">
-                                <VerticalStackLayout>
-                                    <Label Text="{Binding Nombre}" FontAttributes="Bold" />
-                                    <Label Text="{Binding Correo}" TextColor="{StaticResource TextLight}" />
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <!-- Swipe para Editar / Eliminar -->
+                            <SwipeView>
+                                <SwipeView.RightItems>
+                                    <SwipeItems Mode="Execute">
+                                        <SwipeItem Text="Editar"
+                                                   BackgroundColor="#FFD5AE"
+                                                   IconImageSource="edit.png"
+                                                   Command="{Binding BindingContext.EditarCommand, Source={x:Reference UsuariosPage}}"
+                                                   CommandParameter="{Binding .}" />
+                                        <SwipeItem Text="Eliminar"
+                                                   BackgroundColor="#FF5A5F"
+                                                   IconImageSource="trash.png"
+                                                   Command="{Binding BindingContext.EliminarCommand, Source={x:Reference UsuariosPage}}"
+                                                   CommandParameter="{Binding .}" />
+                                    </SwipeItems>
+                                </SwipeView.RightItems>
 
-                                    <HorizontalStackLayout Spacing="8" Margin="0,6,0,0">
-                                        <Frame Style="{StaticResource Chip}">
-                                            <Label Text="{Binding Rol}" FontSize="12"/>
-                                        </Frame>
-                                        <Frame Style="{StaticResource Chip}">
-                                            <Label Text="{Binding Estado}" FontSize="12"/>
-                                        </Frame>
-                                    </HorizontalStackLayout>
-                                </VerticalStackLayout>
+                                <Frame Style="{StaticResource Card}">
+                                    <Grid ColumnDefinitions="*,Auto" RowSpacing="6">
+                                        <VerticalStackLayout Spacing="2">
+                                            <Label Text="{Binding Name}" FontAttributes="Bold" FontSize="18"/>
+                                            <Label Text="{Binding Email}" TextColor="{StaticResource TextLight}" />
 
-                                <HorizontalStackLayout Grid.Column="1" Spacing="8" VerticalOptions="Center">
-                                    <Button Text="Editar" Style="{StaticResource FlatButton}" Clicked="OnEditarClicked" CommandParameter="{Binding .}"/>
-                                    <Button Text="Desactivar" Style="{StaticResource FlatButton}" Clicked="OnDesactivarClicked" CommandParameter="{Binding .}"/>
-                                </HorizontalStackLayout>
-                            </Grid>
-                        </Frame>
-                    </DataTemplate>
-                </CollectionView.ItemTemplate>
-            </CollectionView>
+                                            <HorizontalStackLayout Spacing="8" Margin="0,6,0,0">
+                                                <Frame Style="{StaticResource Chip}">
+                                                    <Label Text="{Binding Role, Converter={StaticResource RoleToTextConverter}}"
+                                                           FontSize="12"/>
+                                                </Frame>
+                                            </HorizontalStackLayout>
+                                        </VerticalStackLayout>
 
-        </VerticalStackLayout>
-    </ScrollView>
+                                        <HorizontalStackLayout Grid.Column="1" Spacing="8" VerticalOptions="Center">
+                                            <Button Text="Editar"
+                                                    Style="{StaticResource FlatButton}"
+                                                    Command="{Binding BindingContext.EditarCommand, Source={x:Reference UsuariosPage}}"
+                                                    CommandParameter="{Binding .}"/>
+                                            <Button Text="Eliminar"
+                                                    Style="{StaticResource FlatButton}"
+                                                    Command="{Binding BindingContext.EliminarCommand, Source={x:Reference UsuariosPage}}"
+                                                    CommandParameter="{Binding .}"/>
+                                        </HorizontalStackLayout>
+                                    </Grid>
+                                </Frame>
+                            </SwipeView>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+
+            </VerticalStackLayout>
+        </ScrollView>
+    </RefreshView>
 </ContentPage>
