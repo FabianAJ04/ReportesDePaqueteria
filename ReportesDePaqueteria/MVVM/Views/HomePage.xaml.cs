@@ -24,11 +24,9 @@ namespace ReportesDePaqueteria.MVVM.Views
         private async void OnIncidentesClicked(object sender, EventArgs e)
             => await Shell.Current.GoToAsync("//incidents");
 
-        // Si agregaste HomePage como un tab (Route="homePage") en el TabBar:
         private async void OnNavHomeClicked(object sender, EventArgs e)
             => await Shell.Current.GoToAsync("//homePage");
 
-        // ===== Páginas secundarias (registradas con Routing.RegisterRoute) =====
         private async void OnNuevoShipmentClicked(object sender, EventArgs e)
             => await Shell.Current.GoToAsync(nameof(ShipmentFormPage));
 
@@ -51,7 +49,6 @@ namespace ReportesDePaqueteria.MVVM.Views
                 await DisplayAlert("Acceso denegado", "Solo administradores pueden acceder.", "OK");
                 return;
             }
-            // Si UserListPage es un tab raíz, usa //home/users; si NO, deja el nameof:
             await Shell.Current.GoToAsync(nameof(UserListPage));
         }
     }
