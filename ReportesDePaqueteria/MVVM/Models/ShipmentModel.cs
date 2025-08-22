@@ -16,5 +16,7 @@ namespace ReportesDePaqueteria.MVVM.Models
         public DateTime CreatedDate { get; set; } // Fecha y hora en que se creó el envío
         public string Description { get; set; } // Descripción del envío, puede ser un texto libre para que el usuario ponga lo que quiera
         public IncidentModel Incident { get; set; } // Relación con el modelo de incidente, si hay un incidente relacionado con el envío, se guarda aquí
+        public string Origin { get; set; }              
+        public string Destination { get; set; }
     }
 }

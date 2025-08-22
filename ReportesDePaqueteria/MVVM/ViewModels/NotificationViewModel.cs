@@ -6,12 +6,12 @@ namespace ReportesDePaqueteria.MVVM.ViewModels
 {
     public class NotificationViewModel : INotifyPropertyChanged
     {
-        private readonly NotificationRepository _repository; // Repositorio para manejar las notificaciones
-        private Dictionary<string, NotificationModel> _allNotifications; // Almacena todas las notificaciones con sus claves
-        private ObservableCollection<NotificationModel> _notifications; // Colección observable para la interfaz de usuario
-        private string _search = string.Empty; // Término de búsqueda
-        private string _StatusSelected = "Todos"; // Estado seleccionado para filtrar
-        private string _TypeSelected = "Todos"; // Tipo seleccionado para filtrar
+        private readonly NotificationRepository _repository; 
+        private Dictionary<string, NotificationModel> _allNotifications; 
+        private ObservableCollection<NotificationModel> _notifications; 
+        private string _search = string.Empty; 
+        private string _StatusSelected = "Todos"; 
+        private string _TypeSelected = "Todos";
 
 
         public NotificationViewModel()

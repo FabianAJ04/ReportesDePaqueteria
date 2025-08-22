@@ -2,6 +2,7 @@
 <ContentPage x:Class="ReportesDePaqueteria.MVVM.Views.ShipmentDetailPage"
              xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:conv="clr-namespace:ReportesDePaqueteria.Converters"
              Title="Detalle de envío"
              BackgroundColor="#F5F6F8"
              Shell.NavBarIsVisible="False">
@@ -58,10 +59,12 @@
                 <Setter Property="TextColor" Value="{StaticResource Primary}"/>
                 <Setter Property="Padding" Value="10,8"/>
             </Style>
+
+            <!-- Converter para visibilidad (string no vacío) -->
+            <conv:BoolFromStringConverter x:Key="BoolFromStringConverter" />
         </ResourceDictionary>
     </ContentPage.Resources>
 
-    <!-- OJO: Grid sí permite varios hijos; el problema estaba en los Frame -->
     <Grid RowDefinitions="Auto,*">
 
         <!-- Header -->
@@ -73,24 +76,32 @@
                 </LinearGradientBrush>
             </Grid.Background>
 
-            <Grid RowDefinitions="Auto,Auto" ColumnDefinitions="*,Auto" ColumnSpacing="10">
-                <Label Grid.ColumnSpan="2"
-                       Text="{Binding Tracking}"
-                       Style="{StaticResource H1}" />
+            <Grid RowDefinitions="Auto,Auto" ColumnDefinitions="Auto,*" ColumnSpacing="10">
 
-                <HorizontalStackLayout Grid.Row="1" Spacing="8">
+                <!-- Botón atrás -->
+                <Button Text="←"
+                        Command="{Binding BackCommand}"
+                        BackgroundColor="Transparent"
+                        TextColor="White"
+                        FontSize="20"
+                        Padding="0" />
+
+                <!-- Tracking -->
+                <Label Grid.Column="1"
+                       Text="{Binding Code}"
+                       Style="{StaticResource H1}"
+                       VerticalOptions="Center" />
+
+                <!-- Chips de estado -->
+                <HorizontalStackLayout Grid.Row="1" Grid.ColumnSpan="2" Spacing="8">
                     <Frame Style="{StaticResource Chip}">
-                        <Label Text="{Binding Estado}" FontSize="12"/>
-                    </Frame>
-                    <Frame Style="{StaticResource Chip}">
-                        <Label Text="{Binding Servicio}" FontSize="12"/>
+                        <Label Text="{Binding EstadoText}" FontSize="12"/>
                     </Frame>
                 </HorizontalStackLayout>
 
+                <!-- Fechas (reales) -->
                 <Grid Grid.Row="1" Grid.Column="1" HorizontalOptions="End">
-                    <Label Text="{Binding FechaEnvio, StringFormat='Enviado: {0:dd/MM/yyyy}'}"
-                           Style="{StaticResource MetaWhite}" HorizontalTextAlignment="End"/>
-                    <Label Text="{Binding EstimadoEntrega, StringFormat='ETA: {0:dd/MM/yyyy}'}"
+                    <Label Text="{Binding Shipment.CreatedDate, StringFormat='Creado: {0:dd/MM/yyyy}'}"
                            Style="{StaticResource MetaWhite}" HorizontalTextAlignment="End"/>
                 </Grid>
             </Grid>
@@ -100,61 +111,48 @@
         <ScrollView Grid.Row="1">
             <VerticalStackLayout Padding="16" Spacing="6">
 
-                <!-- Ruta -->
-                <Frame Style="{StaticResource Card}">
-                    <VerticalStackLayout>
-                        <Label Text="Ruta" Style="{StaticResource H2}"/>
-                        <Grid ColumnDefinitions="*,Auto,*" ColumnSpacing="10">
-                            <VerticalStackLayout Spacing="2">
-                                <Label Text="Origen" FontAttributes="Bold"/>
-                                <Label Text="{Binding Origen}" TextColor="{StaticResource TextLight}"/>
-                            </VerticalStackLayout>
-
-                            <Image Source="arrow-right.png" WidthRequest="28" HeightRequest="28"
-                                   HorizontalOptions="Center" VerticalOptions="Center"/>
-
-                            <VerticalStackLayout Grid.Column="2" Spacing="2">
-                                <Label Text="Destino" FontAttributes="Bold"/>
-                                <Label Text="{Binding Destino}" TextColor="{StaticResource TextLight}"/>
-                            </VerticalStackLayout>
-                        </Grid>
-                    </VerticalStackLayout>
-                </Frame>
-
-                <!-- Remitente / Destinatario -->
+                <!-- Remitente / Destinatario (reales del modelo) -->
                 <Frame Style="{StaticResource Card}">
                     <VerticalStackLayout>
                         <Label Text="Remitente y Destinatario" Style="{StaticResource H2}"/>
                         <Grid ColumnDefinitions="*,*" ColumnSpacing="16">
                             <VerticalStackLayout Spacing="2">
                                 <Label Text="Remitente" FontAttributes="Bold"/>
-                                <Label Text="{Binding Remitente}" />
-                                <Label Text="{Binding RemitenteContacto}" TextColor="{StaticResource TextLight}" FontSize="12"/>
+                                <Label Text="{Binding Shipment.Sender.Name}" />
+                                <Label Text="{Binding Shipment.Sender.Email}" TextColor="{StaticResource TextLight}" FontSize="12"/>
                             </VerticalStackLayout>
                             <VerticalStackLayout Grid.Column="1" Spacing="2">
                                 <Label Text="Destinatario" FontAttributes="Bold"/>
-                                <Label Text="{Binding Destinatario}" />
-                                <Label Text="{Binding DestinatarioContacto}" TextColor="{StaticResource TextLight}" FontSize="12"/>
+                                <Label Text="{Binding Shipment.ReceiverName}" />
                             </VerticalStackLayout>
                         </Grid>
                     </VerticalStackLayout>
                 </Frame>
 
-                <!-- Paquete -->
+                <!-- Detalle / Descripción (real) -->
+                <Frame Style="{StaticResource Card}">
+                    <VerticalStackLayout Spacing="6">
+                        <Label Text="Detalle del envío" Style="{StaticResource H2}"/>
+                        <Label Text="{Binding Shipment.Description}" TextColor="{StaticResource TextDark}" />
+                    </VerticalStackLayout>
+                </Frame>
+
+                <!-- Ruta (usa Shipment.Origin/Destination reales) -->
                 <Frame Style="{StaticResource Card}">
                     <VerticalStackLayout>
-                        <Label Text="Paquete" Style="{StaticResource H2}"/>
-                        <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,Auto" ColumnSpacing="14" RowSpacing="6">
-                            <Label Text="Peso" TextColor="{StaticResource TextLight}"/>
-                            <Label Grid.Column="1" Text="{Binding Peso}" />
-                            <Label Grid.Row="1" Text="Dimensiones" TextColor="{StaticResource TextLight}"/>
-                            <Label Grid.Row="1" Grid.Column="1" Text="{Binding Dimensiones}" />
-                            <Label Grid.Row="2" Text="Contenido" TextColor="{StaticResource TextLight}"/>
-                            <Label Grid.Row="2" Grid.Column="1" Text="{Binding Contenido}" />
-                        </Grid>
-                        <Grid ColumnDefinitions="*,Auto" Margin="0,10,0,0">
-                            <Button Text="Ver etiqueta / QR" Style="{StaticResource FlatButton}" Clicked="OnVerEtiquetaClicked"/>
-                            <Button Grid.Column="1" Text="Reportar incidencia" Style="{StaticResource FlatButton}" Clicked="OnReportarIncidenciaClicked"/>
+                        <Label Text="Ruta" Style="{StaticResource H2}"/>
+                        <Grid ColumnDefinitions="*,Auto,*" ColumnSpacing="10">
+                            <VerticalStackLayout Spacing="2"
+                                                 IsVisible="{Binding Shipment.Origin, Converter={StaticResource BoolFromStringConverter}}">
+                                <Label Text="Origin" FontAttributes="Bold"/>
+                                <Label Text="{Binding Shipment.Origin}" TextColor="{StaticResource TextLight}"/>
+                            </VerticalStackLayout>
+
+                            <VerticalStackLayout Grid.Column="2" Spacing="2"
+                                                 IsVisible="{Binding Shipment.Destination, Converter={StaticResource BoolFromStringConverter}}">
+                                <Label Text="Destination" FontAttributes="Bold"/>
+                                <Label Text="{Binding Shipment.Destination}" TextColor="{StaticResource TextLight}"/>
+                            </VerticalStackLayout>
                         </Grid>
                     </VerticalStackLayout>
                 </Frame>
@@ -164,7 +162,9 @@
                     <VerticalStackLayout>
                         <Grid ColumnDefinitions="*,Auto">
                             <Label Text="Seguimiento" Style="{StaticResource H2}"/>
-                            <Button Grid.Column="1" Text="Marcar entregado" Style="{StaticResource FlatButton}" Clicked="OnMarcarEntregadoClicked"/>
+                            <Button Grid.Column="1" Text="Marcar entregado"
+                                    Style="{StaticResource FlatButton}"
+                                    Command="{Binding MarkDeliveredCommand}"/>
                         </Grid>
 
                         <CollectionView ItemsSource="{Binding Eventos}" Margin="0,6,0,0">
@@ -189,10 +189,10 @@
                     </VerticalStackLayout>
                 </Frame>
 
-                <!-- Acciones inferiores -->
+                <!-- Acciones inferiores (solo las que sí existen ahora) -->
                 <Grid ColumnDefinitions="*,Auto" Margin="0,4,0,16">
-                    <Button Text="Compartir tracking" Style="{StaticResource PrimaryButton}" Clicked="OnCompartirClicked"/>
-                    <Button Grid.Column="1" Text="Más opciones" Style="{StaticResource FlatButton}" Clicked="OnMasOpcionesClicked"/>
+                    <Button Text="Reportar incidencia" Style="{StaticResource FlatButton}" Command="{Binding ReportIncidentCommand}"/>
+                    <Button Grid.Column="1" Text="Más opciones" Style="{StaticResource FlatButton}" Command="{Binding MoreOptionsCommand}"/>
                 </Grid>
 
             </VerticalStackLayout>

@@ -52,13 +52,11 @@ namespace ReportesDePaqueteria.MVVM.ViewModels
                     return;
                 }
 
-                // 2) Persistir datos mínimos de sesión
                 await SecureStorage.SetAsync("user_id", userId);
                 var idToken = await authResult.User.GetIdTokenAsync();
                 if (!string.IsNullOrWhiteSpace(idToken))
                     await SecureStorage.SetAsync("id_token", idToken);
 
-                // 3) Verificar existencia en tu DB (Realtime DB)
                 var usuario = await _userRepository.GetByIdAsync(userId);
                 if (usuario == null)
                 {
@@ -67,7 +65,7 @@ namespace ReportesDePaqueteria.MVVM.ViewModels
                 }
 
                 // 4) Navegar a Home
-                await Shell.Current.GoToAsync("//HomePage");
+                await Shell.Current.GoToAsync("//homepage");
             }
             catch (FirebaseAuthException fex)
             {

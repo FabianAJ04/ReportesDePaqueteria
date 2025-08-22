@@ -2,135 +2,116 @@
 <ContentPage x:Class="ReportesDePaqueteria.MVVM.Views.IncidentFormPage"
              xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             Title="Nuevo incidente">
+             xmlns:conv="clr-namespace:ReportesDePaqueteria.Converters"
+             Title="Reportar incidencia"
+             BackgroundColor="#F5F6F8">
 
     <ContentPage.Resources>
         <ResourceDictionary>
-            <Color x:Key="Primary">#2563EB</Color>
+            <Color x:Key="Primary">#FF8302</Color>
             <Color x:Key="TextDark">#111827</Color>
             <Color x:Key="TextLight">#6B7280</Color>
             <Color x:Key="CardBg">#FFFFFF</Color>
 
-            <Style TargetType="Label" x:Key="H1">
-                <Setter Property="FontSize" Value="22"/>
-                <Setter Property="FontAttributes" Value="Bold"/>
-                <Setter Property="TextColor" Value="{StaticResource TextDark}"/>
-            </Style>
-            <Style TargetType="Label" x:Key="Section">
-                <Setter Property="FontSize" Value="16"/>
-                <Setter Property="FontAttributes" Value="Bold"/>
-                <Setter Property="Margin" Value="0,16,0,8"/>
-            </Style>
             <Style TargetType="Frame" x:Key="Card">
-                <Setter Property="Padding" Value="14"/>
-                <Setter Property="Margin" Value="0,8"/>
+                <Setter Property="Padding" Value="16"/>
+                <Setter Property="Margin" Value="12,10"/>
                 <Setter Property="BackgroundColor" Value="{StaticResource CardBg}"/>
-                <Setter Property="CornerRadius" Value="14"/>
+                <Setter Property="CornerRadius" Value="16"/>
                 <Setter Property="HasShadow" Value="True"/>
             </Style>
-            <Style TargetType="Entry">
-                <Setter Property="Margin" Value="0,4"/>
-            </Style>
-            <Style TargetType="Editor">
-                <Setter Property="AutoSize" Value="TextChanges"/>
-                <Setter Property="Margin" Value="0,4"/>
-                <Setter Property="HeightRequest" Value="140"/>
-            </Style>
-            <Style TargetType="Picker">
-                <Setter Property="Margin" Value="0,4"/>
-            </Style>
+
             <Style TargetType="Button" x:Key="PrimaryButton">
                 <Setter Property="BackgroundColor" Value="{StaticResource Primary}"/>
                 <Setter Property="TextColor" Value="White"/>
-                <Setter Property="CornerRadius" Value="10"/>
-                <Setter Property="Padding" Value="16,12"/>
+                <Setter Property="CornerRadius" Value="12"/>
+                <Setter Property="Padding" Value="14,12"/>
             </Style>
+
             <Style TargetType="Button" x:Key="FlatButton">
                 <Setter Property="BackgroundColor" Value="Transparent"/>
                 <Setter Property="TextColor" Value="{StaticResource Primary}"/>
-                <Setter Property="Padding" Value="12,10"/>
+                <Setter Property="Padding" Value="10,8"/>
             </Style>
+
             <Style TargetType="Label" x:Key="Hint">
                 <Setter Property="FontSize" Value="12"/>
                 <Setter Property="TextColor" Value="{StaticResource TextLight}"/>
             </Style>
+
+            <!-- Converter 1..4 <-> 0..3 -->
+            <conv:IntMinusOneConverter x:Key="IntMinusOneConverter" />
         </ResourceDictionary>
     </ContentPage.Resources>
 
     <ScrollView>
-        <VerticalStackLayout Padding="16" Spacing="8">
+        <VerticalStackLayout Padding="16" Spacing="6">
 
-            <Label Text="Registrar incidente" Style="{StaticResource H1}" />
-
+            <!-- Envío (del modelo) -->
             <Frame Style="{StaticResource Card}">
                 <VerticalStackLayout Spacing="6">
-                    <Label Text="Datos generales" Style="{StaticResource Section}" />
-                    <Entry Placeholder="Título / asunto" Text="{Binding Titulo}" />
-                    <Editor Placeholder="Descripción detallada" Text="{Binding Descripcion}" />
-                    <Label Style="{StaticResource Hint}" Text="Describe claramente el problema, síntomas, pasos para reproducir, etc."/>
+                    <Label Text="Envío" FontAttributes="Bold"/>
+                    <Label Text="{Binding Incident.ShipmentCode}" TextColor="{StaticResource TextDark}"/>
+                    <Label Text="{Binding Shipment.ReceiverName, StringFormat='Destinatario: {0}'}"
+               Style="{StaticResource Hint}"/>
+                    <Label Text="{Binding Shipment.CreatedDate, StringFormat='Creado: {0:dd/MM/yyyy HH:mm}'}"
+               Style="{StaticResource Hint}"/>
                 </VerticalStackLayout>
             </Frame>
 
+            <!-- Creado por (del modelo) -->
             <Frame Style="{StaticResource Card}">
                 <VerticalStackLayout Spacing="6">
-                    <Label Text="Fecha, hora y ubicación" Style="{StaticResource Section}" />
+                    <Label Text="Creado por (Id)" FontAttributes="Bold"/>
+                    <Label Text="{Binding Incident.CreatedById}" TextColor="{StaticResource TextDark}"/>
+                    <Label Text="*Se rellena con tu user_id de SecureStorage" Style="{StaticResource Hint}" />
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- Título / Descripción (modelo directo) -->
+            <Frame Style="{StaticResource Card}">
+                <VerticalStackLayout Spacing="10">
+                    <Entry Placeholder="Título del incidente" Text="{Binding Incident.Title}"/>
+                    <Editor Placeholder="Describe el problema…" AutoSize="TextChanges"
+                            Text="{Binding Incident.Description}"/>
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- Estado / Prioridad / Categoría (modelo directo + converter) -->
+            <Frame Style="{StaticResource Card}">
+                <VerticalStackLayout Spacing="10">
+
                     <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
-                        <DatePicker Date="{Binding Fecha}" />
-                        <TimePicker Grid.Column="1" Time="{Binding Hora}" />
+                        <VerticalStackLayout>
+                            <Label Text="Estado" FontAttributes="Bold"/>
+                            <Picker ItemsSource="{Binding StatusOptions}"
+                                    SelectedIndex="{Binding Incident.Status, Converter={StaticResource IntMinusOneConverter}}"/>
+                        </VerticalStackLayout>
+
+                        <VerticalStackLayout Grid.Column="1">
+                            <Label Text="Prioridad" FontAttributes="Bold"/>
+                            <Picker ItemsSource="{Binding PriorityOptions}"
+                                    SelectedIndex="{Binding Incident.Priority, Converter={StaticResource IntMinusOneConverter}}"/>
+                        </VerticalStackLayout>
                     </Grid>
-                    <Entry Placeholder="Ubicación (texto libre o dirección)" Text="{Binding Ubicacion}" />
+
+                    <VerticalStackLayout>
+                        <Label Text="Categoría" FontAttributes="Bold"/>
+                        <Picker ItemsSource="{Binding CategoryOptions}"
+                                SelectedIndex="{Binding Incident.Category, Converter={StaticResource IntMinusOneConverter}}"/>
+                    </VerticalStackLayout>
+
+                    <Label Text="* Los selectores usan índices 0..3; el modelo guarda 1..4"
+                           Style="{StaticResource Hint}" />
+
                 </VerticalStackLayout>
             </Frame>
 
-            <Frame Style="{StaticResource Card}">
-                <VerticalStackLayout Spacing="6">
-                    <Label Text="Clasificación" Style="{StaticResource Section}" />
-                    <Grid ColumnDefinitions="*,*" ColumnSpacing="10" RowDefinitions="Auto,Auto">
-                        <Picker Title="Categoría"
-                                ItemsSource="{Binding Categorias}"
-                                SelectedItem="{Binding CategoriaSel}" />
-                        <Picker Title="Estado" Grid.Column="1"
-                                ItemsSource="{Binding Estados}"
-                                SelectedItem="{Binding EstadoSel}" />
-                        <Picker Title="Prioridad" Grid.Row="1"
-                                ItemsSource="{Binding Prioridades}"
-                                SelectedItem="{Binding PrioridadSel}" />
-                        <Picker Title="Impacto" Grid.Row="1" Grid.Column="1"
-                                ItemsSource="{Binding Impactos}"
-                                SelectedItem="{Binding ImpactoSel}" />
-                    </Grid>
-                </VerticalStackLayout>
-            </Frame>
-
-            <Frame Style="{StaticResource Card}">
-                <VerticalStackLayout Spacing="6">
-                    <Label Text="Personas involucradas" Style="{StaticResource Section}" />
-                    <Entry Placeholder="Ingresar nombres o correos (separados por coma)"
-                           Text="{Binding PersonasInvolucradas}" />
-                </VerticalStackLayout>
-            </Frame>
-
-            <Frame Style="{StaticResource Card}">
-                <VerticalStackLayout Spacing="6">
-                    <Label Text="Asignación" Style="{StaticResource Section}" />
-                    <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
-                        <Picker Title="Responsable / Equipo"
-                                ItemsSource="{Binding Responsables}"
-                                SelectedItem="{Binding ResponsableSel}" />
-                        <Picker Title="Recurso principal" Grid.Column="1"
-                                ItemsSource="{Binding Recursos}"
-                                SelectedItem="{Binding RecursoSel}" />
-                    </Grid>
-                </VerticalStackLayout>
-            </Frame>
-
-            <Grid ColumnDefinitions="*,Auto" Margin="0,8,0,16">
-                <Button Text="Guardar" Style="{StaticResource PrimaryButton}" />
-                <Button Grid.Column="1" Text="Cancelar" Style="{StaticResource FlatButton}" />
+            <!-- Acciones -->
+            <Grid ColumnDefinitions="*,Auto" Margin="0,4,0,16">
+                <Button Text="Guardar" Style="{StaticResource PrimaryButton}" Command="{Binding SaveCommand}"/>
+                <Button Grid.Column="1" Text="Cancelar" Style="{StaticResource FlatButton}" Command="{Binding BackCommand}"/>
             </Grid>
-
-            <Label Text=""
-                   Style="{StaticResource Hint}" />
 
         </VerticalStackLayout>
     </ScrollView>

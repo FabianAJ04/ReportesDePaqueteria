@@ -2,6 +2,7 @@
 <ContentPage x:Class="ReportesDePaqueteria.MVVM.Views.IncidentListPage"
              xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Name="ThisPage"
              Title="Incidentes">
 
     <ContentPage.Resources>
@@ -53,31 +54,32 @@
 
             <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,6">
                 <Label Text="Incidentes" Style="{StaticResource TitleLabel}"/>
-                <!--<Button Grid.Column="1" Text="Nuevo"
-                        Style="{StaticResource PrimaryButton}"
-                        Clicked="OnNuevoClicked"/>-->
             </Grid>
 
-            <!-- Búsqueda por texto -->
+            <!-- Búsqueda -->
             <SearchBar Placeholder="Buscar por palabra clave…"
-                       x:Name="SearchBar"
                        Margin="0,0,0,6"
                        Text="{Binding SearchText}" />
 
-            <!-- Filtros principales -->
+            <!-- Filtros -->
             <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,Auto" ColumnSpacing="10">
                 <Picker Title="Categoría"
                         Grid.Row="0" Grid.Column="0"
-                        ItemsSource="{Binding Categorias}" SelectedItem="{Binding CategoriaSel}" />
+                        ItemsSource="{Binding Categorias}"
+                        SelectedItem="{Binding CategoriaSel}" />
                 <Picker Title="Estado"
                         Grid.Row="0" Grid.Column="1"
-                        ItemsSource="{Binding Estados}" SelectedItem="{Binding EstadoSel}" />
+                        ItemsSource="{Binding Estados}"
+                        SelectedItem="{Binding EstadoSel}" />
                 <Picker Title="Prioridad"
                         Grid.Row="1" Grid.Column="0"
-                        ItemsSource="{Binding Prioridades}" SelectedItem="{Binding PrioridadSel}" />
+                        ItemsSource="{Binding Prioridades}"
+                        SelectedItem="{Binding PrioridadSel}" />
+                <!-- Mantener impacto para no romper bindings -->
                 <Picker Title="Impacto"
                         Grid.Row="1" Grid.Column="1"
-                        ItemsSource="{Binding Impactos}" SelectedItem="{Binding ImpactoSel}" />
+                        ItemsSource="{Binding Impactos}"
+                        SelectedItem="{Binding ImpactoSel}" />
                 <Grid Grid.Row="2" Grid.ColumnSpan="2" ColumnDefinitions="*,*" ColumnSpacing="10">
                     <DatePicker Date="{Binding FechaDesde}" />
                     <DatePicker Grid.Column="1" Date="{Binding FechaHasta}" />
@@ -85,11 +87,16 @@
             </Grid>
 
             <Grid ColumnDefinitions="*,Auto" Margin="0,4,0,12">
-                <Button Text="Aplicar filtros" Style="{StaticResource PrimaryButton}" />
-                <Button Grid.Column="1" Text="Limpiar" Style="{StaticResource FlatButton}" />
+                <Button Text="Aplicar filtros"
+                        Style="{StaticResource PrimaryButton}"
+                        Command="{Binding ApplyFiltersCommand}" />
+                <Button Grid.Column="1" Text="Limpiar"
+                        Style="{StaticResource FlatButton}"
+                        Command="{Binding ClearFiltersCommand}" />
             </Grid>
 
-            <RefreshView IsRefreshing="{Binding IsRefreshing}">
+            <RefreshView IsRefreshing="{Binding IsRefreshing}"
+                         Command="{Binding LoadCommand}">
                 <CollectionView ItemsSource="{Binding Incidentes}"
                                 SelectionMode="None">
                     <CollectionView.EmptyView>
@@ -101,64 +108,111 @@
 
                     <CollectionView.ItemTemplate>
                         <DataTemplate>
+                            <!-- Cada item es IncidentModel -->
                             <Frame Style="{StaticResource Card}">
-                                <Grid RowDefinitions="Auto,Auto,Auto" ColumnDefinitions="*,Auto" ColumnSpacing="10">
-                                    <!-- Título -->
-                                    <Label Grid.ColumnSpan="2"
-                                           Text="{Binding Titulo}"
-                                           FontAttributes="Bold" FontSize="16"/>
+                                <Grid RowDefinitions="Auto,Auto,Auto"
+                                      ColumnDefinitions="*,Auto"
+                                      ColumnSpacing="10">
 
-                                    <!-- Chips -->
+                                    <!-- Título (Title) -->
+                                    <Label Grid.ColumnSpan="2"
+                                           Text="{Binding Title}"
+                                           FontAttributes="Bold"
+                                           FontSize="16"/>
+
+                                    <!-- Chips: Prioridad / Estado / Categoría -->
                                     <HorizontalStackLayout Grid.Row="1" Spacing="8">
+
+                                        <!-- Prioridad (int -> texto + color) -->
                                         <Frame Style="{StaticResource Chip}">
-                                            <Label Text="{Binding Prioridad}" FontSize="12"/>
+                                            <Label FontSize="12">
+                                                <Label.Text>
+                                                    <MultiBinding StringFormat="{}Prioridad: {0}">
+                                                        <Binding Path="Priority"/>
+                                                    </MultiBinding>
+                                                </Label.Text>
+                                            </Label>
                                             <Frame.Triggers>
-                                                <DataTrigger TargetType="Frame"
-                                                             Binding="{Binding Prioridad}" Value="Alta">
-                                                    <Setter Property="BackgroundColor" Value="#FEE2E2"/>
+                                                <!-- 1=Baja, 2=Media, 3=Alta, 4=Crítica -->
+                                                <DataTrigger TargetType="Frame" Binding="{Binding Priority}" Value="1">
+                                                    <Setter Property="BackgroundColor" Value="#DCFCE7"/>
+                                                    <Setter TargetName="" Property="Frame.Content">
+                                                        <!-- solo color, el texto ya lo ponemos abajo -->
+                                                    </Setter>
                                                 </DataTrigger>
-                                                <DataTrigger TargetType="Frame"
-                                                             Binding="{Binding Prioridad}" Value="Media">
+                                                <DataTrigger TargetType="Frame" Binding="{Binding Priority}" Value="2">
                                                     <Setter Property="BackgroundColor" Value="#FEF3C7"/>
                                                 </DataTrigger>
-                                                <DataTrigger TargetType="Frame"
-                                                             Binding="{Binding Prioridad}" Value="Baja">
-                                                    <Setter Property="BackgroundColor" Value="#DCFCE7"/>
+                                                <DataTrigger TargetType="Frame" Binding="{Binding Priority}" Value="3">
+                                                    <Setter Property="BackgroundColor" Value="#FEE2E2"/>
+                                                </DataTrigger>
+                                                <DataTrigger TargetType="Frame" Binding="{Binding Priority}" Value="4">
+                                                    <Setter Property="BackgroundColor" Value="#FECACA"/>
                                                 </DataTrigger>
                                             </Frame.Triggers>
                                         </Frame>
 
+                                        <!-- Estado -->
                                         <Frame Style="{StaticResource Chip}">
-                                            <Label Text="{Binding Estado}" FontSize="12"/>
+                                            <Label FontSize="12">
+                                                <Label.Text>
+                                                    <MultiBinding StringFormat="{}Estado: {0}">
+                                                        <Binding Path="Status"/>
+                                                    </MultiBinding>
+                                                </Label.Text>
+                                            </Label>
+                                            <Frame.Triggers>
+                                                <!-- 1=Abierto, 2=En progreso, 3=Resuelto, 4=Cerrado -->
+                                                <DataTrigger TargetType="Frame" Binding="{Binding Status}" Value="1">
+                                                    <Setter Property="BackgroundColor" Value="#FEE2E2"/>
+                                                </DataTrigger>
+                                                <DataTrigger TargetType="Frame" Binding="{Binding Status}" Value="2">
+                                                    <Setter Property="BackgroundColor" Value="#FEF3C7"/>
+                                                </DataTrigger>
+                                                <DataTrigger TargetType="Frame" Binding="{Binding Status}" Value="3">
+                                                    <Setter Property="BackgroundColor" Value="#DCFCE7"/>
+                                                </DataTrigger>
+                                                <DataTrigger TargetType="Frame" Binding="{Binding Status}" Value="4">
+                                                    <Setter Property="BackgroundColor" Value="#E5E7EB"/>
+                                                </DataTrigger>
+                                            </Frame.Triggers>
                                         </Frame>
 
+                                        <!-- Categoría -->
                                         <Frame Style="{StaticResource Chip}">
-                                            <Label Text="{Binding Categoria}" FontSize="12"/>
+                                            <Label FontSize="12">
+                                                <Label.Text>
+                                                    <MultiBinding StringFormat="{}Categoría: {0}">
+                                                        <Binding Path="Category"/>
+                                                    </MultiBinding>
+                                                </Label.Text>
+                                            </Label>
                                         </Frame>
                                     </HorizontalStackLayout>
 
+                                    <!-- Descripción -->
                                     <Label Grid.Row="2" Grid.ColumnSpan="2"
-                                           Text="{Binding Descripcion}"
+                                           Text="{Binding Description}"
                                            TextColor="{StaticResource TextLight}"
                                            LineBreakMode="TailTruncation" MaxLines="2"/>
 
+                                    <!-- Fecha + Responsable -->
                                     <VerticalStackLayout Grid.Row="0" Grid.Column="1" Spacing="2" HorizontalOptions="End">
-                                        <Label Text="{Binding Fecha, StringFormat='{0:dd/MM/yyyy}'}"
+                                        <Label Text="{Binding DateTime, StringFormat='{0:dd/MM/yyyy}'}"
                                                FontSize="12" TextColor="{StaticResource TextLight}"
                                                HorizontalTextAlignment="End"/>
-                                        <Label Text="{Binding Responsable, StringFormat='Asig.: {0}'}"
+                                        <Label Text="{Binding Assignee.Name, StringFormat='Asig.: {0}'}"
                                                FontSize="12" TextColor="{StaticResource TextLight}"
                                                HorizontalTextAlignment="End"/>
                                     </VerticalStackLayout>
 
+                                    <!-- Botón Ver -->
                                     <HorizontalStackLayout Grid.RowSpan="3" Grid.Column="1"
                                                            VerticalOptions="End" Spacing="8">
-                                        <Button Text="Ver" Style="{StaticResource FlatButton}"
+                                        <Button Text="Ver"
+                                                Style="{StaticResource FlatButton}"
                                                 CommandParameter="{Binding .}"
-                                                Clicked="OnVerClicked"/>
-                                        <!--<Button Text="Editar" Style="{StaticResource FlatButton}"
-                                                CommandParameter="{Binding .}"
-                                                Clicked="OnEditarClicked"/>-->
+                                                Command="{Binding Source={x:Reference ThisPage}, Path=BindingContext.OpenCommand}" />
                                     </HorizontalStackLayout>
                                 </Grid>
                             </Frame>

@@ -1,17 +1,21 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<ContentPage x:Class="ReportesDePaqueteria.MVVM.Views.ShipmentFormPage"
-             xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             Title="Nuevo envío"
-             BackgroundColor="#F5F6F8">
+<ContentPage
+    x:Class="ReportesDePaqueteria.MVVM.Views.ShipmentFormPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    Title="Nuevo envío"
+    BackgroundColor="#F5F6F8">
 
     <ContentPage.Resources>
         <ResourceDictionary>
+            <!-- Paleta -->
             <Color x:Key="Primary">#FF8302</Color>
             <Color x:Key="TextDark">#111827</Color>
             <Color x:Key="TextLight">#6B7280</Color>
             <Color x:Key="CardBg">#FFFFFF</Color>
+            <Color x:Key="PrimarySoft">#FFF0E0</Color>
 
+            <!-- Estilos -->
             <Style TargetType="Frame" x:Key="Card">
                 <Setter Property="Padding" Value="16"/>
                 <Setter Property="Margin" Value="12,10"/>
@@ -19,20 +23,32 @@
                 <Setter Property="CornerRadius" Value="16"/>
                 <Setter Property="HasShadow" Value="True"/>
             </Style>
+
             <Style TargetType="Button" x:Key="PrimaryButton">
                 <Setter Property="BackgroundColor" Value="{StaticResource Primary}"/>
                 <Setter Property="TextColor" Value="White"/>
                 <Setter Property="CornerRadius" Value="12"/>
                 <Setter Property="Padding" Value="14,12"/>
             </Style>
+
             <Style TargetType="Button" x:Key="FlatButton">
                 <Setter Property="BackgroundColor" Value="Transparent"/>
                 <Setter Property="TextColor" Value="{StaticResource Primary}"/>
                 <Setter Property="Padding" Value="10,8"/>
             </Style>
+
             <Style TargetType="Label" x:Key="Hint">
                 <Setter Property="FontSize" Value="12"/>
                 <Setter Property="TextColor" Value="{StaticResource TextLight}"/>
+            </Style>
+
+            <Style TargetType="Entry">
+                <Setter Property="TextColor" Value="{StaticResource TextDark}"/>
+                <Setter Property="PlaceholderColor" Value="{StaticResource TextLight}"/>
+            </Style>
+            <Style TargetType="Editor">
+                <Setter Property="TextColor" Value="{StaticResource TextDark}"/>
+                <Setter Property="PlaceholderColor" Value="{StaticResource TextLight}"/>
             </Style>
         </ResourceDictionary>
     </ContentPage.Resources>
@@ -40,42 +56,56 @@
     <ScrollView>
         <VerticalStackLayout Padding="16" Spacing="4">
 
-            <Frame Style="{StaticResource Card}">
-                <VerticalStackLayout Spacing="6">
-                    <Label Text="Datos del envío" FontAttributes="Bold" FontSize="18"/>
-
-                    <Entry Placeholder="Tracking (auto si vacío)" Text="{Binding Tracking}"/>
-
-                    <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
-                        <Entry Placeholder="Origen" Text="{Binding Origen}"/>
-                        <Entry Grid.Column="1" Placeholder="Destinatario / Destino" Text="{Binding Destino}"/>
-                    </Grid>
-
-                    <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
-                        <Entry Placeholder="Teléfono" Keyboard="Telephone" Text="{Binding Telefono}"/>
-                        <Entry Grid.Column="1" Placeholder="Correo" Keyboard="Email" Text="{Binding Correo}"/>
-                    </Grid>
-
-                    <DatePicker Date="{Binding FechaEnvio}" />
-                    <Editor Placeholder="Notas" AutoSize="TextChanges" Text="{Binding Notas}"/>
-
-                    <Grid ColumnDefinitions="*,Auto" Margin="0,6,0,0">
-                        <Label Text="Seguro de envío" />
-                        <Switch Grid.Column="1" IsToggled="{Binding Seguro}"/>
-                    </Grid>
-
-                    <Grid ColumnDefinitions="*,Auto" Margin="0,6,0,0">
-                        <Label Text="Contra entrega" />
-                        <Switch Grid.Column="1" IsToggled="{Binding ContraEntrega}"/>
-                    </Grid>
+            <!-- Encabezado naranja -->
+            <Frame HasShadow="False" Margin="0,0,0,8" Padding="16"
+                   BackgroundColor="{StaticResource PrimarySoft}" CornerRadius="16">
+                <VerticalStackLayout Spacing="2">
+                    <Label Text="Crear nuevo envío"
+                           FontSize="20" FontAttributes="Bold"
+                           TextColor="{StaticResource TextDark}"/>
+                    <Label Text="Completa los datos mínimos para generar el envío."
+                           Style="{StaticResource Hint}"/>
                 </VerticalStackLayout>
             </Frame>
 
+            <Frame Style="{StaticResource Card}">
+                <VerticalStackLayout Spacing="10">
+                    <Label Text="Datos del envío" FontAttributes="Bold" FontSize="18" />
+
+                    <!-- Destinatario -->
+                    <Entry Placeholder="Nombre del destinatario"
+               Text="{Binding ReceiverName}" />
+
+                    <!-- Origen -->
+                    <Entry Placeholder="Origen"
+               Text="{Binding Origin}" />
+
+                    <!-- Destino -->
+                    <Entry Placeholder="Destino"
+               Text="{Binding Destination}" />
+
+                    <!-- Descripción / contenido -->
+                    <Editor Placeholder="Descripción del envío (contenido, notas)"
+                AutoSize="TextChanges"
+                Text="{Binding Description}" />
+                </VerticalStackLayout>
+            </Frame>
+
+
+            <!-- Botonera -->
             <Grid ColumnDefinitions="*,Auto" Padding="12,0">
-                <Button Text="Guardar" Style="{StaticResource PrimaryButton}" Clicked="OnGuardarClicked"/>
-                <Button Grid.Column="1" Text="Cancelar" Style="{StaticResource FlatButton}" Clicked="OnCancelarClicked"/>
+                <!-- Usa el Command del VM: CreateAsyncCommand -->
+                <Button Text="Guardar"
+        Style="{StaticResource PrimaryButton}"
+        Clicked="OnGuardarClicked"/>
+                <Button Grid.Column="1"
+        Text="Cancelar"
+        Style="{StaticResource FlatButton}"
+        Clicked="OnCancelarClicked"/>
+
             </Grid>
 
+           
         </VerticalStackLayout>
     </ScrollView>
 </ContentPage>
