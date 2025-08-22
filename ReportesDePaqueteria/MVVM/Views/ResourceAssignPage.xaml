@@ -5,7 +5,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              Title="Asignar recursos"
              BackgroundColor="#F5F6F8"
-             Shell.NavBarIsVisible="False">
+             Shell.NavBarIsVisible="True">
 
     <ContentPage.Resources>
         <ResourceDictionary>
@@ -53,24 +53,6 @@
     </ContentPage.Resources>
 
     <Grid RowDefinitions="Auto,*,Auto">
-
-        <!-- Header -->
-        <Grid Grid.Row="0" Padding="20,20,20,14">
-            <Grid.Background>
-                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                    <GradientStop Color="#FF9F3A" Offset="0"/>
-                    <GradientStop Color="#FF8302" Offset="1"/>
-                </LinearGradientBrush>
-            </Grid.Background>
-
-            <Grid ColumnDefinitions="*,Auto">
-                <VerticalStackLayout Spacing="2">
-                    <Label Text="Asignar recursos" FontSize="22" FontAttributes="Bold" TextColor="White"/>
-                    <Label Text="Selecciona personas, paquetes o equipos" FontSize="13" TextColor="#FFFFFFCC"/>
-                </VerticalStackLayout>
-                <Button Grid.Column="1" Text="Cerrar" BackgroundColor="#FFFFFF22" TextColor="White" CornerRadius="10" Clicked="OnCloseClicked"/>
-            </Grid>
-        </Grid>
 
         <!-- Contenido -->
         <VerticalStackLayout Grid.Row="1" Padding="16" Spacing="10">

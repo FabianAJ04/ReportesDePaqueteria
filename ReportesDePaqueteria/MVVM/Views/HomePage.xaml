@@ -113,7 +113,7 @@
       Margin="0,8,0,0">
                             <Button Text="Ver envíos"
             Style="{StaticResource PrimaryButton}"
-            Clicked="OnShipmentsClicked"/>
+            Clicked="OnShipmentListClicked"/>
 
                             <Button Grid.Column="1"
             Text="➕ Nuevo envío"
@@ -144,7 +144,7 @@
                             <Button
                                 Text="Ver incidentes"
       Style="{StaticResource PrimaryButton}"
-      Clicked="OnIncidentesClicked"/>
+      Clicked="OnIncidentListClicked"/>
 
 
                         </Grid>
@@ -175,11 +175,6 @@
                             <Button Text="Asignar recursos"
               Style="{StaticResource PrimaryButton}"
               Clicked="OnRecursosClicked"/>
-
-                            <Button Grid.Column="1"
-              Text="Ver envíos"
-              Style="{StaticResource GhostButton}"
-              Clicked="OnShipmentsClicked"/>
                         </Grid>
                     </Grid>
                 </Frame>
@@ -206,10 +201,6 @@
                   Margin="0,8,0,0">
                             <Button Text="Ver usuarios"
                         Style="{StaticResource PrimaryButton}"
-                        Clicked="OnUsuariosClicked"/>
-                            <Button Grid.Column="1"
-                        Text="Cambiar roles"
-                        Style="{StaticResource GhostButton}"
                         Clicked="OnUsuariosClicked"/>
                         </Grid>
                     </Grid>

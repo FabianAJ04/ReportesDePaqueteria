@@ -4,7 +4,8 @@
              x:Name="ThisPage"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              Title="Envíos"
-             BackgroundColor="#F5F6F8">
+             BackgroundColor="#F5F6F8"
+             Shell.NavBarIsVisible="True">
 
     <ContentPage.Resources>
         <ResourceDictionary>
@@ -49,10 +50,9 @@
     <ScrollView>
         <VerticalStackLayout Padding="16" Spacing="10">
 
-            <Button Grid.Column="1"
-        Text="Nuevo envío"
-        Style="{StaticResource PrimaryButton}"
-        Command="{Binding NewCommand}" />
+            <Button Text="Nuevo envío"
+                    Style="{StaticResource PrimaryButton}"
+                    Command="{Binding NewCommand}" />
 
 
             <!-- Buscar -->
@@ -116,9 +116,6 @@
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
             </CollectionView>
-
-            <ContentView x:Name="__root" IsVisible="False"/>
-
         </VerticalStackLayout>
     </ScrollView>
 </ContentPage>
