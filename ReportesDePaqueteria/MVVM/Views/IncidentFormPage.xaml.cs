@@ -1,14 +1,20 @@
-using Microsoft.Maui.Controls;
+using ReportesDePaqueteria.MVVM.ViewModels;
 
-namespace ReportesDePaqueteria.MVVM.Views
+namespace ReportesDePaqueteria.MVVM.Views;
+
+public partial class IncidentFormPage : ContentPage
 {
-    public partial class IncidentFormPage : ContentPage
+    private readonly IncidentFormViewModel _vm;
+
+    public IncidentFormPage(IncidentFormViewModel vm)
     {
-        public IncidentFormPage()
-        {
-            InitializeComponent();
-        }
+        InitializeComponent();
+        BindingContext = _vm = vm;
+    }
 
-
+    protected override async void OnAppearing()
+    {
+        base.OnAppearing();
+        await _vm.PrefillAsync();
     }
 }

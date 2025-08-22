@@ -24,7 +24,18 @@
 
     <!-- Home -->
     <ShellContent
-        Route="HomePage"
+        Route="homepage"
         ContentTemplate="{DataTemplate views:HomePage}" />
+
+    <ShellContent
+            Title="Envíos"
+            Route="shipments"
+            ContentTemplate="{DataTemplate views:ShipmentListPage}" />
+
+    <ShellContent
+            Title="Incidentes"
+            Route="incidents"
+            ContentTemplate="{DataTemplate views:IncidentListPage}" />
+
 
 </Shell>

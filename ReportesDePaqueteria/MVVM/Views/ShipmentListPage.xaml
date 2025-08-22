@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage x:Class="ReportesDePaqueteria.MVVM.Views.ShipmentListPage"
              xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             x:Name="ThisPage"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              Title="Envíos"
              BackgroundColor="#F5F6F8">
@@ -48,29 +49,30 @@
     <ScrollView>
         <VerticalStackLayout Padding="16" Spacing="10">
 
-            <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,6">
-                <Label Text="Envíos" Style="{StaticResource H1}"/>
-                <Button Grid.Column="1" Text="Nuevo envío"
-                Style="{StaticResource PrimaryButton}"
-                Clicked="OnNuevoClicked"/>
-            </Grid>
+            <Button Grid.Column="1"
+        Text="Nuevo envío"
+        Style="{StaticResource PrimaryButton}"
+        Command="{Binding NewCommand}" />
 
-            <SearchBar Placeholder="Buscar por tracking o destinatario…" Text="{Binding Search}"/>
 
-            <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto" ColumnSpacing="10">
-                <Picker Title="Estado" Grid.Row="0" Grid.Column="0"
-                ItemsSource="{Binding Estados}" SelectedItem="{Binding EstadoSel}"/>
-                <Grid Grid.Row="0" Grid.Column="1" ColumnDefinitions="*,*">
-                    <DatePicker Date="{Binding FechaDesde}"/>
-                    <DatePicker Grid.Column="1" Date="{Binding FechaHasta}"/>
-                </Grid>
-                <Grid Grid.Row="1" Grid.ColumnSpan="2" ColumnDefinitions="*,Auto" Margin="0,4,0,0">
-                    <Button Text="Aplicar filtros" Style="{StaticResource PrimaryButton}" Clicked="OnAplicarFiltros"/>
-                    <Button Grid.Column="1" Text="Limpiar" Style="{StaticResource FlatButton}" Clicked="OnLimpiarFiltros"/>
-                </Grid>
-            </Grid>
+            <!-- Buscar -->
+            <SearchBar Placeholder="Buscar por código o destinatario…"
+                       Text="{Binding Search}" />
 
-            <CollectionView ItemsSource="{Binding Envios}" SelectionMode="None">
+            <Picker Title="Estado"
+                    SelectedIndex="{Binding StatusFilter}">
+                <Picker.Items>
+                    <x:String>Todos</x:String>
+                    <x:String>Enviado</x:String>
+                    <x:String>En tránsito</x:String>
+                    <x:String>Entregado</x:String>
+                    <x:String>Cancelado</x:String>
+                    <x:String>Con incidente</x:String>
+                </Picker.Items>
+            </Picker>
+
+            <!-- Lista -->
+            <CollectionView ItemsSource="{Binding ViewItems}" SelectionMode="None">
                 <CollectionView.EmptyView>
                     <VerticalStackLayout Padding="24" Spacing="6" HorizontalOptions="Center" VerticalOptions="Center">
                         <Label Text="Sin envíos" FontAttributes="Bold"/>
@@ -83,31 +85,39 @@
                         <Frame Style="{StaticResource Card}">
                             <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto" ColumnSpacing="10">
 
+                                <!-- Encabezado: Code + Status -->
                                 <HorizontalStackLayout Grid.ColumnSpan="2" Spacing="8">
-                                    <Label Text="{Binding Tracking}" FontAttributes="Bold" FontSize="16"/>
+                                    <Label Text="{Binding Code}" FontAttributes="Bold" FontSize="16"/>
                                     <Frame Style="{StaticResource Chip}">
-                                        <Label Text="{Binding Estado}" FontSize="12"/>
+                                        <Label Text="{Binding Status}" FontSize="12"/>
                                     </Frame>
                                 </HorizontalStackLayout>
 
+                                <!-- Resumen: destinatario -->
                                 <Label Grid.Row="1" Grid.ColumnSpan="2"
-                       Text="{Binding ResumenRuta}"
-                       TextColor="{StaticResource TextLight}"/>
+                                       Text="{Binding ReceiverName}"
+                                       TextColor="{StaticResource TextLight}"/>
 
+                                <!-- Fecha + acciones -->
                                 <Grid Grid.Row="2" ColumnDefinitions="*,Auto" ColumnSpacing="8">
-                                    <Label Text="{Binding FechaEnvio, StringFormat='Enviado: {0:dd/MM/yyyy}'}"
-                         TextColor="{StaticResource TextLight}" />
+                                    <Label Text="{Binding CreatedDate, StringFormat='Creado: {0:dd/MM/yyyy}'}"
+           TextColor="{StaticResource TextLight}" />
                                     <HorizontalStackLayout Grid.Column="1" Spacing="8">
-                                        <Button Text="Ver" Style="{StaticResource FlatButton}" Clicked="OnVerClicked" CommandParameter="{Binding .}"/>
-                                        <Button Text="Etiqueta" Style="{StaticResource FlatButton}" Clicked="OnEtiquetaClicked" CommandParameter="{Binding .}"/>
+                                        <Button Text="Ver"
+                Style="{StaticResource FlatButton}"
+                Command="{Binding Source={x:Reference ThisPage}, Path=BindingContext.OpenCommand}"
+                CommandParameter="{Binding .}" />
                                     </HorizontalStackLayout>
                                 </Grid>
+
 
                             </Grid>
                         </Frame>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
             </CollectionView>
+
+            <ContentView x:Name="__root" IsVisible="False"/>
 
         </VerticalStackLayout>
     </ScrollView>

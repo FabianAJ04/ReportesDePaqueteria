@@ -2,218 +2,239 @@
 <ContentPage x:Class="ReportesDePaqueteria.MVVM.Views.IncidentDetailPage"
              xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             Title="Detalle del incidente">
+             x:Name="ThisPage"
+             Title="Detalle del incidente"
+             BackgroundColor="#F5F6F8">
 
     <ContentPage.Resources>
         <ResourceDictionary>
-            <Color x:Key="Primary">#2563EB</Color>
+            <!-- Paleta -->
+            <Color x:Key="Primary">#FF8302</Color>
+            <Color x:Key="PrimaryDark">#CC6800</Color>
             <Color x:Key="TextDark">#111827</Color>
             <Color x:Key="TextLight">#6B7280</Color>
             <Color x:Key="CardBg">#FFFFFF</Color>
             <Color x:Key="OkBg">#DCFCE7</Color>
             <Color x:Key="WarnBg">#FEF3C7</Color>
             <Color x:Key="ErrBg">#FEE2E2</Color>
+            <Color x:Key="ChipBg">#E5E7EB</Color>
 
+            <!-- Tipografía -->
             <Style TargetType="Label" x:Key="H1">
                 <Setter Property="FontSize" Value="22"/>
                 <Setter Property="FontAttributes" Value="Bold"/>
-                <Setter Property="TextColor" Value="{StaticResource TextDark}"/>
+                <Setter Property="TextColor" Value="White"/>
             </Style>
             <Style TargetType="Label" x:Key="Section">
                 <Setter Property="FontSize" Value="16"/>
                 <Setter Property="FontAttributes" Value="Bold"/>
-                <Setter Property="Margin" Value="0,16,0,8"/>
-            </Style>
-            <Style TargetType="Frame" x:Key="Card">
-                <Setter Property="Padding" Value="14"/>
-                <Setter Property="Margin" Value="0,8"/>
-                <Setter Property="BackgroundColor" Value="{StaticResource CardBg}"/>
-                <Setter Property="CornerRadius" Value="14"/>
-                <Setter Property="HasShadow" Value="True"/>
-            </Style>
-            <Style TargetType="Frame" x:Key="Chip">
-                <Setter Property="Padding" Value="8,4"/>
-                <Setter Property="HasShadow" Value="False"/>
-                <Setter Property="CornerRadius" Value="16"/>
-                <Setter Property="BackgroundColor" Value="#E5E7EB"/>
-            </Style>
-            <Style TargetType="Button" x:Key="PrimaryButton">
-                <Setter Property="BackgroundColor" Value="#FF8302"/>
-                <Setter Property="TextColor" Value="White"/>
-                <Setter Property="CornerRadius" Value="10"/>
-                <Setter Property="Padding" Value="16,12"/>
-            </Style>
-            <Style TargetType="Button" x:Key="FlatButton">
-                <Setter Property="BackgroundColor" Value="Transparent"/>
-                <Setter Property="TextColor" Value="#FF8302"/>
-                <Setter Property="Padding" Value="12,10"/>
-            </Style>
-            <Style TargetType="Editor">
-                <Setter Property="AutoSize" Value="TextChanges"/>
-                <Setter Property="HeightRequest" Value="120"/>
-                <Setter Property="Margin" Value="0,4"/>
+                <Setter Property="Margin" Value="0,12,0,8"/>
+                <Setter Property="TextColor" Value="{StaticResource TextDark}"/>
             </Style>
             <Style TargetType="Label" x:Key="Hint">
                 <Setter Property="FontSize" Value="12"/>
                 <Setter Property="TextColor" Value="{StaticResource TextLight}"/>
             </Style>
+
+            <!-- Contenedores -->
+            <Style TargetType="Frame" x:Key="Card">
+                <Setter Property="Padding" Value="16"/>
+                <Setter Property="Margin" Value="0,8"/>
+                <Setter Property="BackgroundColor" Value="{StaticResource CardBg}"/>
+                <Setter Property="CornerRadius" Value="16"/>
+                <Setter Property="HasShadow" Value="True"/>
+            </Style>
+            <Style TargetType="Frame" x:Key="Chip">
+                <Setter Property="Padding" Value="8,4"/>
+                <Setter Property="CornerRadius" Value="16"/>
+                <Setter Property="HasShadow" Value="False"/>
+                <Setter Property="BackgroundColor" Value="{StaticResource ChipBg}"/>
+            </Style>
+
+            <!-- Controles -->
+            <Style TargetType="Button" x:Key="PrimaryButton">
+                <Setter Property="BackgroundColor" Value="{StaticResource Primary}"/>
+                <Setter Property="TextColor" Value="White"/>
+                <Setter Property="CornerRadius" Value="12"/>
+                <Setter Property="Padding" Value="14,12"/>
+            </Style>
+            <Style TargetType="Button" x:Key="FlatButton">
+                <Setter Property="BackgroundColor" Value="Transparent"/>
+                <Setter Property="TextColor" Value="{StaticResource Primary}"/>
+                <Setter Property="Padding" Value="10,8"/>
+            </Style>
+            <Style TargetType="Entry">
+                <Setter Property="TextColor" Value="{StaticResource TextDark}"/>
+                <Setter Property="PlaceholderColor" Value="{StaticResource TextLight}"/>
+            </Style>
+            <Style TargetType="Editor">
+                <Setter Property="AutoSize" Value="TextChanges"/>
+                <Setter Property="HeightRequest" Value="140"/>
+                <Setter Property="TextColor" Value="{StaticResource TextDark}"/>
+                <Setter Property="PlaceholderColor" Value="{StaticResource TextLight}"/>
+            </Style>
         </ResourceDictionary>
     </ContentPage.Resources>
 
-    <ScrollView>
-        <VerticalStackLayout Padding="16" Spacing="8">
+    <Grid RowDefinitions="Auto,*,Auto">
+        <!-- HEADER -->
+        <Grid Grid.Row="0" Padding="16,18,16,14">
+            <Grid.Background>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                    <GradientStop Color="#FF9F3A" Offset="0"/>
+                    <GradientStop Color="{StaticResource Primary}" Offset="1"/>
+                </LinearGradientBrush>
+            </Grid.Background>
 
-            <Frame Style="{StaticResource Card}">
-                <Grid RowDefinitions="Auto,Auto,Auto" ColumnDefinitions="*,Auto" ColumnSpacing="10">
-                    <Label Grid.ColumnSpan="2" Text="{Binding Titulo}" Style="{StaticResource H1}"/>
+            <Grid ColumnDefinitions="Auto,*,Auto" RowDefinitions="Auto,Auto" ColumnSpacing="10">
+                <!-- Back -->
+                <Button Text="←"
+                        Command="{Binding BackCommand}"
+                        BackgroundColor="Transparent"
+                        TextColor="White"
+                        FontSize="20"
+                        Padding="0,2"
+                        WidthRequest="32"/>
 
-                    <HorizontalStackLayout Grid.Row="1" Spacing="8">
-                        <Frame Style="{StaticResource Chip}">
-                            <Label Text="{Binding Estado}" FontSize="12"/>
-                            <Frame.Triggers>
-                                <DataTrigger TargetType="Frame" Binding="{Binding Estado}" Value="Abierto">
-                                    <Setter Property="BackgroundColor" Value="{StaticResource ErrBg}"/>
-                                </DataTrigger>
-                                <DataTrigger TargetType="Frame" Binding="{Binding Estado}" Value="En proceso">
-                                    <Setter Property="BackgroundColor" Value="{StaticResource WarnBg}"/>
-                                </DataTrigger>
-                                <DataTrigger TargetType="Frame" Binding="{Binding Estado}" Value="Resuelto">
-                                    <Setter Property="BackgroundColor" Value="{StaticResource OkBg}"/>
-                                </DataTrigger>
-                                <DataTrigger TargetType="Frame" Binding="{Binding Estado}" Value="Cerrado">
-                                    <Setter Property="BackgroundColor" Value="#E5E7EB"/>
-                                </DataTrigger>
-                            </Frame.Triggers>
-                        </Frame>
+                <Entry Grid.Column="1"
+                       Text="{Binding Title}"
+                       Placeholder="Título del incidente"
+                       FontSize="18"
+                       TextColor="White"
+                       PlaceholderColor="#FFFFFFAA"
+                       HorizontalOptions="Fill"
+                       BackgroundColor="Transparent"/>
 
-                        <Frame Style="{StaticResource Chip}">
-                            <Label Text="{Binding Prioridad}" FontSize="12"/>
-                            <Frame.Triggers>
-                                <DataTrigger TargetType="Frame" Binding="{Binding Prioridad}" Value="Alta">
-                                    <Setter Property="BackgroundColor" Value="{StaticResource ErrBg}"/>
-                                </DataTrigger>
-                                <DataTrigger TargetType="Frame" Binding="{Binding Prioridad}" Value="Media">
-                                    <Setter Property="BackgroundColor" Value="{StaticResource WarnBg}"/>
-                                </DataTrigger>
-                                <DataTrigger TargetType="Frame" Binding="{Binding Prioridad}" Value="Baja">
-                                    <Setter Property="BackgroundColor" Value="{StaticResource OkBg}"/>
-                                </DataTrigger>
-                            </Frame.Triggers>
-                        </Frame>
+                <!-- Fecha -->
+                <Label Grid.Column="2"
+                       Text="{Binding Fecha, StringFormat='{0:dd/MM/yyyy HH:mm}'}"
+                       HorizontalTextAlignment="End"
+                       VerticalOptions="Center"
+                       TextColor="#FFFFFFCC"
+                       FontSize="12"/>
 
-                        <Frame Style="{StaticResource Chip}">
-                            <Label Text="{Binding Categoria}" FontSize="12"/>
-                        </Frame>
-                    </HorizontalStackLayout>
+                <!-- Chips -->
+                <HorizontalStackLayout Grid.Row="1" Grid.ColumnSpan="3" Spacing="8">
+                    <Frame Style="{StaticResource Chip}">
+                        <Label Text="{Binding EstadoText}" FontSize="12"/>
+                        <Frame.Triggers>
+                            <DataTrigger TargetType="Frame" Binding="{Binding EstadoText}" Value="Abierto">
+                                <Setter Property="BackgroundColor" Value="{StaticResource ErrBg}"/>
+                            </DataTrigger>
+                            <DataTrigger TargetType="Frame" Binding="{Binding EstadoText}" Value="En progreso">
+                                <Setter Property="BackgroundColor" Value="{StaticResource WarnBg}"/>
+                            </DataTrigger>
+                            <DataTrigger TargetType="Frame" Binding="{Binding EstadoText}" Value="Resuelto">
+                                <Setter Property="BackgroundColor" Value="{StaticResource OkBg}"/>
+                            </DataTrigger>
+                            <DataTrigger TargetType="Frame" Binding="{Binding EstadoText}" Value="Cerrado">
+                                <Setter Property="BackgroundColor" Value="#E5E7EB"/>
+                            </DataTrigger>
+                        </Frame.Triggers>
+                    </Frame>
 
-                    <VerticalStackLayout Grid.Column="1" Spacing="2" HorizontalOptions="End" Grid.RowSpan="2">
-                        <Label Text="{Binding Fecha, StringFormat='{0:dd/MM/yyyy HH:mm}'}"
-                               FontSize="12" TextColor="{StaticResource TextLight}"
-                               HorizontalTextAlignment="End"/>
-                        <Label Text="{Binding Ubicacion, StringFormat='Ubicación: {0}'}"
-                               FontSize="12" TextColor="{StaticResource TextLight}"
-                               HorizontalTextAlignment="End"/>
-                        <Label Text="{Binding ReportadoPor, StringFormat='Reportado por: {0}'}"
-                               FontSize="12" TextColor="{StaticResource TextLight}"
-                               HorizontalTextAlignment="End"/>
+                    <Frame Style="{StaticResource Chip}">
+                        <Label Text="{Binding PrioridadText}" FontSize="12"/>
+                    </Frame>
+
+                    <Frame Style="{StaticResource Chip}">
+                        <Label Text="{Binding CategoriaText}" FontSize="12"/>
+                    </Frame>
+
+                    <Frame Style="{StaticResource Chip}">
+                        <Label Text="{Binding ResponsableText, StringFormat='Asignado: {0}'}" FontSize="12"/>
+                    </Frame>
+
+                    <Frame Style="{StaticResource Chip}">
+                        <Label Text="{Binding ShipmentCode, StringFormat='Envío: {0}'}" FontSize="12"/>
+                    </Frame>
+                </HorizontalStackLayout>
+            </Grid>
+        </Grid>
+
+        <!-- CONTENIDO -->
+        <ScrollView Grid.Row="1">
+            <VerticalStackLayout Padding="16" Spacing="8">
+
+                <!-- Descripción -->
+                <Frame Style="{StaticResource Card}">
+                    <VerticalStackLayout Spacing="6">
+                        <Label Text="Descripción" Style="{StaticResource Section}"/>
+                        <Editor Placeholder="Describe el incidente…"
+                                Text="{Binding Description}"/>
                     </VerticalStackLayout>
+                </Frame>
 
-                    <Label Grid.Row="2" Grid.ColumnSpan="2"
-                           Text="{Binding Descripcion}"
-                           TextColor="{StaticResource TextLight}"/>
-                </Grid>
-            </Frame>
-
-            <Frame Style="{StaticResource Card}">
-                <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto" ColumnSpacing="10">
-                    <VerticalStackLayout>
+                <!-- Estado rápido -->
+                <Frame Style="{StaticResource Card}">
+                    <VerticalStackLayout Spacing="10">
                         <Label Text="Cambiar estado" Style="{StaticResource Section}"/>
-                        <Picker Title="Estado"
-                                ItemsSource="{Binding Estados}"
-                                SelectedItem="{Binding EstadoSel}" />
-                        <Button Text="Actualizar estado" Style="{StaticResource PrimaryButton}" />
-                        <Label Text="El cambio aparecerá en el historial de actividad." Style="{StaticResource Hint}" />
-                    </VerticalStackLayout>
-
-                    <VerticalStackLayout Grid.Column="1">
-                        <Label Text="Asignación" Style="{StaticResource Section}"/>
-                        <Picker Title="Responsable / Equipo"
-                                ItemsSource="{Binding Responsables}"
-                                SelectedItem="{Binding ResponsableSel}" />
-                        <Button Text="Reasignar" Style="{StaticResource PrimaryButton}" />
-                        <Label Text="La reasignación notificará al nuevo responsable." Style="{StaticResource Hint}" />
-                    </VerticalStackLayout>
-                </Grid>
-            </Frame>
-
-            <Frame Style="{StaticResource Card}">
-                <VerticalStackLayout Spacing="8">
-                    <Grid ColumnDefinitions="*,Auto">
-                        <Label Text="Recursos" Style="{StaticResource Section}"/>
-                        <Button Grid.Column="1" Text="Añadir recurso" Style="{StaticResource FlatButton}" />
-                    </Grid>
-
-                    <CollectionView ItemsSource="{Binding RecursosAsignados}">
-                        <CollectionView.ItemTemplate>
-                            <DataTemplate>
-                                <Grid ColumnDefinitions="*,Auto" Padding="0,6">
-                                    <VerticalStackLayout>
-                                        <Label Text="{Binding Nombre}" FontAttributes="Bold"/>
-                                        <Label Text="{Binding Tipo, StringFormat='Tipo: {0}'}" TextColor="{StaticResource TextLight}"/>
-                                        <Label Text="{Binding Disponibilidad, StringFormat='Disponibilidad: {0}'}" TextColor="{StaticResource TextLight}"/>
-                                    </VerticalStackLayout>
-                                    <Button Grid.Column="1" Text="Quitar" Style="{StaticResource FlatButton}" />
-                                </Grid>
-                            </DataTemplate>
-                        </CollectionView.ItemTemplate>
-                    </CollectionView>
-                </VerticalStackLayout>
-            </Frame>
-
-
-            <Label Text="Actividad" Style="{StaticResource Section}"/>
-
-            <CollectionView ItemsSource="{Binding Actividad}">
-                <CollectionView.EmptyView>
-                    <Label Text="Aún no hay actividad registrada." TextColor="{StaticResource TextLight}" Margin="12,0"/>
-                </CollectionView.EmptyView>
-                <CollectionView.ItemTemplate>
-                    <DataTemplate>
-                        <Grid ColumnDefinitions="Auto,*" Padding="0,6" ColumnSpacing="10">
-                            <Frame Style="{StaticResource Chip}" VerticalOptions="Start">
-                                <Label Text="{Binding Estado}" FontSize="11"/>
-                            </Frame>
-
-                            <Frame Grid.Column="1" Style="{StaticResource Card}" Padding="10" Margin="0,0,0,8">
-                                <VerticalStackLayout Spacing="2">
-                                    <Label Text="{Binding Mensaje}" />
-                                    <Label Text="{Binding Fecha, StringFormat='{0:dd/MM/yyyy HH:mm}'}"
-                                           FontSize="11" TextColor="{StaticResource TextLight}"/>
-                                    <Label Text="{Binding Usuario, StringFormat='Por: {0}'}"
-                                           FontSize="11" TextColor="{StaticResource TextLight}"/>
-                                </VerticalStackLayout>
-                            </Frame>
+                        <Grid ColumnDefinitions="*,*,*,*" ColumnSpacing="8">
+                            <Button Text="Abierto" Grid.Column="0"
+                                    Style="{StaticResource FlatButton}"
+                                    Command="{Binding SetStatusCommand}" CommandParameter="1"/>
+                            <Button Text="En progreso" Grid.Column="1"
+                                    Style="{StaticResource FlatButton}"
+                                    Command="{Binding SetStatusCommand}" CommandParameter="2"/>
+                            <Button Text="Resuelto" Grid.Column="2"
+                                    Style="{StaticResource FlatButton}"
+                                    Command="{Binding SetStatusCommand}" CommandParameter="3"/>
+                            <Button Text="Cerrado" Grid.Column="3"
+                                    Style="{StaticResource FlatButton}"
+                                    Command="{Binding SetStatusCommand}" CommandParameter="4"/>
                         </Grid>
-                    </DataTemplate>
-                </CollectionView.ItemTemplate>
-            </CollectionView>
+                        <Label Text="Puedes actualizar el estado con un toque." Style="{StaticResource Hint}"/>
+                    </VerticalStackLayout>
+                </Frame>
 
-            <Frame Style="{StaticResource Card}">
-                <VerticalStackLayout Spacing="6">
-                    <Label Text="Agregar comentario / actualización" Style="{StaticResource Section}"/>
-                    <Editor Placeholder="Escribe una actualización para notificar a los interesados…" Text="{Binding Comentario}" />
-                    <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto" ColumnSpacing="10">
-                        <Picker Title="Notificar a…" ItemsSource="{Binding Interesados}" SelectedItem="{Binding InteresadoSel}" />
-                        <CheckBox Grid.Column="1" IsChecked="{Binding Notificar}" VerticalOptions="Center"/>
-                        <Label Grid.Row="1" Grid.ColumnSpan="2" Text="Marca la casilla para enviar notificación interna." Style="{StaticResource Hint}"/>
-                    </Grid>
-                    <Grid ColumnDefinitions="*,Auto">
-                        <Button Text="Publicar comentario" Style="{StaticResource PrimaryButton}" />
-                        <Button Grid.Column="1" Text="Cancelar" Style="{StaticResource FlatButton}" />
-                    </Grid>
-                </VerticalStackLayout>
-            </Frame>
+                <!-- Prioridad / Categoría -->
+                <Frame Style="{StaticResource Card}">
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                        <VerticalStackLayout>
+                            <Label Text="Prioridad" Style="{StaticResource Section}"/>
+                            <Picker ItemsSource="{Binding PriorityOptions}"
+                                    SelectedIndex="{Binding SelectedPriorityIndex}"
+                                    Title="Selecciona prioridad"/>
+                        </VerticalStackLayout>
 
-        </VerticalStackLayout>
-    </ScrollView>
+                        <VerticalStackLayout Grid.Column="1">
+                            <Label Text="Categoría" Style="{StaticResource Section}"/>
+                            <Picker ItemsSource="{Binding CategoryOptions}"
+                                    SelectedIndex="{Binding SelectedCategoryIndex}"
+                                    Title="Selecciona categoría"/>
+                        </VerticalStackLayout>
+                    </Grid>
+                </Frame>
+
+                <!-- Asignación -->
+                <Frame Style="{StaticResource Card}">
+                    <VerticalStackLayout Spacing="8">
+                        <Label Text="Asignación" Style="{StaticResource Section}"/>
+                        <Picker Title="Responsable"
+                                ItemsSource="{Binding Users}"
+                                ItemDisplayBinding="{Binding Name}"
+                                SelectedItem="{Binding SelectedAssignee}"/>
+                        <Label Text="Selecciona un responsable y pulsa Guardar." Style="{StaticResource Hint}"/>
+                    </VerticalStackLayout>
+                </Frame>
+
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <!-- FOOTER ACCIONES -->
+        <Grid Grid.Row="2" Padding="16" ColumnDefinitions="*,Auto,Auto" BackgroundColor="#FFFFFFFF">
+            <Button Text="Guardar"
+                    Style="{StaticResource PrimaryButton}"
+                    Command="{Binding SaveCommand}"/>
+            <Button Grid.Column="1"
+                    Text="Ir al envío"
+                    Style="{StaticResource FlatButton}"
+                    Command="{Binding GoToShipmentCommand}"/>
+            <Button Grid.Column="2"
+                    Text="Eliminar"
+                    Style="{StaticResource FlatButton}"
+                    TextColor="#B91C1C"
+                    Command="{Binding DeleteCommand}"/>
+        </Grid>
+    </Grid>
 </ContentPage>

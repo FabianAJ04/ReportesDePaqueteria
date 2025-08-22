@@ -1,6 +1,7 @@
 ﻿using Firebase.Auth;
 using Firebase.Auth.Providers;
 using Microsoft.Extensions.Logging;
+using ReportesDePaqueteria.MVVM.Models;
 using ReportesDePaqueteria.MVVM.ViewModels;
 using ReportesDePaqueteria.MVVM.Views;
 
@@ -37,6 +38,8 @@ namespace ReportesDePaqueteria
             builder.Services.AddSingleton(new FirebaseAuthClient(firebaseConfig));
 
             builder.Services.AddSingleton<IUserRepository, UserRepository>();
+            builder.Services.AddSingleton<IShipmentRepository, ShipmentRepository>();
+            builder.Services.AddSingleton<IIncidentRepository, IncidentRepository>();
 
             // ViewModels
             builder.Services.AddTransient<SignInViewModel>();
@@ -53,6 +56,22 @@ namespace ReportesDePaqueteria
 
             builder.Services.AddTransient<UserProfileViewModel>();
             builder.Services.AddTransient<UserProfilePage>();
+
+            builder.Services.AddTransient<ShipmentListViewModel>();   
+            builder.Services.AddTransient<ShipmentDetailViewModel>(); 
+            builder.Services.AddTransient<ShipmentFormViewModel>();   
+
+            builder.Services.AddTransient<ShipmentListPage>();        
+            builder.Services.AddTransient<ShipmentDetailPage>();      
+            builder.Services.AddTransient<ShipmentFormPage>();
+
+            builder.Services.AddTransient<IncidentListViewModel>();
+            builder.Services.AddTransient<IncidentListPage>();
+            builder.Services.AddTransient<IncidentFormViewModel>();
+            builder.Services.AddTransient<IncidentFormPage>();
+            builder.Services.AddTransient<IncidentDetailViewModel>();
+            builder.Services.AddTransient<IncidentDetailPage>();
+
 
 
 
