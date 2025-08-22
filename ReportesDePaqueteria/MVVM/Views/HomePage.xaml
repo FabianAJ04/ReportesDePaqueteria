@@ -140,7 +140,7 @@
                         <Grid Grid.Row="2" Grid.ColumnSpan="2"
                                 ColumnDefinitions="*,*"
                                 ColumnSpacing="10"
-                                Margin="0,8,0,0">                           
+                                Margin="0,8,0,0">
                             <Button
                                 Text="Ver incidentes"
       Style="{StaticResource PrimaryButton}"
@@ -151,34 +151,6 @@
 
                     </Grid>
                 </Frame>
-
-                <!-- Recursos -->
-                <Frame Style="{StaticResource Tile}" IsVisible="{Binding isAdmin}">
-                    <Grid RowDefinitions="Auto,Auto,Auto" ColumnDefinitions="Auto,*" ColumnSpacing="12">
-                        <Frame WidthRequest="48" HeightRequest="48" CornerRadius="12"
-           BackgroundColor="{StaticResource PrimarySoft}" HasShadow="False"
-           VerticalOptions="Start">
-                            <Image Source="users.png" WidthRequest="28" HeightRequest="28"
-             HorizontalOptions="Center" VerticalOptions="Center"/>
-                        </Frame>
-
-                        <VerticalStackLayout Grid.Column="1" Spacing="2">
-                            <Label Text="Recursos" Style="{StaticResource H1}" />
-                            <Label Text="Asigna personas, paquetes y equipos/vehículos a incidentes."
-             Style="{StaticResource Sub}" />
-                        </VerticalStackLayout>
-
-                        <Grid Grid.Row="2" Grid.ColumnSpan="2"
-          ColumnDefinitions="*,*"
-          ColumnSpacing="10"
-          Margin="0,8,0,0">
-                            <Button Text="Asignar recursos"
-              Style="{StaticResource PrimaryButton}"
-              Clicked="OnRecursosClicked"/>
-                        </Grid>
-                    </Grid>
-                </Frame>
-                <!-- Recursos -->
 
                 <Frame Style="{StaticResource Tile}"
            IsVisible="{Binding BindingContext.IsAdmin, Source={x:Reference HomePageRoot}}">
@@ -256,8 +228,7 @@
                     <Button Grid.Column="0"
                   Style="{StaticResource NavButtonActive}"
                   Text="Inicio"
-                  ImageSource="home.png"
-                  Clicked="OnNavHomeClicked"/>
+                  ImageSource="home.png"/>
 
                     <BoxView Grid.Column="1" WidthRequest="2" Color="{StaticResource Separator}" VerticalOptions="Fill" />
 

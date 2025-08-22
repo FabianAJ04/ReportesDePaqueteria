@@ -19,7 +19,7 @@ namespace ReportesDePaqueteria.MVVM.Views
         }
 
         private async void OnNavHomeClicked(object sender, EventArgs e)
-            => await Shell.Current.GoToAsync("//homePage");
+            => await Shell.Current.GoToAsync(nameof(HomePage));
 
         //Shipment actions
         private async void OnNuevoShipmentClicked(object sender, EventArgs e)
