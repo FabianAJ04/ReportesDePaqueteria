@@ -28,7 +28,6 @@
         <ScrollView Grid.Row="1">
             <VerticalStackLayout Padding="20" Spacing="16">
 
-                <!-- Mensaje de error (opcional) -->
                 <Label Text="{Binding ErrorMessage}"
                        TextColor="#EF4444"
                        IsVisible="{Binding ErrorMessage, Converter={StaticResource StringNotEmptyConverter}}"/>

@@ -59,7 +59,6 @@
                 </VerticalStackLayout>
             </Frame>
 
-            <!-- Creado por (del modelo) -->
             <Frame Style="{StaticResource Card}">
                 <VerticalStackLayout Spacing="6">
                     <Label Text="Creado por (Id)" FontAttributes="Bold"/>
@@ -68,7 +67,7 @@
                 </VerticalStackLayout>
             </Frame>
 
-            <!-- Título / Descripción (modelo directo) -->
+            <!-- Título / Descripción -->
             <Frame Style="{StaticResource Card}">
                 <VerticalStackLayout Spacing="10">
                     <Entry Placeholder="Título del incidente" Text="{Binding Incident.Title}"/>
@@ -77,7 +76,7 @@
                 </VerticalStackLayout>
             </Frame>
 
-            <!-- Estado / Prioridad / Categoría (modelo directo + converter) -->
+            <!-- Estado / Prioridad / Categoría  -->
             <Frame Style="{StaticResource Card}">
                 <VerticalStackLayout Spacing="10">
 

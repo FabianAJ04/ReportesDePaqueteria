@@ -96,7 +96,6 @@
                         Padding="0,2"
                         WidthRequest="32"/>
 
-                <!-- Título (editable) -->
                 <Entry Grid.Column="1"
                        Text="{Binding Title}"
                        Placeholder="Título del incidente"
@@ -193,7 +192,6 @@
                     <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
                         <VerticalStackLayout>
                             <Label Text="Prioridad" Style="{StaticResource Section}"/>
-                            <!-- Sin Option: usa SelectedIndex y lista de strings -->
                             <Picker ItemsSource="{Binding PriorityOptions}"
                                     SelectedIndex="{Binding SelectedPriorityIndex}"
                                     Title="Selecciona prioridad"/>

@@ -59,7 +59,6 @@
             <SearchBar Placeholder="Buscar por código o destinatario…"
                        Text="{Binding Search}" />
 
-            <!-- Filtro de estado (SelectedIndex -> StatusFilter del VM) -->
             <Picker Title="Estado"
                     SelectedIndex="{Binding StatusFilter}">
                 <Picker.Items>
@@ -90,7 +89,6 @@
                                 <HorizontalStackLayout Grid.ColumnSpan="2" Spacing="8">
                                     <Label Text="{Binding Code}" FontAttributes="Bold" FontSize="16"/>
                                     <Frame Style="{StaticResource Chip}">
-                                        <!-- Muestra el int de Status tal cual; si quieres texto bonito, luego hacemos un converter -->
                                         <Label Text="{Binding Status}" FontSize="12"/>
                                     </Frame>
                                 </HorizontalStackLayout>

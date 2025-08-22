@@ -51,7 +51,6 @@ namespace ReportesDePaqueteria.MVVM.ViewModels
         {
             _incidents = incidents ?? throw new ArgumentNullException(nameof(incidents));
 
-            // Re-aplicar filtros cuando cambie búsqueda o pickers
             PropertyChanged += (_, e) =>
             {
                 if (e.PropertyName is nameof(SearchText)
@@ -95,7 +94,7 @@ namespace ReportesDePaqueteria.MVVM.ViewModels
             finally
             {
                 IsBusy = false;
-                IsRefreshing = false; // para RefreshView
+                IsRefreshing = false; 
             }
         }
 

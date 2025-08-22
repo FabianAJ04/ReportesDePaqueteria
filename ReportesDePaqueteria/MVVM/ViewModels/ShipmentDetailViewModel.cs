@@ -15,10 +15,8 @@ namespace ReportesDePaqueteria.MVVM.ViewModels
         [ObservableProperty] private ShipmentModel? shipment;
         [ObservableProperty] private bool isBusy;
 
-        // Timeline/Eventos para la CollectionView
         public ObservableCollection<EventoItem> Eventos { get; } = new();
 
-        // ---- Proyecciones para el XAML ----
         public string EstadoText => Shipment?.Status switch
         {
             3 => "Entregado",
@@ -28,9 +26,9 @@ namespace ReportesDePaqueteria.MVVM.ViewModels
         };
 
         public DateTime? FechaEnvio => Shipment?.CreatedDate;
-        public DateTime? Eta => (Shipment?.CreatedDate)?.AddDays(2); // demo: ETA = +2 días
+        public DateTime? Eta => (Shipment?.CreatedDate)?.AddDays(2); 
 
-        public string ServicioText => "Estándar"; // TODO: mapear según tu modelo real
+        public string ServicioText => "Estándar"; 
 
         public string? Remitente => Shipment?.Sender?.Name ?? Shipment?.Sender?.Email;
         public string? RemitenteContacto => Shipment?.Sender?.Email;

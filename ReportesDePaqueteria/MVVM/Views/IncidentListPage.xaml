@@ -75,7 +75,6 @@
                         Grid.Row="1" Grid.Column="0"
                         ItemsSource="{Binding Prioridades}"
                         SelectedItem="{Binding PrioridadSel}" />
-                <!-- Mantener impacto para no romper bindings -->
                 <Picker Title="Impacto"
                         Grid.Row="1" Grid.Column="1"
                         ItemsSource="{Binding Impactos}"
@@ -108,7 +107,6 @@
 
                     <CollectionView.ItemTemplate>
                         <DataTemplate>
-                            <!-- Cada item es IncidentModel -->
                             <Frame Style="{StaticResource Card}">
                                 <Grid RowDefinitions="Auto,Auto,Auto"
                                       ColumnDefinitions="*,Auto"
@@ -123,7 +121,6 @@
                                     <!-- Chips: Prioridad / Estado / Categoría -->
                                     <HorizontalStackLayout Grid.Row="1" Spacing="8">
 
-                                        <!-- Prioridad (int -> texto + color) -->
                                         <Frame Style="{StaticResource Chip}">
                                             <Label FontSize="12">
                                                 <Label.Text>
@@ -137,7 +134,6 @@
                                                 <DataTrigger TargetType="Frame" Binding="{Binding Priority}" Value="1">
                                                     <Setter Property="BackgroundColor" Value="#DCFCE7"/>
                                                     <Setter TargetName="" Property="Frame.Content">
-                                                        <!-- solo color, el texto ya lo ponemos abajo -->
                                                     </Setter>
                                                 </DataTrigger>
                                                 <DataTrigger TargetType="Frame" Binding="{Binding Priority}" Value="2">

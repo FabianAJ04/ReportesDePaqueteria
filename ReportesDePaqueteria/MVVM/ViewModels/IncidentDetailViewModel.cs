@@ -32,7 +32,6 @@ namespace ReportesDePaqueteria.MVVM.ViewModels
             CategoryOptions.Add(new Option(3, "Pago"));
             CategoryOptions.Add(new Option(4, "Otro"));
 
-            // Mantén AssigneeId sincronizado con SelectedAssignee
             PropertyChanged += (_, e) =>
             {
                 if (e.PropertyName == nameof(SelectedAssignee))
@@ -45,7 +44,6 @@ namespace ReportesDePaqueteria.MVVM.ViewModels
         [ObservableProperty] private int id;                    // Query param
         [ObservableProperty] private IncidentModel? incident;
 
-        // Campos editables (se copian desde Incident al cargar)
         [ObservableProperty] private string title = string.Empty;
         [ObservableProperty] private string description = string.Empty;
         [ObservableProperty] private int status = 1;
@@ -93,7 +91,6 @@ namespace ReportesDePaqueteria.MVVM.ViewModels
             OnPropertyChanged(nameof(ShipmentCode));
         }
 
-        // ========= Comandos =========
 
         [RelayCommand]
         public async Task LoadAsync()
@@ -113,7 +110,6 @@ namespace ReportesDePaqueteria.MVVM.ViewModels
 
                 Incident = model;
 
-                // Copia a campos editables
                 Title = model.Title ?? "";
                 Description = model.Description ?? "";
                 Status = model.Status;
@@ -123,7 +119,7 @@ namespace ReportesDePaqueteria.MVVM.ViewModels
 
                 // Carga usuarios para asignar
                 Users.Clear();
-                var all = await _users.GetAllAsync(); // asumiendo Dictionary<string, UserModel>
+                var all = await _users.GetAllAsync(); 
                 foreach (var kv in all)
                 {
                     var u = kv.Value;
@@ -134,7 +130,6 @@ namespace ReportesDePaqueteria.MVVM.ViewModels
                 // Selección del asignado actual
                 SelectedAssignee = Users.FirstOrDefault(u => u.Id == AssigneeId);
 
-                // Notifica proyecciones
                 OnPropertyChanged(nameof(EstadoText));
                 OnPropertyChanged(nameof(PrioridadText));
                 OnPropertyChanged(nameof(CategoriaText));
@@ -155,7 +150,6 @@ namespace ReportesDePaqueteria.MVVM.ViewModels
             if (IsBusy) return;
             if (Incident is null) return;
 
-            // Validación mínima
             if (string.IsNullOrWhiteSpace(Title))
             {
                 await Shell.Current.DisplayAlert("Validación", "El título es requerido.", "OK");
@@ -165,7 +159,6 @@ namespace ReportesDePaqueteria.MVVM.ViewModels
             IsBusy = true;
             try
             {
-                // (Opcional) hidratar Assignee para UI
                 UserModel? assignee = null;
                 if (!string.IsNullOrWhiteSpace(AssigneeId))
                     assignee = await _users.GetByIdAsync(AssigneeId);
@@ -179,7 +172,6 @@ namespace ReportesDePaqueteria.MVVM.ViewModels
                 Incident.AssigneeId = AssigneeId;
                 Incident.Assignee = assignee;
 
-                // Si marcaste como Resuelto o Cerrado, puedes sellar fecha
                 if (Incident.Status is 3 or 4 && Incident.ResolvedAt is null)
                     Incident.ResolvedAt = DateTime.UtcNow;
 
@@ -206,7 +198,7 @@ namespace ReportesDePaqueteria.MVVM.ViewModels
         private async Task AssignAsync(UserModel? user)
         {
             if (user is null) return;
-            SelectedAssignee = user; // sincroniza AssigneeId por PropertyChanged
+            SelectedAssignee = user;
             await SaveAsync();
         }
 
@@ -247,7 +239,6 @@ namespace ReportesDePaqueteria.MVVM.ViewModels
             await Shell.Current.GoToAsync("..");
         }
 
-        // ========= Helpers =========
         private static string MapStatus(int s) => s switch
         {
             1 => "Abierto",

@@ -94,7 +94,6 @@
 
             <!-- Botonera -->
             <Grid ColumnDefinitions="*,Auto" Padding="12,0">
-                <!-- Usa el Command del VM: CreateAsyncCommand -->
                 <Button Text="Guardar"
         Style="{StaticResource PrimaryButton}"
         Clicked="OnGuardarClicked"/>

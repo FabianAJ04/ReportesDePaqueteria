@@ -1,6 +1,6 @@
 ﻿using Firebase.Database;
 using Firebase.Database.Query;
-using Microsoft.Maui.Storage;              // SecureStorage
+using Microsoft.Maui.Storage;              
 using ReportesDePaqueteria.MVVM.Models;
 
 namespace ReportesDePaqueteria.MVVM.Models
