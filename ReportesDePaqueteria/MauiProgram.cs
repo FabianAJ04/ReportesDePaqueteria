@@ -28,8 +28,8 @@ namespace ReportesDePaqueteria
 
             var firebaseConfig = new FirebaseAuthConfig
             {
-                ApiKey = "AIzaSyCb7zzUVwbLrlSi1R8V9gUeO49_NmZmbWo",  
-                AuthDomain = "react-firebase-6c246.firebaseapp.com", 
+                ApiKey = "AIzaSyC0WbYXtxk49ABY3Bb-VX9GFuoZWT9shHU",  
+                AuthDomain = "ruby-on-rails-10454.firebaseapp.com", 
                 Providers = new FirebaseAuthProvider[]
      {
         new EmailProvider()

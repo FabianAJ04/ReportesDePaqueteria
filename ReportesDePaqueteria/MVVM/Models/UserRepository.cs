@@ -20,7 +20,7 @@ public interface IUserRepository
 
 public class UserRepository : IUserRepository
 {
-    private const string DatabaseUrl = "https://react-firebase-6c246-default-rtdb.firebaseio.com/";
+    private const string DatabaseUrl = "https://ruby-on-rails-10454-default-rtdb.firebaseio.com/";
     private const string NodeUsuarios = "Usuarios";
     private const string NodeLegacy = "User";
     private readonly FirebaseClient _client;

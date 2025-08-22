@@ -18,7 +18,7 @@ namespace ReportesDePaqueteria.MVVM.Models
 
     public sealed class IncidentRepository : IIncidentRepository
     {
-        private const string DbUrl = "https://react-firebase-6c246-default-rtdb.firebaseio.com/";
+        private const string DbUrl = "https://ruby-on-rails-10454-default-rtdb.firebaseio.com/";
         private const string Node = "Incidents";
         private readonly FirebaseClient _client;
 

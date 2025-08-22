@@ -141,20 +141,19 @@
                                 ColumnDefinitions="*,*"
                                 ColumnSpacing="10"
                                 Margin="0,8,0,0">                           
-                            <Button Text="Ver incidentes"
+                            <Button
+                                Text="Ver incidentes"
       Style="{StaticResource PrimaryButton}"
       Clicked="OnIncidentesClicked"/>
 
-                            <Button Grid.Column="1"
-      Text="➕ Nuevo incidente"
-      Style="{StaticResource GhostButton}"
-      Clicked="OnNuevoIncidenteClicked"/>
+
                         </Grid>
 
                     </Grid>
                 </Frame>
 
-                <Frame Style="{StaticResource Tile}">
+                <!-- Recursos -->
+                <Frame Style="{StaticResource Tile}" IsVisible="{Binding isAdmin}">
                     <Grid RowDefinitions="Auto,Auto,Auto" ColumnDefinitions="Auto,*" ColumnSpacing="12">
                         <Frame WidthRequest="48" HeightRequest="48" CornerRadius="12"
            BackgroundColor="{StaticResource PrimarySoft}" HasShadow="False"
@@ -184,6 +183,7 @@
                         </Grid>
                     </Grid>
                 </Frame>
+                <!-- Recursos -->
 
                 <Frame Style="{StaticResource Tile}"
            IsVisible="{Binding BindingContext.IsAdmin, Source={x:Reference HomePageRoot}}">

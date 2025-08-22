@@ -8,7 +8,7 @@ namespace ReportesDePaqueteria.MVVM.Models
         private readonly FirebaseClient _client;
         public NotificationRepository()
         {
-            _client = new FirebaseClient("https://fir-maui-7b446-default-rtdb.firebaseio.com/");
+            _client = new FirebaseClient("https://ruby-on-rails-10454-default-rtdb.firebaseio.com/");
         }
 
         //1. Crear el documento

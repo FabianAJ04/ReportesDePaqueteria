@@ -17,7 +17,7 @@ namespace ReportesDePaqueteria.MVVM.Models
     }
     public class ShipmentRepository : IShipmentRepository
     {
-        private const string DbUrl = "https://react-firebase-6c246-default-rtdb.firebaseio.com/";
+        private const string DbUrl = "https://ruby-on-rails-10454-default-rtdb.firebaseio.com/";
         private const string Node = "Shipments";
         private readonly FirebaseClient _client;
 

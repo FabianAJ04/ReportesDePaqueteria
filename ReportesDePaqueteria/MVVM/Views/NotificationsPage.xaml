@@ -52,6 +52,7 @@
         </ResourceDictionary>
     </ContentPage.Resources>
 
+    
     <Grid RowDefinitions="Auto,*">
 
         <Grid Grid.Row="0" Padding="20,20,20,14">
