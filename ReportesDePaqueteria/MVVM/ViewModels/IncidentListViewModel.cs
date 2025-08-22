@@ -25,9 +25,9 @@ namespace ReportesDePaqueteria.MVVM.ViewModels
             new(new[] { "Todas", "Paquete", "Entrega", "Pago", "Otro" });
 
         public ObservableCollection<string> Estados { get; } =
-            new(new[] { "Todos", "Abierto", "En progreso", "Resuelto", "Cerrado" });
+            new(new[] { "Todos", "Abierto", "En progreso", "Resuelto", "Cerrado" });  // Los usuarios no deberian de asignar Estado a los incidentes
 
-        public ObservableCollection<string> Prioridades { get; } =
+        public ObservableCollection<string> Prioridades { get; } =                  // Los usuarios no deberian de asignar Prioridad a los incidentes
             new(new[] { "Todas", "Baja", "Media", "Alta", "Crítica" });
 
         public ObservableCollection<string> Impactos { get; } =
@@ -67,6 +67,15 @@ namespace ReportesDePaqueteria.MVVM.ViewModels
         }
 
         [RelayCommand]
+        private async Task BackAsync()
+        {
+            var nav = Shell.Current?.Navigation ?? Application.Current?.MainPage?.Navigation;
+            if (nav is null) return;
+
+            if (nav.ModalStack.Count > 0) { await nav.PopModalAsync(); return; }
+            if (nav.NavigationStack.Count > 1) { await nav.PopAsync(); return; }
+            await Shell.Current.GoToAsync("..");
+        }
         public async Task LoadAsync()
         {
             if (IsBusy) return;

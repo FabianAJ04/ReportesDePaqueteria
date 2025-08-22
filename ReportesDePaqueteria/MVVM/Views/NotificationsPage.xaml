@@ -64,6 +64,15 @@
             </Grid.Background>
 
             <Grid ColumnDefinitions="*,Auto">
+                <!-- "Back button" 
+                <Button Text="←"
+                        Command="{Binding BackCommand}"
+                        BackgroundColor="Transparent"
+                        TextColor="White"
+                        FontSize="20"
+                        Padding="0,2"
+                        WidthRequest="32"/> -->
+
                 <VerticalStackLayout Spacing="2">
                     <Label Text="Notificaciones" Style="{StaticResource H1}"/>
                     <Label Text="Revisa actualizaciones y avisos del sistema" Style="{StaticResource SubWhite}"/>

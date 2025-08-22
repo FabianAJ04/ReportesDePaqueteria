@@ -136,6 +136,7 @@ namespace ReportesDePaqueteria.MVVM.ViewModels
             {
                 if (_StatusSelected != value)
                 {
+                    
                     _StatusSelected = value;
                     OnPropertyChanged(nameof(StatusSelected));
                     ApplyFilters();
@@ -156,6 +157,19 @@ namespace ReportesDePaqueteria.MVVM.ViewModels
                 }
             }
         }
+        /*
+         * Funcion de navegación hacia atrás.
+        private async Task BackAsync()
+        {
+            var nav = Shell.Current?.Navigation ?? Application.Current?.MainPage?.Navigation;
+            if (nav is null) return;
+
+            if (nav.ModalStack.Count > 0) { await nav.PopModalAsync(); return; }
+            if (nav.NavigationStack.Count > 1) { await nav.PopAsync(); return; }
+            await Shell.Current.GoToAsync("..");
+        }
+        */
+
         public async Task LoadNotificationsAsync()
         {
             try
@@ -164,6 +178,7 @@ namespace ReportesDePaqueteria.MVVM.ViewModels
                 Notifications.Clear();
                 foreach (var kvp in _allNotifications)
                 {
+                   // await BackAsync();
                     var notification = kvp.Value;
                     var displayModel = new NotificationDisplayModel(notification, kvp.Key);
                     Notifications.Add(displayModel.Model);
@@ -234,6 +249,7 @@ namespace ReportesDePaqueteria.MVVM.ViewModels
                 if(_allNotifications.ContainsKey(notification.Key))
                 {
                     _allNotifications.Remove(notification.Key);
+                    // await BackAsync();
                 }
             }
             catch (Exception ex)
