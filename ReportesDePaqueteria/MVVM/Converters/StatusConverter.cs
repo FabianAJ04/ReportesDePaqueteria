@@ -11,10 +11,9 @@ namespace ReportesDePaqueteria.Converters
                 return status switch
                 {
                     1 => "📤 Enviado",
-                    2 => "🚛 En tránsito",
-                    3 => "✅ Entregado",
-                    4 => "❌ Cancelado",
-                    5 => "⚠️ Con incidente",
+                    2 => "🚛 En progreso",
+                    3 => "✅ Resuelto",
+                    4 => "❌ Cerrado",
                     _ => "❓ Desconocido"
                 };
             }
