@@ -6,12 +6,36 @@ public class RoleToTextConverter : IValueConverter
 {
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
     {
-        // Role: 1 = Admin, 3 = User (default)
-        if (value is int r) return r == 1 ? "Admin" : "Usuario";
+        // Role: 1 = Admin, 2 = Trabajador, 3 = Usuario (default)
+        if (value is int r)
+        {
+            return r switch
+            {
+                1 => "Admin",
+                2 => "Trabajador",
+                3 => "Usuario",
+                _ => "Usuario"
+            };
+        }
+
         var s = value?.ToString();
-        return s == "1" ? "Admin" : "Usuario";
+        return s switch
+        {
+            "1" => "Admin",
+            "2" => "Trabajador",
+            "3" => "Usuario",
+            _ => "Usuario"
+        };
     }
 
     public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        => value?.ToString() == "Admin" ? 1 : 3;
+    {
+        return value?.ToString() switch
+        {
+            "Admin" => 1,
+            "Trabajador" => 2,
+            "Usuario" => 3,
+            _ => 3 // Default a Usuario
+        };
+    }
 }
