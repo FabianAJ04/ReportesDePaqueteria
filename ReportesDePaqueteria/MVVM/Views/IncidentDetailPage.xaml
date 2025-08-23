@@ -263,8 +263,8 @@
                     </Grid>
                 </Frame>
 
-                <!-- Asignación -->
-                <Frame Style="{StaticResource Card}">
+                <!-- MODIFICADO: Asignación - Solo visible para Admin -->
+                <Frame Style="{StaticResource Card}" IsVisible="{Binding CanAssignResponsible}">
                     <VerticalStackLayout Spacing="8">
                         <Label Text="Asignación" Style="{StaticResource Section}"/>
                         <Picker Title="Responsable"

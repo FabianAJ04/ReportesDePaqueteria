@@ -61,6 +61,22 @@
             <SearchBar Placeholder="Buscar por palabra clave…"
                        Margin="0,0,0,4"
                        Text="{Binding SearchText}" />
+            <!-- Filtros -->
+            <HorizontalStackLayout Spacing="8" Margin="0,0,0,8">
+                <Picker Title="Estado"
+                        ItemsSource="{Binding Estados}"
+                        SelectedItem="{Binding EstadoSel}" 
+                        WidthRequest="120"/>
+                <Picker Title="Prioridad"
+                        ItemsSource="{Binding Prioridades}"
+                        SelectedItem="{Binding PrioridadSel}" 
+                        WidthRequest="120"/>
+                <Picker Title="Categoría"
+                        ItemsSource="{Binding Categorias}"
+                        SelectedItem="{Binding CategoriaSel}" 
+                        WidthRequest="120"/>
+            </HorizontalStackLayout>    
+
 
             <CollectionView ItemsSource="{Binding Incidentes}" SelectionMode="None">
                 <CollectionView.ItemsLayout>
@@ -77,6 +93,7 @@
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
                         <Frame Style="{StaticResource Card}">
+                            <!-- Mantener el tap gesture normal - la validación se hace en el ViewModel -->
                             <Frame.GestureRecognizers>
                                 <TapGestureRecognizer
                                     Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.OpenCommand}"
@@ -98,7 +115,8 @@
                                                  Direction="Row" Wrap="Wrap" AlignItems="Center" AlignContent="Start">
                                     <!-- Status -->
                                     <Frame Style="{StaticResource Chip}">
-                                        <Label FontSize="12" Text="{Binding Status, StringFormat='Estado: {0}'}"/>
+                                        <Label FontSize="12"
+                                               Text="{Binding Status, Converter={StaticResource StatusConverter}, StringFormat='Estado: {0}'}"/>
                                         <Frame.Triggers>
                                             <DataTrigger TargetType="Frame" Binding="{Binding Status}" Value="1">
                                                 <Setter Property="BackgroundColor" Value="#FEE2E2"/>
@@ -117,7 +135,8 @@
 
                                     <!-- Prioridad -->
                                     <Frame Style="{StaticResource Chip}">
-                                        <Label FontSize="12" Text="{Binding Priority, StringFormat='Prioridad: {0}'}"/>
+                                        <Label FontSize="12"
+                                               Text="{Binding Priority, Converter={StaticResource OptionConverter}, StringFormat='Prioridad: {0}'}"/>
                                         <Frame.Triggers>
                                             <DataTrigger TargetType="Frame" Binding="{Binding Priority}" Value="1">
                                                 <Setter Property="BackgroundColor" Value="#DCFCE7"/>
@@ -136,7 +155,8 @@
 
                                     <!-- Categoría -->
                                     <Frame Style="{StaticResource Chip}">
-                                        <Label FontSize="12" Text="{Binding Category, StringFormat='Categoría: {0}'}"/>
+                                        <Label FontSize="12"
+                                               Text="{Binding Category, Converter={StaticResource OptionConverter}, StringFormat='Categoría: {0}'}"/>
                                     </Frame>
                                 </flex:FlexLayout>
 
@@ -157,11 +177,13 @@
                                                FontSize="12" TextColor="{StaticResource TextLight}"/>
                                     </VerticalStackLayout>
 
+                                    <!-- CAMBIO PRINCIPAL: Botón "Ver" solo visible para Admin y Trabajador -->
                                     <Button Grid.Column="1"
                                             Text="Ver"
                                             Style="{StaticResource FlatButton}"
                                             Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.OpenCommand}"
-                                            CommandParameter="{Binding .}" />
+                                            CommandParameter="{Binding .}"
+                                            IsVisible="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.CanViewDetails}" />
                                 </Grid>
                             </Grid>
                         </Frame>

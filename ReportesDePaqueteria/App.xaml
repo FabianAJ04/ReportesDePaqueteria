@@ -18,13 +18,14 @@
             <converters:IntMinusOneConverter x:Key="IntMinusOneConverter" />
             <mvvmConverters:RoleToTextConverter x:Key="RoleToTextConverter" />
 
-            <!-- Nuevos converters necesarios para la funcionalidad de envíos -->
+            <!-- Nuevos converters necesarios para la funcionalidad -->
             <converters:InvertedBoolConverter x:Key="InvertedBoolConverter" />
             <converters:IsNotNullConverter x:Key="IsNotNullConverter" />
             <converters:IsNullConverter x:Key="IsNullConverter" />
             <converters:AllTrueConverter x:Key="AllTrueConverter" />
             <converters:StatusConverter x:Key="StatusConverter" />
-
+            <mvvmConverters:PriorityConverter x:Key="PriorityConverter"/>
+            <converters:CategoryConverter x:Key="CategoryConverter"/>
         </ResourceDictionary>
     </Application.Resources>
 </Application>
