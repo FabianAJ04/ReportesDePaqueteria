@@ -71,12 +71,6 @@
     <ScrollView>
         <VerticalStackLayout Padding="16" Spacing="10">
 
-            <Button Grid.Column="1"
-        Text="Nuevo envío"
-        Style="{StaticResource PrimaryButton}"
-        Command="{Binding NewCommand}" />
-
-
             <!-- Buscar -->
             <SearchBar Placeholder="Buscar por código o destinatario…"
                        Text="{Binding Search}" />
@@ -174,15 +168,14 @@
                                 <!-- Fecha + acciones -->
                                 <Grid Grid.Row="2" ColumnDefinitions="*,Auto" ColumnSpacing="8">
                                     <Label Text="{Binding CreatedDate, StringFormat='Creado: {0:dd/MM/yyyy}'}"
-           TextColor="{StaticResource TextLight}" />
+                                           TextColor="{StaticResource TextLight}" />
                                     <HorizontalStackLayout Grid.Column="1" Spacing="8">
                                         <Button Text="Ver"
-                Style="{StaticResource FlatButton}"
-                Command="{Binding Source={x:Reference ThisPage}, Path=BindingContext.OpenCommand}"
-                CommandParameter="{Binding .}" />
+                                                Style="{StaticResource FlatButton}"
+                                                Command="{Binding Source={x:Reference ThisPage}, Path=BindingContext.OpenCommand}"
+                                                CommandParameter="{Binding .}" />
                                     </HorizontalStackLayout>
                                 </Grid>
-
 
                             </Grid>
                         </Frame>

@@ -144,19 +144,8 @@ namespace ReportesDePaqueteria.MVVM.ViewModels
         [RelayCommand]
         private async Task NewAsync()
         {
-            var uid = await SecureStorage.GetAsync("user_id");
-            if (!string.IsNullOrWhiteSpace(uid))
-            {
-                var user = await _users.GetByIdAsync(uid);
-                if (user?.Role == 3)
-                {
-                    await Shell.Current.GoToAsync(nameof(ShipmentFormPage));
-                }
-                else
-                {
-                    await Shell.Current.DisplayAlert("Acceso denegado", "Solo los usuarios pueden crear nuevos envíos.", "OK");
-                }
-            }
+            // Ya no validamos el rol aquí, el botón solo aparece para usuarios regulares
+            await Shell.Current.GoToAsync(nameof(ShipmentFormPage));
         }
 
         [RelayCommand]

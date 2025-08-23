@@ -13,9 +13,14 @@ public partial class HomePageViewModel : ObservableObject
     private readonly INotificationRepository _notifications;
 
     [ObservableProperty] private bool isAdmin = false;
+    [ObservableProperty] private bool isWorker = false;
+    [ObservableProperty] private bool isRegularUser = false;
     [ObservableProperty] private bool isBusy;
 
     [ObservableProperty] private int unreadCount;
+
+    // Propiedades combinadas para facilitar el binding
+    public bool IsAdminOrWorker => IsAdmin || IsWorker;
 
     private IDisposable? _sub;
 
@@ -37,15 +42,23 @@ public partial class HomePageViewModel : ObservableObject
             if (string.IsNullOrWhiteSpace(uid))
             {
                 IsAdmin = false;
+                IsWorker = false;
+                IsRegularUser = false;
                 UnreadCount = 0;
                 return;
             }
 
             var me = await _users.GetByIdAsync(uid);
-            IsAdmin = (me?.Role ?? 3) == 1; // 1=admin, 3=user
+            var role = me?.Role ?? 3; // Default a usuario regular
+
+            IsAdmin = role == 1;
+            IsWorker = role == 2;
+            IsRegularUser = role == 3;
+
+            // Notificar cambio de propiedades combinadas
+            OnPropertyChanged(nameof(IsAdminOrWorker));
 
             await LoadUnreadAsync();
-
             await StartListeningAsync();
         }
         finally

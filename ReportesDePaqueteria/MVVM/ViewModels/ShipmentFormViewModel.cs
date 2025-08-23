@@ -70,11 +70,7 @@ namespace ReportesDePaqueteria.MVVM.ViewModels
                     return;
                 }
 
-                if (sender.Role != 3)
-                {
-                    await Shell.Current.DisplayAlert("Acceso denegado", "Solo los usuarios pueden crear nuevos envíos.", "OK");
-                    return;
-                }
+                // Ya no validamos el rol aquí, porque solo los usuarios regulares pueden llegar a esta pantalla
 
                 string code;
                 int attempts = 0;
@@ -155,8 +151,8 @@ namespace ReportesDePaqueteria.MVVM.ViewModels
             ReceiverName = null;
             Description = null;
         }
-        private async Task CreateAdminNotificationsAsync(ShipmentModel shipment)
 
+        private async Task CreateAdminNotificationsAsync(ShipmentModel shipment)
         {
             var allUsers = await _users.GetAllAsync();
             var admins = allUsers.Values.Where(u => u.Role == 1).ToList();

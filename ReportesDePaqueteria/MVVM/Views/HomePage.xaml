@@ -119,7 +119,6 @@
             </Grid>
         </Grid>
 
-
         <ScrollView Grid.Row="1">
             <VerticalStackLayout Padding="20" Spacing="12">
 
@@ -136,18 +135,27 @@
                             <Label Text="Consulta, busca y da seguimiento a los paquetes." Style="{StaticResource Sub}" />
                         </VerticalStackLayout>
 
-                        <Grid Grid.Row="2" Grid.ColumnSpan="2"
-      ColumnDefinitions="*,*"
-      ColumnSpacing="10"
-      Margin="0,8,0,0">
-                            <Button Text="Ver envíos"
-            Style="{StaticResource PrimaryButton}"
-            Clicked="OnShipmentListClicked"/>
+                        <!-- Botones condicionados por rol -->
+                        <Grid Grid.Row="2" Grid.ColumnSpan="2" Margin="0,8,0,0">
+                            <!-- Layout para usuarios regulares (rol 3) -->
+                            <Grid ColumnDefinitions="*,*" ColumnSpacing="10"
+                                  IsVisible="{Binding IsRegularUser}">
+                                <Button Text="Ver envíos"
+                                        Style="{StaticResource PrimaryButton}"
+                                        Clicked="OnShipmentListClicked"/>
+                                <Button Grid.Column="1"
+                                        Text="➕ Nuevo envío"
+                                        Style="{StaticResource GhostButton}"
+                                        Clicked="OnNuevoShipmentClicked"/>
+                            </Grid>
 
-                            <Button Grid.Column="1"
-            Text="➕ Nuevo envío"
-            Style="{StaticResource GhostButton}"
-            Clicked="OnNuevoShipmentClicked"/>
+                            <!-- Layout para admin/trabajador (sin botón de crear) -->
+                            <Grid IsVisible="{Binding IsAdminOrWorker}">
+                                <Button Text="Ver envíos"
+                                        Style="{StaticResource PrimaryButton}"
+                                        Clicked="OnShipmentListClicked"
+                                        WidthRequest="290"/>
+                            </Grid>
                         </Grid>
 
                     </Grid>
@@ -169,13 +177,13 @@
                         <Grid Grid.Row="2" Grid.ColumnSpan="2"
                                 ColumnDefinitions="*,*"
                                 ColumnSpacing="10"
-                                Margin="0,8,0,0">
+                                Margin="0,8,0,0"
+                              HorizontalOptions="Center">
                             <Button
                                 Text="Ver incidentes"
-      Style="{StaticResource PrimaryButton}"
-      Clicked="OnIncidentListClicked"/>
-
-
+                                WidthRequest="290"
+                                Style="{StaticResource PrimaryButton}"
+                                Clicked="OnIncidentListClicked"/>
                         </Grid>
 
                     </Grid>
@@ -199,35 +207,15 @@
                         <Grid Grid.Row="2" Grid.ColumnSpan="2"
                   ColumnDefinitions="*,*"
                   ColumnSpacing="10"
-                  Margin="0,8,0,0">
+                  Margin="0,8,0,0"
+                              HorizontalOptions="Center">
                             <Button Text="Ver usuarios"
+                                     WidthRequest="290"
                         Style="{StaticResource PrimaryButton}"
                         Clicked="OnUsuariosClicked"/>
                         </Grid>
                     </Grid>
                 </Frame>
-
-
-                <!--<Grid ColumnDefinitions="*,*,*" ColumnSpacing="10" Margin="0,4,0,80">
-                    <Frame Style="{StaticResource Tile}">
-                        <VerticalStackLayout Spacing="2" HorizontalOptions="Center">
-                            <Label Text="12" FontSize="20" FontAttributes="Bold" TextColor="{StaticResource Primary}"/>
-                            <Label Text="Abiertos" Style="{StaticResource Sub}" />
-                        </VerticalStackLayout>
-                    </Frame>
-                    <Frame Style="{StaticResource Tile}">
-                        <VerticalStackLayout Spacing="2" HorizontalOptions="Center">
-                            <Label Text="7" FontSize="20" FontAttributes="Bold" TextColor="{StaticResource Primary}"/>
-                            <Label Text="En proceso" Style="{StaticResource Sub}" />
-                        </VerticalStackLayout>
-                    </Frame>
-                    <Frame Style="{StaticResource Tile}">
-                        <VerticalStackLayout Spacing="2" HorizontalOptions="Center">
-                            <Label Text="23" FontSize="20" FontAttributes="Bold" TextColor="{StaticResource Primary}"/>
-                            <Label Text="Resueltos" Style="{StaticResource Sub}" />
-                        </VerticalStackLayout>
-                    </Frame>
-                </Grid>-->
 
             </VerticalStackLayout>
         </ScrollView>
