@@ -99,21 +99,13 @@
         <Grid Grid.Row="0" Padding="16,18,16,14">
             <Grid ColumnDefinitions="Auto,*,Auto" RowDefinitions="Auto,Auto" ColumnSpacing="10">
 
-                <!-- Back -->
-                <Button Text="←"
-                        Command="{Binding BackCommand}"
-                        BackgroundColor="Transparent"
-                        TextColor="White"
-                        FontSize="20"
-                        Padding="0,2"
-                        WidthRequest="32"/>
-
                 <!-- Título (editable) -->
                 <Entry Grid.Column="1"
                        Text="{Binding Title}"
+                       HorizontalTextAlignment="Start"
                        Placeholder="Título del incidente"
-                       FontSize="18"
-                       TextColor="White"
+                       FontSize="14"
+                       TextColor="{StaticResource Primary}"
                        PlaceholderColor="#FFFFFFAA"
                        HorizontalOptions="Fill"
                        BackgroundColor="Transparent"/>
@@ -123,7 +115,7 @@
                        Text="{Binding Fecha, StringFormat='{0:dd/MM/yyyy HH:mm}'}"
                        HorizontalTextAlignment="End"
                        VerticalOptions="Center"
-                       TextColor="#FFFFFFCC"
+                       TextColor="{StaticResource Primary}"
                        FontSize="12"/>
 
                 <!-- Chips -->
@@ -174,7 +166,9 @@
                     <VerticalStackLayout Spacing="6">
                         <Label Text="Descripción" Style="{StaticResource Section}"/>
                         <Editor Placeholder="Describe el incidente…"
-                                Text="{Binding Description}"/>
+                                Text="{Binding Description}"
+                                HeightRequest="50"
+                                MaxLength="500"/>
                     </VerticalStackLayout>
                 </Frame>
 

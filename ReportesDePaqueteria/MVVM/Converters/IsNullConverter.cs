@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ReportesDePaqueteria.MVVM
+namespace ReportesDePaqueteria.MVVM.Converters
 {
     public class IsNullConverter : IValueConverter
     {
