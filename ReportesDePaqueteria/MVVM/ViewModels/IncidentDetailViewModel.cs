@@ -1,7 +1,13 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
-using ReportesDePaqueteria.MVVM.Models;
+﻿using System;
+using System.Linq;
+using System.Threading.Tasks;
 using System.Collections.ObjectModel;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
+using ReportesDePaqueteria.MVVM.Messaging;
+using ReportesDePaqueteria.MVVM.Models;
+using ReportesDePaqueteria.MVVM.Views;
 
 namespace ReportesDePaqueteria.MVVM.ViewModels
 {
@@ -16,7 +22,6 @@ namespace ReportesDePaqueteria.MVVM.ViewModels
             _incidents = incidents;
             _users = users;
 
-            // Opciones para pickers
             StatusOptions.Add(new Option(1, "Abierto"));
             StatusOptions.Add(new Option(2, "En progreso"));
             StatusOptions.Add(new Option(3, "Resuelto"));
@@ -39,9 +44,8 @@ namespace ReportesDePaqueteria.MVVM.ViewModels
             };
         }
 
-        // --------- Estado base ----------
         [ObservableProperty] private bool isBusy;
-        [ObservableProperty] private int id;                    // Query param
+        [ObservableProperty] private int id;
         [ObservableProperty] private IncidentModel? incident;
 
         [ObservableProperty] private string title = string.Empty;
@@ -50,17 +54,17 @@ namespace ReportesDePaqueteria.MVVM.ViewModels
         [ObservableProperty] private int priority = 2;
         [ObservableProperty] private int category = 1;
 
-        // Asignación
         public ObservableCollection<UserModel> Users { get; } = new();
         [ObservableProperty] private UserModel? selectedAssignee;
         [ObservableProperty] private string? assigneeId;
 
-        // Pickers
         public ObservableCollection<Option> StatusOptions { get; } = new();
         public ObservableCollection<Option> PriorityOptions { get; } = new();
         public ObservableCollection<Option> CategoryOptions { get; } = new();
 
-        // Proyecciones legibles para UI (solo lectura)
+        [ObservableProperty] private Option? selectedPriorityOption;
+        [ObservableProperty] private Option? selectedCategoryOption;
+
         public string EstadoText => MapStatus(Status);
         public string PrioridadText => MapPriority(Priority);
         public string CategoriaText => MapCategory(Category);
@@ -71,19 +75,9 @@ namespace ReportesDePaqueteria.MVVM.ViewModels
                                          ?? "—";
         public string ShipmentCode => Incident?.ShipmentCode ?? "";
 
-        // Refresca proyecciones cuando cambian campos base
-        partial void OnStatusChanged(int value)
-        {
-            OnPropertyChanged(nameof(EstadoText));
-        }
-        partial void OnPriorityChanged(int value)
-        {
-            OnPropertyChanged(nameof(PrioridadText));
-        }
-        partial void OnCategoryChanged(int value)
-        {
-            OnPropertyChanged(nameof(CategoriaText));
-        }
+        partial void OnStatusChanged(int value) => OnPropertyChanged(nameof(EstadoText));
+        partial void OnPriorityChanged(int value) => OnPropertyChanged(nameof(PrioridadText));
+        partial void OnCategoryChanged(int value) => OnPropertyChanged(nameof(CategoriaText));
         partial void OnIncidentChanged(IncidentModel? value)
         {
             OnPropertyChanged(nameof(Fecha));
@@ -91,6 +85,19 @@ namespace ReportesDePaqueteria.MVVM.ViewModels
             OnPropertyChanged(nameof(ShipmentCode));
         }
 
+        partial void OnSelectedPriorityOptionChanged(Option? value)
+        {
+            if (value is null) return;
+            Priority = value.Id;
+            if (Incident is not null) _ = SaveAsync();
+        }
+
+        partial void OnSelectedCategoryOptionChanged(Option? value)
+        {
+            if (value is null) return;
+            Category = value.Id;
+            if (Incident is not null) _ = SaveAsync();
+        }
 
         [RelayCommand]
         public async Task LoadAsync()
@@ -99,7 +106,6 @@ namespace ReportesDePaqueteria.MVVM.ViewModels
             IsBusy = true;
             try
             {
-                // Carga incidente
                 var model = await _incidents.GetByIdAsync(Id);
                 if (model is null)
                 {
@@ -117,18 +123,19 @@ namespace ReportesDePaqueteria.MVVM.ViewModels
                 Category = model.Category;
                 AssigneeId = model.AssigneeId;
 
-                // Carga usuarios para asignar
                 Users.Clear();
-                var all = await _users.GetAllAsync(); 
+                var all = await _users.GetAllAsync();
                 foreach (var kv in all)
                 {
                     var u = kv.Value;
-                    if (string.IsNullOrEmpty(u.Id)) u.Id = kv.Key; // fallback
+                    if (string.IsNullOrEmpty(u.Id)) u.Id = kv.Key;
                     Users.Add(u);
                 }
 
-                // Selección del asignado actual
                 SelectedAssignee = Users.FirstOrDefault(u => u.Id == AssigneeId);
+
+                SelectedPriorityOption = PriorityOptions.FirstOrDefault(o => o.Id == Priority);
+                SelectedCategoryOption = CategoryOptions.FirstOrDefault(o => o.Id == Category);
 
                 OnPropertyChanged(nameof(EstadoText));
                 OnPropertyChanged(nameof(PrioridadText));
@@ -147,8 +154,7 @@ namespace ReportesDePaqueteria.MVVM.ViewModels
         [RelayCommand]
         private async Task SaveAsync()
         {
-            if (IsBusy) return;
-            if (Incident is null) return;
+            if (IsBusy || Incident is null) return;
 
             if (string.IsNullOrWhiteSpace(Title))
             {
@@ -163,7 +169,6 @@ namespace ReportesDePaqueteria.MVVM.ViewModels
                 if (!string.IsNullOrWhiteSpace(AssigneeId))
                     assignee = await _users.GetByIdAsync(AssigneeId);
 
-                // Actualiza el modelo
                 Incident.Title = Title.Trim();
                 Incident.Description = (Description ?? string.Empty).Trim();
                 Incident.Status = Status;
@@ -177,8 +182,8 @@ namespace ReportesDePaqueteria.MVVM.ViewModels
 
                 await _incidents.UpdateAsync(Incident);
 
-                await Shell.Current.DisplayAlert("Éxito", "Incidente actualizado.", "OK");
-                await BackAsync();
+                WeakReferenceMessenger.Default.Send(new IncidentSavedMessage(Incident));
+
             }
             catch (Exception ex)
             {
@@ -188,8 +193,18 @@ namespace ReportesDePaqueteria.MVVM.ViewModels
         }
 
         [RelayCommand]
-        private async Task SetStatusAsync(int newStatus)
+        private async Task SetStatusAsync(object? parameter)
         {
+            if (parameter is null) return;
+
+            int newStatus = parameter switch
+            {
+                int i => i,
+                string s when int.TryParse(s, out var v) => v,
+                Option opt => opt.Id,
+                _ => Status
+            };
+
             Status = newStatus;
             await SaveAsync();
         }
@@ -206,7 +221,7 @@ namespace ReportesDePaqueteria.MVVM.ViewModels
         private async Task GoToShipmentAsync()
         {
             if (string.IsNullOrWhiteSpace(ShipmentCode)) return;
-            await Shell.Current.GoToAsync($"{{nameof(ShipmentDetailPage)}}?code={Uri.EscapeDataString(ShipmentCode)}");
+            await Shell.Current.GoToAsync($"{nameof(ShipmentDetailPage)}?code={Uri.EscapeDataString(ShipmentCode)}");
         }
 
         [RelayCommand]
@@ -218,8 +233,9 @@ namespace ReportesDePaqueteria.MVVM.ViewModels
 
             try
             {
-                await _incidents.DeleteAsync(Incident.Id);
-                await Shell.Current.DisplayAlert("Éxito", "Incidente eliminado.", "OK");
+                var deletedId = Incident.Id;
+                await _incidents.DeleteAsync(deletedId);
+                WeakReferenceMessenger.Default.Send(new IncidentDeletedMessage(deletedId));
                 await BackAsync();
             }
             catch (Exception ex)
@@ -264,5 +280,4 @@ namespace ReportesDePaqueteria.MVVM.ViewModels
             _ => "N/A"
         };
     }
-
 }

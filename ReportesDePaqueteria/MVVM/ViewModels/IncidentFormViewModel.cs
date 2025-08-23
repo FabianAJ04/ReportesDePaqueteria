@@ -1,8 +1,10 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using System;
+using System.Threading.Tasks;
+using System.Collections.ObjectModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Maui.Storage;
 using ReportesDePaqueteria.MVVM.Models;
-using System.Collections.ObjectModel;
 
 namespace ReportesDePaqueteria.MVVM.ViewModels
 {
@@ -13,15 +15,19 @@ namespace ReportesDePaqueteria.MVVM.ViewModels
         private readonly IShipmentRepository _shipments;
         private readonly IUserRepository _users;
 
+        private readonly INotificationRepository _notifications;
+
         public IncidentFormViewModel(IIncidentRepository incidents,
                                      IShipmentRepository shipments,
-                                     IUserRepository users)
+                                     IUserRepository users,
+                                     INotificationRepository notifications) 
         {
             _incidents = incidents;
             _shipments = shipments;
             _users = users;
+            _notifications = notifications; 
 
-            Incident = new IncidentModel(); 
+            Incident = new IncidentModel();
 
             StatusOptions = new(new[] { "Abierto", "En progreso", "Resuelto", "Cerrado" });
             PriorityOptions = new(new[] { "Baja", "Media", "Alta", "Crítica" });
@@ -50,22 +56,16 @@ namespace ReportesDePaqueteria.MVVM.ViewModels
             IsBusy = true;
             try
             {
-                // 1) Cargar envío
                 if (!string.IsNullOrWhiteSpace(Incident.ShipmentCode))
                     Shipment = await _shipments.GetByCodeAsync(Incident.ShipmentCode);
 
-                // 2) user_id -> CreatedById
                 var uid = await SecureStorage.GetAsync("user_id");
                 if (!string.IsNullOrWhiteSpace(uid))
                 {
-                    if (Incident.CreatedById != uid)
-                    {
-                        Incident.CreatedById = uid;
-                        OnPropertyChanged(nameof(Incident));
-                    }
+                    Incident.CreatedById = uid;
+                    OnPropertyChanged(nameof(Incident));
                 }
 
-                // 3) sugerir título si falta
                 if (string.IsNullOrWhiteSpace(Incident.Title))
                     Incident.Title = string.IsNullOrWhiteSpace(Incident.ShipmentCode)
                         ? "Incidente"
@@ -76,11 +76,11 @@ namespace ReportesDePaqueteria.MVVM.ViewModels
             finally { IsBusy = false; }
         }
 
-
         [RelayCommand]
         private async Task SaveAsync()
         {
             if (IsBusy) return;
+
             if (string.IsNullOrWhiteSpace(Incident.Title))
             {
                 await Shell.Current.DisplayAlert("Validación", "El título es requerido.", "OK");
@@ -90,8 +90,44 @@ namespace ReportesDePaqueteria.MVVM.ViewModels
             IsBusy = true;
             try
             {
+                Incident.Id = 0;
+
                 Incident.DateTime = DateTime.UtcNow;
+
+                if (string.IsNullOrWhiteSpace(Incident.CreatedById))
+                {
+                    var uid = await SecureStorage.GetAsync("user_id");
+                    if (!string.IsNullOrWhiteSpace(uid))
+                        Incident.CreatedById = uid;
+                }
+
+                // 1) Crear incidente
                 await _incidents.CreateAsync(Incident);
+
+                // 2) Crear notificación 
+                try
+                {
+                    var notif = new NotificationModel
+                    {
+                        Type = NotificationType.IncidentCreated,
+                        Title = string.IsNullOrWhiteSpace(Incident.Title) ? "Nuevo incidente" : Incident.Title,
+                        Message = string.IsNullOrWhiteSpace(Incident.ShipmentCode)
+                                    ? $"Se creó el incidente #{Incident.Id}."
+                                    : $"Se creó el incidente #{Incident.Id} del envío {Incident.ShipmentCode}.",
+                        Timestamp = DateTime.UtcNow,
+                        IsRead = false,
+                        IncidentId = Incident.Id,
+                        ShipmentCode = Incident.ShipmentCode,
+                        DeepLink = $"/IncidentDetailPage?id={Incident.Id}"
+                    };
+
+                    await _notifications.CreateAsync(notif);
+                }
+                catch (Exception exNotif)
+                {
+                    System.Diagnostics.Debug.WriteLine($"[IncidentFormVM] Notification create failed: {exNotif}");
+                }
+
                 await Shell.Current.DisplayAlert("Éxito", "Incidente creado.", "OK");
                 await BackAsync();
             }

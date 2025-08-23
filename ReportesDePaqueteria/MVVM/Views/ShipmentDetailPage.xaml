@@ -188,8 +188,7 @@
 
                 <!-- Acciones inferiores-->
                 <Grid ColumnDefinitions="*,Auto" Margin="0,4,0,16">
-                    <Button Text="Reportar incidencia" Style="{StaticResource FlatButton}" Command="{Binding ReportIncidentCommand}"/>
-                    <Button Grid.Column="1" Text="Más opciones" Style="{StaticResource FlatButton}" Command="{Binding MoreOptionsCommand}"/>
+                    <Button Text="Reportar incidente" Style="{StaticResource FlatButton}" Command="{Binding ReportIncidentCommand}"/>
                 </Grid>
 
             </VerticalStackLayout>

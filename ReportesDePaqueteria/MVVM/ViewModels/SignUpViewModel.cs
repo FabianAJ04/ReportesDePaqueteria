@@ -84,7 +84,7 @@ namespace ReportesDePaqueteria.MVVM.ViewModels
                     Id = uid,
                     Name = Name,
                     Email = normalizedEmail,
-                    Role = 2
+                    Role = 3, // Rol por defecto: 3 (Cliente)
                 };
 
                 await _userRepository.CreateAsync(user);

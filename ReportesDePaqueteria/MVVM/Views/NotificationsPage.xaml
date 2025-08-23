@@ -2,6 +2,7 @@
 <ContentPage x:Class="ReportesDePaqueteria.MVVM.Views.NotificationsPage"
              xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:models="clr-namespace:ReportesDePaqueteria.MVVM.Models"
              Title="Notificaciones"
              BackgroundColor="#F5F6F8"
              Shell.NavBarIsVisible="True">
@@ -52,20 +53,31 @@
         </ResourceDictionary>
     </ContentPage.Resources>
 
-
-    <Grid RowDefinitions="*,Auto">
+    <Grid RowDefinitions="Auto,Auto,*">
         <ScrollView Grid.Row="0">
+
+        <!-- Filtros -->
             <VerticalStackLayout Padding="20" Spacing="10">
+                    <SearchBar Placeholder="Buscar por texto…" Text="{Binding Search}" />
 
-                <SearchBar Placeholder="Buscar por texto…" Text="{Binding Search}" />
+                    <Grid ColumnDefinitions="*,*,Auto" ColumnSpacing="10">
+                        <Picker Title="Estado"
+                                ItemsSource="{Binding StateOptions}"
+                                SelectedItem="{Binding StateSelected}" />
+                        <Picker Grid.Column="1" Title="Tipo"
+                                ItemsSource="{Binding TypeOptions}"
+                                SelectedItem="{Binding TypeSelected}" />
+                        <Button Grid.Column="2" Text="Aplicar"
+                                Style="{StaticResource PrimaryButton}"
+                                Command="{Binding ApplyFiltersCommand}"/>
+                    </Grid>
+        
 
-                <Grid ColumnDefinitions="*,*,*" ColumnSpacing="10">
-                    <Picker Title="Estado" ItemsSource="{Binding State}" SelectedItem="{Binding StateSelected}" />
-                    <Picker Grid.Column="1" Title="Tipo" ItemsSource="{Binding Type}" SelectedItem="{Binding TypeSelected}" />
-                    <Button Grid.Column="2" Text="Aplicar" Style="{StaticResource PrimaryButton}" Clicked="OnApplyFiltersClicked"/>
-                </Grid>
-
-                <CollectionView ItemsSource="{Binding Notificaciones}" SelectionMode="None">
+                <!-- Lista -->
+                <CollectionView Grid.Row="2"
+                                ItemsSource="{Binding Notificaciones}"
+                                SelectionMode="None"
+                                Margin="20,0,20,20">
                     <CollectionView.EmptyView>
                         <VerticalStackLayout Padding="24" Spacing="6" HorizontalOptions="Center" VerticalOptions="Center">
                             <Label Text="No hay notificaciones" FontAttributes="Bold" />
@@ -78,44 +90,77 @@
                             <SwipeView>
                                 <SwipeView.RightItems>
                                     <SwipeItems Mode="Reveal">
-                                        <SwipeItem Text="Leído" BackgroundColor="#22C55E" Invoked="OnMarkReadSwipe"/>
-                                        <SwipeItem Text="Eliminar" BackgroundColor="#EF4444" Invoked="OnDeleteSwipe"/>
+                                        <SwipeItem Text="Ver" BackgroundColor="#3B82F6"
+                                                   Invoked="OnOpenSwipe"/>
+                                        <SwipeItem Text="Leído" BackgroundColor="#22C55E"
+                                                   Invoked="OnMarkReadSwipe"/>
+                                        <SwipeItem Text="Eliminar" BackgroundColor="#EF4444"
+                                                   Invoked="OnDeleteSwipe"/>
                                     </SwipeItems>
                                 </SwipeView.RightItems>
 
                                 <Grid Padding="0,2">
                                     <Frame Style="{StaticResource Card}">
-                                        <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto" ColumnSpacing="12">
-                                            <Frame WidthRequest="44" HeightRequest="44" CornerRadius="12" HasShadow="False">
+                                        <Grid ColumnDefinitions="Auto,*"
+                                              RowDefinitions="Auto,Auto"
+                                              ColumnSpacing="12">
+
+                                            <!-- Avatar de tipo -->
+                                            <Frame WidthRequest="44" HeightRequest="44" CornerRadius="12" HasShadow="False" BackgroundColor="#E0E7FF">
                                                 <Frame.Triggers>
-                                                    <DataTrigger TargetType="Frame" Binding="{Binding Tipo}" Value="Incidente">
+                                                    <DataTrigger TargetType="Frame"
+                                                                 Binding="{Binding Type}"
+                                                                 Value="{x:Static models:NotificationType.IncidentCreated}">
                                                         <Setter Property="BackgroundColor" Value="#FEE2E2"/>
                                                     </DataTrigger>
-                                                    <DataTrigger TargetType="Frame" Binding="{Binding Tipo}" Value="Asignación">
-                                                        <Setter Property="BackgroundColor" Value="#FEF3C7"/>
-                                                    </DataTrigger>
-                                                    <DataTrigger TargetType="Frame" Binding="{Binding Tipo}" Value="Sistema">
-                                                        <Setter Property="BackgroundColor" Value="#E0E7FF"/>
+                                                    <DataTrigger TargetType="Frame"
+                                                                 Binding="{Binding Type}"
+                                                                 Value="{x:Static models:NotificationType.ShipmentCreated}">
+                                                        <Setter Property="BackgroundColor" Value="#E0F2FE"/>
                                                     </DataTrigger>
                                                 </Frame.Triggers>
-                                                <Image Source="{Binding Icon}" WidthRequest="24" HeightRequest="24" HorizontalOptions="Center" VerticalOptions="Center"/>
+                                                <Image Source="ic_bell.png"
+                                                       WidthRequest="24" HeightRequest="24"
+                                                       HorizontalOptions="Center" VerticalOptions="Center"/>
                                             </Frame>
 
+                                            <!-- Contenido -->
                                             <VerticalStackLayout Grid.Column="1" Spacing="2">
                                                 <Label Text="{Binding Title}">
                                                     <Label.Triggers>
-                                                        <DataTrigger TargetType="Label" Binding="{Binding Read}" Value="False">
+                                                        <DataTrigger TargetType="Label" Binding="{Binding IsRead}" Value="False">
                                                             <Setter Property="FontAttributes" Value="Bold"/>
                                                         </DataTrigger>
                                                     </Label.Triggers>
                                                 </Label>
-                                                <Label Text="{Binding Message}" TextColor="{StaticResource TextLight}" LineBreakMode="TailTruncation" MaxLines="2"/>
+
+                                                <Label Text="{Binding Message}"
+                                                       TextColor="{StaticResource TextLight}"
+                                                       LineBreakMode="TailTruncation" MaxLines="2"/>
 
                                                 <Grid ColumnDefinitions="*,Auto" Margin="0,4,0,0">
                                                     <Frame Style="{StaticResource Chip}" Padding="8,3">
-                                                        <Label Text="{Binding Type}" FontSize="12"/>
+                                                        <!-- Etiqueta de tipo legible -->
+                                                        <Label FontSize="12">
+                                                            <Label.Triggers>
+                                                                <DataTrigger TargetType="Label"
+                                                                             Binding="{Binding Type}"
+                                                                             Value="{x:Static models:NotificationType.ShipmentCreated}">
+                                                                    <Setter Property="Text" Value="Paquete"/>
+                                                                </DataTrigger>
+                                                                <DataTrigger TargetType="Label"
+                                                                             Binding="{Binding Type}"
+                                                                             Value="{x:Static models:NotificationType.IncidentCreated}">
+                                                                    <Setter Property="Text" Value="Incidencia"/>
+                                                                </DataTrigger>
+                                                            </Label.Triggers>
+                                                        </Label>
                                                     </Frame>
-                                                    <Label Grid.Column="1" Text="{Binding Timestamp, StringFormat='{0:dd/MM/yyyy HH:mm}'}" FontSize="12" TextColor="{StaticResource TextLight}" VerticalTextAlignment="Center"/>
+
+                                                    <Label Grid.Column="1"
+                                                           Text="{Binding Timestamp, StringFormat='{0:dd/MM/yyyy HH:mm}'}"
+                                                           FontSize="12" TextColor="{StaticResource TextLight}"
+                                                           VerticalTextAlignment="Center"/>
                                                 </Grid>
                                             </VerticalStackLayout>
                                         </Grid>
@@ -125,14 +170,10 @@
                         </DataTemplate>
                     </CollectionView.ItemTemplate>
                 </CollectionView>
-
             </VerticalStackLayout>
         </ScrollView>
-
         <HorizontalStackLayout Grid.Row="1" Spacing="10" Padding="20" HorizontalOptions="Center">
             <Button Text="Marcar todo leído" Style="{StaticResource FlatButton}" Clicked="OnMarkAllReadClicked"/>
-            <Button Text="Limpiar" Style="{StaticResource FlatButton}" Clicked="OnClearAllClicked"/>
         </HorizontalStackLayout>
-        
     </Grid>
 </ContentPage>

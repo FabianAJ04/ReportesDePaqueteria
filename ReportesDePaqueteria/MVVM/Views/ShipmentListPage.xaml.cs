@@ -59,5 +59,10 @@ namespace ReportesDePaqueteria.MVVM.Views
                 System.Diagnostics.Debug.WriteLine($"[ShipmentListPage] Error updating UI: {ex.Message}");
             }
         }
+
+        private async void OnHomeClicked(object sender, EventArgs e)
+        {
+            await Shell.Current.GoToAsync("//homepage");
+        }
     }
 }

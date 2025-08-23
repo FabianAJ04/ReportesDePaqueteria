@@ -1,267 +1,265 @@
-﻿using ReportesDePaqueteria.MVVM.Models;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using Microsoft.Maui.ApplicationModel;
+using ReportesDePaqueteria.MVVM.Models;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
+using System.Reactive.Linq;
+using Firebase.Database.Streaming;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using System;
+using System.Collections.Generic;
 
 namespace ReportesDePaqueteria.MVVM.ViewModels
 {
-    public class NotificationViewModel : INotifyPropertyChanged
+    public partial class NotificationViewModel : ObservableObject
     {
-        private readonly NotificationRepository _repository; 
-        private Dictionary<string, NotificationModel> _allNotifications; 
-        private ObservableCollection<NotificationModel> _notifications; 
-        private string _search = string.Empty; 
-        private string _StatusSelected = "Todos"; 
-        private string _TypeSelected = "Todos";
+        private readonly INotificationRepository _repo;
+        private readonly List<NotificationModel> _all = new();
+        private IDisposable? _subscription;
+        private CancellationTokenSource? _searchCts;
 
+        [ObservableProperty] private bool isBusy;
+        [ObservableProperty] private bool isRefreshing;
+        [ObservableProperty] private string? search;
+        [ObservableProperty] private string stateSelected = "Todas";
+        [ObservableProperty] private string typeSelected = "Todos";
 
-        public NotificationViewModel()
+        public ObservableCollection<string> StateOptions { get; } = new(new[] { "Todas", "No leídas", "Leídas" });
+        public ObservableCollection<string> TypeOptions { get; } = new(new[] { "Todos", "Paquete", "Incidencia" });
+
+        public ObservableCollection<NotificationModel> Notificaciones { get; } = new();
+
+        public NotificationViewModel(INotificationRepository repo)
         {
-            _repository = new NotificationRepository();
-            _allNotifications = new Dictionary<string, NotificationModel>();
-            _notifications = new ObservableCollection<NotificationModel>();
-
-            //Filtros
-            status = new ObservableCollection<string>
-            {
-                "Todos",
-                "Leídas",
-                "No leídas"
-            };
-            types = new ObservableCollection<string>
-            {
-                "Todos",
-                "Incidente",
-                "Entrega",
-                "Otro"
-            };
-
-            LoadNotificationsAsync();
+            _repo = repo;
         }
 
-        public class NotificationDisplayModel : INotifyPropertyChanged
+        [RelayCommand]
+        public async Task LoadAsync()
         {
-            private readonly NotificationModel _model;
-            private readonly string _key;
-            private bool _isRead;
-
-            public NotificationDisplayModel(NotificationModel model, string key)
-            {
-                _model = model; 
-                _key = key; 
-                _isRead = false;
-            }
-
-
-            public string Key => _key;
-            public NotificationModel Model => _model;
-
-            //xaml binding
-            public string Title => _model.Title;
-            public string Message => _model.Message;
-            public int Priority => _model.Priority;
-            public DateTime Timestamp => _model.Timestamp;
-            public ShipmentModel Shipment => _model.Shipment;
-            public string type
-            {
-                get
-                {
-                    return _model.Priority switch
-                    {
-                        3 => "Incidente",
-                        2 => "Entrega",
-                        1 => "Otro",
-                        _ => "Otro"
-                    };
-                }
-            }
-            public string Icon
-            {
-                get
-                {
-                    return _model.Priority switch
-                    {
-                        3 => "alert_circle",
-                        2 => "check_circle",
-                        1 => "information_circle",
-                        _ => "information_circle"
-                    };
-                }
-            }
-            public bool IsRead
-            {
-                get => _isRead;
-                set
-                {
-                    if (_isRead != value)
-                    {
-                        _isRead = value;
-                        OnPropertyChanged(nameof(IsRead));
-                    }
-                }
-            }
-            public event PropertyChangedEventHandler PropertyChanged;
-
-            protected virtual void OnPropertyChanged(string propertyName)
-            {
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-            }
-        }
-        public ObservableCollection<NotificationModel> Notifications
-        {
-            get => _notifications;
-            set
-            {
-                _notifications = value;
-                OnPropertyChanged(nameof(Notifications));
-            }
-        }
-        public string Search
-        {
-            get => _search;
-            set
-            {
-                if (_search != value)
-                {
-                    _search = value;
-                    OnPropertyChanged(nameof(Search));
-                    ApplyFilters();
-                }
-            }
-        }
-        public ObservableCollection<string> status { get; set; }
-        public string StatusSelected
-        {
-            get => _StatusSelected;
-            set
-            {
-                if (_StatusSelected != value)
-                {
-                    
-                    _StatusSelected = value;
-                    OnPropertyChanged(nameof(StatusSelected));
-                    ApplyFilters();
-                }
-            }
-        }
-        public ObservableCollection<string> types { get; set; }
-        public string TypeSelected
-        {
-            get => _TypeSelected;
-            set
-            {
-                if (_TypeSelected != value)
-                {
-                    _TypeSelected = value;
-                    OnPropertyChanged(nameof(TypeSelected));
-                    ApplyFilters();
-                }
-            }
-        }
-        /*
-         * Funcion de navegación hacia atrás.
-        private async Task BackAsync()
-        {
-            var nav = Shell.Current?.Navigation ?? Application.Current?.MainPage?.Navigation;
-            if (nav is null) return;
-
-            if (nav.ModalStack.Count > 0) { await nav.PopModalAsync(); return; }
-            if (nav.NavigationStack.Count > 1) { await nav.PopAsync(); return; }
-            await Shell.Current.GoToAsync("..");
-        }
-        */
-
-        public async Task LoadNotificationsAsync()
-        {
+            if (IsBusy) return;
+            IsBusy = true;
             try
             {
-                _allNotifications = await _repository.GetAllAsync();
-                Notifications.Clear();
-                foreach (var kvp in _allNotifications)
+                _all.Clear();
+                Notificaciones.Clear();
+
+                var list = await _repo.GetLatestForCurrentUserAsync(200);
+                _all.AddRange(list.OrderByDescending(n => n.Timestamp));
+
+                ApplyFilter();
+            }
+            finally { IsBusy = false; }
+        }
+
+        [RelayCommand]
+        public async Task RefreshAsync()
+        {
+            IsRefreshing = true;
+            await LoadAsync();
+            IsRefreshing = false;
+        }
+
+        public async Task StartListeningAsync()
+        {
+            await LoadAsync();
+
+            _subscription?.Dispose();
+            _subscription = _repo.ObserveCurrentUser()
+                .Where(e => e != null && !string.IsNullOrWhiteSpace(e.Key))
+                .Subscribe(HandleFirebaseEvent);
+        }
+
+        public void StopListening()
+        {
+            _subscription?.Dispose();
+            _subscription = null;
+        }
+
+        private void HandleFirebaseEvent(FirebaseEvent<NotificationModel> e)
+        {
+            MainThread.BeginInvokeOnMainThread(() =>
+            {
+                switch (e.EventType)
                 {
-                   // await BackAsync();
-                    var notification = kvp.Value;
-                    var displayModel = new NotificationDisplayModel(notification, kvp.Key);
-                    Notifications.Add(displayModel.Model);
+                    case FirebaseEventType.Delete:
+                        if (int.TryParse(e.Key, out var delId))
+                        {
+                            _all.RemoveAll(x => x.Id == delId);
+                            var item = Notificaciones.FirstOrDefault(x => x.Id == delId);
+                            if (item != null) Notificaciones.Remove(item);
+                        }
+                        break;
+
+                    case FirebaseEventType.InsertOrUpdate:
+                    default:
+                        var n = e.Object;
+                        if (n == null) return;
+
+                        if (n.Id == 0 && int.TryParse(e.Key, out var parsed))
+                            n.Id = parsed;
+
+                        var idxAll = _all.FindIndex(x => x.Id == n.Id);
+                        if (idxAll >= 0) _all[idxAll] = n;
+                        else _all.Insert(0, n);
+
+                        ApplyFilter();
+                        break;
                 }
+            });
+        }
+
+        [RelayCommand]
+        private void ApplyFilters() => ApplyFilter();
+
+        partial void OnStateSelectedChanged(string value) => ApplyFilter();
+        partial void OnTypeSelectedChanged(string value) => ApplyFilter();
+
+        partial void OnSearchChanged(string? value)
+        {
+            _searchCts?.Cancel();
+            _searchCts = new CancellationTokenSource();
+            var token = _searchCts.Token;
+
+            Task.Run(async () =>
+            {
+                try
+                {
+                    await Task.Delay(180, token);
+                    if (token.IsCancellationRequested) return;
+                    MainThread.BeginInvokeOnMainThread(ApplyFilter);
+                }
+                catch { }
+            }, token);
+        }
+
+        private void ApplyFilter()
+        {
+            IEnumerable<NotificationModel> q = _all;
+
+            var text = (Search ?? string.Empty).Trim().ToLowerInvariant();
+            if (text.Length > 0)
+            {
+                q = q.Where(n =>
+                    (n.Title ?? string.Empty).ToLowerInvariant().Contains(text) ||
+                    (n.Message ?? string.Empty).ToLowerInvariant().Contains(text));
+            }
+
+            if (StateSelected == "No leídas") q = q.Where(n => !n.IsRead);
+            else if (StateSelected == "Leídas") q = q.Where(n => n.IsRead);
+
+            if (TypeSelected == "Paquete") q = q.Where(n => n.Type == NotificationType.ShipmentCreated);
+            else if (TypeSelected == "Incidencia") q = q.Where(n => n.Type == NotificationType.IncidentCreated);
+
+            var ordered = q.OrderByDescending(n => n.Timestamp).ToList();
+
+            Notificaciones.Clear();
+            foreach (var n in ordered) Notificaciones.Add(n);
+        }
+
+        [RelayCommand]
+        public async Task OpenAsync(NotificationModel? n)
+        {
+            if (n is null) return;
+
+            if (!n.IsRead)
+                await MarkReadAsync(n);
+
+            if (!string.IsNullOrWhiteSpace(n.DeepLink))
+            {
+                await Shell.Current.GoToAsync(n.DeepLink);
+            }
+            else
+            {
+                if (n.Type == NotificationType.ShipmentCreated && !string.IsNullOrWhiteSpace(n.ShipmentCode))
+                    await Shell.Current.GoToAsync($"/ShipmentDetailPage?code={Uri.EscapeDataString(n.ShipmentCode)}");
+                else if (n.Type == NotificationType.IncidentCreated && n.IncidentId is int iid)
+                    await Shell.Current.GoToAsync($"/IncidentDetailPage?id={iid}");
+            }
+        }
+
+        [RelayCommand]
+        public async Task MarkReadAsync(NotificationModel? n)
+        {
+            if (n is null || n.IsRead) return;
+            try
+            {
+                n.IsRead = true;
+                await _repo.MarkAsReadAsync(n.Id);
+                ApplyFilter();
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error al cargar las notificaciones: {ex.Message}");
-            }
-        }
-        public void ApplyFilters()
-        {
-            var filteredNotifications = _allNotifications.Select(kvp => new NotificationDisplayModel(kvp.Value, kvp.Key))
-                .Where(n => FilterBySearch(n) && FilterByEstado(n) && FilterByTipo(n))
-                .OrderByDescending(n => n.Timestamp)
-                .ToList();
-        }
-        private bool FilterBySearch(NotificationDisplayModel notification)
-        {
-            if (string.IsNullOrWhiteSpace(Search))
-                return true;
-
-            return notification.Title.Contains(Search, StringComparison.OrdinalIgnoreCase) ||
-                   notification.Message.Contains(Search, StringComparison.OrdinalIgnoreCase);
-        }
-
-        private bool FilterByEstado(NotificationDisplayModel notification)
-        {
-            return StatusSelected switch
-            {
-                "Leídas" => notification.IsRead,
-                "No leídas" => !notification.IsRead,
-                _ => true
-            };
-        }
-
-        private bool FilterByTipo(NotificationDisplayModel notification)
-        {
-            return TypeSelected == "Todos" || notification.type == TypeSelected;
-        }
-
-        public void MarkAllAsRead()
-        {
-            foreach (var notification in Notifications)
-            {
-                notification.IsRead = true;
+                System.Diagnostics.Debug.WriteLine($"[NotifVM] MarkRead error: {ex}");
             }
         }
 
-        public void ClearAll()
+        [RelayCommand]
+        public async Task DeleteAsync(NotificationModel? n)
         {
-            Notifications.Clear();
-        }
-        public void MarkAsRead(NotificationDisplayModel notification)
-        {
-            if (notification != null)
-            {
-                notification.IsRead = true;
-                OnPropertyChanged(nameof(Notifications));
-            }
-        }
-        public async Task DeleteNotificationAsync(NotificationDisplayModel notification)
-        {
+            if (n is null) return;
+
             try
             {
-                await _repository.DeleteDocumentAsync(notification.Key);
-                Notifications.Remove(notification.Model);
-                if(_allNotifications.ContainsKey(notification.Key))
-                {
-                    _allNotifications.Remove(notification.Key);
-                    // await BackAsync();
-                }
+                if (_repo is INotificationRepositoryWithDelete rdel)
+                    await rdel.DeleteAsync(n.Id);
+
+                _all.RemoveAll(x => x.Id == n.Id);
+                var item = Notificaciones.FirstOrDefault(x => x.Id == n.Id);
+                if (item != null) Notificaciones.Remove(item);
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error al eliminar la notificación: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"[NotifVM] Delete error: {ex}");
             }
         }
-        public event PropertyChangedEventHandler PropertyChanged;
-        protected virtual void OnPropertyChanged(string propertyName)
+
+        [RelayCommand]
+        public async Task MarkAllReadAsync()
         {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            if (_repo is INotificationRepositoryBulk bulk)
+            {
+                try { await bulk.MarkAllAsReadAsync(); } catch { }
+            }
+            else
+            {
+                foreach (var n in _all.Where(x => !x.IsRead).ToList())
+                {
+                    n.IsRead = true;
+                    try { await _repo.MarkAsReadAsync(n.Id); } catch { }
+                }
+            }
+            ApplyFilter();
         }
-    }    
+
+        [RelayCommand]
+        public async Task ClearAllAsync()
+        {
+            if (_repo is INotificationRepositoryBulk bulk)
+            {
+                try { await bulk.ClearAllAsync(); } catch { }
+                _all.Clear();
+                Notificaciones.Clear();
+            }
+            else
+            {
+                _all.Clear();
+                Notificaciones.Clear();
+                await Task.CompletedTask;
+            }
+        }
+    }
+
+
+    public interface INotificationRepositoryWithDelete : INotificationRepository
+    {
+        Task DeleteAsync(int id);
+    }
+    public interface INotificationRepositoryBulk : INotificationRepository
+    {
+        Task MarkAllAsReadAsync();
+        Task ClearAllAsync();
+    }
 }
-

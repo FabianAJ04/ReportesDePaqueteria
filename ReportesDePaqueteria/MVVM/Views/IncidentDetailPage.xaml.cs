@@ -1,20 +1,20 @@
 using ReportesDePaqueteria.MVVM.ViewModels;
 
-namespace ReportesDePaqueteria.MVVM.Views;
-
-public partial class IncidentDetailPage : ContentPage
+namespace ReportesDePaqueteria.MVVM.Views
 {
-    private readonly IncidentDetailViewModel _vm;
-
-    public IncidentDetailPage(IncidentDetailViewModel vm)
+    public partial class IncidentDetailPage : ContentPage
     {
-        InitializeComponent();
-        BindingContext = _vm = vm;
-    }
+        public IncidentDetailPage(IncidentDetailViewModel vm)
+        {
+            InitializeComponent();
+            BindingContext = vm;
+        }
 
-    protected override async void OnAppearing()
-    {
-        base.OnAppearing();
-        await _vm.LoadAsync();
+        protected override async void OnAppearing()
+        {
+            base.OnAppearing();
+            if (BindingContext is IncidentDetailViewModel vm)
+                await vm.LoadAsync();
+        }
     }
 }
