@@ -73,6 +73,25 @@
                 <Setter Property="TextColor" Value="{StaticResource TextDark}"/>
                 <Setter Property="PlaceholderColor" Value="{StaticResource TextLight}"/>
             </Style>
+            <Style TargetType="Button" x:Key="SegmentButton">
+                <Setter Property="CornerRadius" Value="22"/>
+                <Setter Property="Padding" Value="18,10"/>
+                <Setter Property="FontSize" Value="14"/>
+                <Setter Property="BackgroundColor" Value="#00000000"/>
+                <Setter Property="TextColor" Value="{StaticResource Primary}"/>
+                <Setter Property="BorderColor" Value="{StaticResource Primary}"/>
+                <Setter Property="BorderWidth" Value="1"/>
+                <Setter Property="MinimumWidthRequest" Value="140"/>
+                <Setter Property="Margin" Value="0,6,6,0"/>
+            </Style>
+
+            <Style TargetType="Button" x:Key="SegmentButtonActive" BasedOn="{StaticResource SegmentButton}">
+                <Setter Property="BackgroundColor" Value="{StaticResource Primary}"/>
+                <Setter Property="TextColor" Value="White"/>
+                <Setter Property="BorderColor" Value="{StaticResource Primary}"/>
+            </Style>
+
+
         </ResourceDictionary>
     </ContentPage.Resources>
 
@@ -96,6 +115,7 @@
                         Padding="0,2"
                         WidthRequest="32"/>
 
+                <!-- Título (editable) -->
                 <Entry Grid.Column="1"
                        Text="{Binding Title}"
                        Placeholder="Título del incidente"
@@ -165,43 +185,99 @@
                     </VerticalStackLayout>
                 </Frame>
 
-                <!-- Estado rápido -->
                 <Frame Style="{StaticResource Card}">
-                    <VerticalStackLayout Spacing="10">
+                    <VerticalStackLayout Spacing="12">
                         <Label Text="Cambiar estado" Style="{StaticResource Section}"/>
-                        <Grid ColumnDefinitions="*,*,*,*" ColumnSpacing="8">
-                            <Button Text="Abierto" Grid.Column="0"
-                                    Style="{StaticResource FlatButton}"
-                                    Command="{Binding SetStatusCommand}" CommandParameter="1"/>
-                            <Button Text="En progreso" Grid.Column="1"
-                                    Style="{StaticResource FlatButton}"
-                                    Command="{Binding SetStatusCommand}" CommandParameter="2"/>
-                            <Button Text="Resuelto" Grid.Column="2"
-                                    Style="{StaticResource FlatButton}"
-                                    Command="{Binding SetStatusCommand}" CommandParameter="3"/>
-                            <Button Text="Cerrado" Grid.Column="3"
-                                    Style="{StaticResource FlatButton}"
-                                    Command="{Binding SetStatusCommand}" CommandParameter="4"/>
-                        </Grid>
-                        <Label Text="Puedes actualizar el estado con un toque." Style="{StaticResource Hint}"/>
+
+                        <!-- Usamos FlexLayout con Wrap, y cada botón tiene Margin para separar -->
+                        <FlexLayout Direction="Row"
+                Wrap="Wrap"
+                AlignItems="Center"
+                JustifyContent="Start">
+
+                            <!-- Abierto -->
+                            <Button Text="Abierto"
+                Command="{Binding SetStatusCommand}"
+                CommandParameter="1"
+                Style="{StaticResource SegmentButton}"
+                Margin="0,0,8,8">
+                                <Button.Triggers>
+                                    <DataTrigger TargetType="Button"
+                             Binding="{Binding Source={x:Reference ThisPage}, Path=BindingContext.Status}"
+                             Value="1">
+                                        <Setter Property="Style" Value="{StaticResource SegmentButtonActive}"/>
+                                    </DataTrigger>
+                                </Button.Triggers>
+                            </Button>
+
+                            <!-- En progreso -->
+                            <Button Text="En progreso"
+                Command="{Binding SetStatusCommand}"
+                CommandParameter="2"
+                Style="{StaticResource SegmentButton}"
+                Margin="0,0,8,8">
+                                <Button.Triggers>
+                                    <DataTrigger TargetType="Button"
+                             Binding="{Binding Source={x:Reference ThisPage}, Path=BindingContext.Status}"
+                             Value="2">
+                                        <Setter Property="Style" Value="{StaticResource SegmentButtonActive}"/>
+                                    </DataTrigger>
+                                </Button.Triggers>
+                            </Button>
+
+                            <!-- Resuelto -->
+                            <Button Text="Resuelto"
+                Command="{Binding SetStatusCommand}"
+                CommandParameter="3"
+                Style="{StaticResource SegmentButton}"
+                Margin="0,0,8,8">
+                                <Button.Triggers>
+                                    <DataTrigger TargetType="Button"
+                             Binding="{Binding Source={x:Reference ThisPage}, Path=BindingContext.Status}"
+                             Value="3">
+                                        <Setter Property="Style" Value="{StaticResource SegmentButtonActive}"/>
+                                    </DataTrigger>
+                                </Button.Triggers>
+                            </Button>
+
+                            <!-- Cerrado -->
+                            <Button Text="Cerrado"
+                Command="{Binding SetStatusCommand}"
+                CommandParameter="4"
+                Style="{StaticResource SegmentButton}"
+                Margin="0,0,8,8">
+                                <Button.Triggers>
+                                    <DataTrigger TargetType="Button"
+                             Binding="{Binding Source={x:Reference ThisPage}, Path=BindingContext.Status}"
+                             Value="4">
+                                        <Setter Property="Style" Value="{StaticResource SegmentButtonActive}"/>
+                                    </DataTrigger>
+                                </Button.Triggers>
+                            </Button>
+                        </FlexLayout>
+
+                        <Label Text="Puedes actualizar el estado con un toque."
+           Style="{StaticResource Hint}"/>
                     </VerticalStackLayout>
                 </Frame>
+
 
                 <!-- Prioridad / Categoría -->
                 <Frame Style="{StaticResource Card}">
                     <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
                         <VerticalStackLayout>
                             <Label Text="Prioridad" Style="{StaticResource Section}"/>
+                            <!-- Sin Option: usa SelectedIndex y lista de strings -->
                             <Picker ItemsSource="{Binding PriorityOptions}"
-                                    SelectedIndex="{Binding SelectedPriorityIndex}"
-                                    Title="Selecciona prioridad"/>
+        ItemDisplayBinding="{Binding Label}"
+        SelectedItem="{Binding SelectedPriorityOption}" />
                         </VerticalStackLayout>
 
                         <VerticalStackLayout Grid.Column="1">
                             <Label Text="Categoría" Style="{StaticResource Section}"/>
                             <Picker ItemsSource="{Binding CategoryOptions}"
-                                    SelectedIndex="{Binding SelectedCategoryIndex}"
-                                    Title="Selecciona categoría"/>
+        ItemDisplayBinding="{Binding Label}"
+        SelectedItem="{Binding SelectedCategoryOption}" />
                         </VerticalStackLayout>
                     </Grid>
                 </Frame>

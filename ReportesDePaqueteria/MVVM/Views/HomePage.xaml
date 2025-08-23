@@ -67,6 +67,7 @@
 
     <Grid RowDefinitions="Auto,*,Auto">
 
+        <!-- Header -->
         <Grid Grid.Row="0" Padding="20,20,20,14">
             <Grid.Background>
                 <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
@@ -81,15 +82,43 @@
                     <Label Text="Elige una opción para comenzar" TextColor="#FFFFFFCC" FontSize="13"/>
                 </VerticalStackLayout>
 
-                <ImageButton Grid.Column="1"
-                     Source="bell.png"
-                     WidthRequest="40" HeightRequest="40"
-                     BackgroundColor="#FFFFFF"
-                     CornerRadius="20"
-                     Padding="6"
-                     Clicked="OnNotificationsClicked"/>
+                <Grid Grid.Column="1">
+                    <ImageButton
+                Source="bell.png"
+                WidthRequest="40" HeightRequest="40"
+                BackgroundColor="#FFFFFF"
+                CornerRadius="20"
+                Padding="6"
+                Clicked="OnNotificationsClicked"/>
+
+                    <!-- Badge -->
+                    <Frame
+                Padding="0"
+                BackgroundColor="#EF4444"
+                BorderColor="White"
+                HasShadow="False"
+                HeightRequest="20" WidthRequest="20"
+                CornerRadius="10"
+                HorizontalOptions="End"
+                VerticalOptions="Start"
+                TranslationX="6" TranslationY="-6">
+                        <Label Text="{Binding UnreadCount}"
+                       FontSize="11"
+                       TextColor="White"
+                       HorizontalTextAlignment="Center"
+                       VerticalTextAlignment="Center"/>
+                        <Frame.Triggers>
+                            <DataTrigger TargetType="Frame"
+                                 Binding="{Binding UnreadCount}"
+                                 Value="0">
+                                <Setter Property="IsVisible" Value="False"/>
+                            </DataTrigger>
+                        </Frame.Triggers>
+                    </Frame>
+                </Grid>
             </Grid>
         </Grid>
+
 
         <ScrollView Grid.Row="1">
             <VerticalStackLayout Padding="20" Spacing="12">

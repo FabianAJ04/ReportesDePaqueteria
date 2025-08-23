@@ -40,6 +40,8 @@ namespace ReportesDePaqueteria
             builder.Services.AddSingleton<IUserRepository, UserRepository>();
             builder.Services.AddSingleton<IShipmentRepository, ShipmentRepository>();
             builder.Services.AddSingleton<IIncidentRepository, IncidentRepository>();
+            builder.Services.AddSingleton<INotificationRepository, NotificationRepository>();
+
 
             // ViewModels
             builder.Services.AddTransient<SignInViewModel>();
@@ -67,11 +69,15 @@ namespace ReportesDePaqueteria
 
             builder.Services.AddTransient<IncidentListViewModel>();
             builder.Services.AddTransient<IncidentListPage>();
+
             builder.Services.AddTransient<IncidentFormViewModel>();
             builder.Services.AddTransient<IncidentFormPage>();
+
             builder.Services.AddTransient<IncidentDetailViewModel>();
             builder.Services.AddTransient<IncidentDetailPage>();
 
+            builder.Services.AddTransient<NotificationViewModel>();
+            builder.Services.AddTransient<NotificationsPage>();
 
 
 

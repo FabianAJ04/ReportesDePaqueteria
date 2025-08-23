@@ -15,7 +15,15 @@ namespace ReportesDePaqueteria.MVVM.Views
         protected override async void OnAppearing()
         {
             base.OnAppearing();
-            await _vm.LoadAsync();
+            if (BindingContext is HomePageViewModel vm)
+                await vm.LoadAsync();
+        }
+
+        protected override void OnDisappearing()
+        {
+            base.OnDisappearing();
+            if (BindingContext is HomePageViewModel vm)
+                vm.StopListening();
         }
 
         private async void OnShipmentsClicked(object sender, EventArgs e)

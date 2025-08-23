@@ -1,69 +1,58 @@
 ﻿using System;
+using System.Linq;
+using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;                        
-using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
+using Microsoft.Maui.ApplicationModel;
+using Firebase.Database.Streaming;
 using ReportesDePaqueteria.MVVM.Models;
 using ReportesDePaqueteria.MVVM.Views;
+using ReportesDePaqueteria.MVVM.Messaging;
 
 namespace ReportesDePaqueteria.MVVM.ViewModels
 {
-    public partial class IncidentListViewModel : ObservableObject
+    public partial class IncidentListViewModel :
+        ObservableRecipient,
+        IRecipient<IncidentSavedMessage>,
+        IRecipient<IncidentDeletedMessage>
     {
         private readonly IIncidentRepository _incidents;
+        private IDisposable? _liveSub;   
 
-        // Estado / refresco
         [ObservableProperty] private bool isBusy;
         [ObservableProperty] private bool isRefreshing;
-
-        // Búsqueda y filtros 
         [ObservableProperty] private string? searchText;
 
-        public ObservableCollection<string> Categorias { get; } =
-            new(new[] { "Todas", "Paquete", "Entrega", "Pago", "Otro" });
-
-        public ObservableCollection<string> Estados { get; } =
-            new(new[] { "Todos", "Abierto", "En progreso", "Resuelto", "Cerrado" });
-
-        public ObservableCollection<string> Prioridades { get; } =
-            new(new[] { "Todas", "Baja", "Media", "Alta", "Crítica" });
-
-        public ObservableCollection<string> Impactos { get; } =
-            new(new[] { "Todos" });
-
-        [ObservableProperty] private string categoriaSel = "Todas";
-        [ObservableProperty] private string estadoSel = "Todos";
-        [ObservableProperty] private string prioridadSel = "Todas";
-        [ObservableProperty] private string impactoSel = "Todos";
-
-        [ObservableProperty] private DateTime fechaDesde = DateTime.Today.AddDays(-30);
-        [ObservableProperty] private DateTime fechaHasta = DateTime.Today;
-
-        // Lista que enlaza la UI (IncidentModel directamente)
         public ObservableCollection<IncidentModel> Incidentes { get; } = new();
-
-        // Respaldo completo para filtrar
-        private readonly List<IncidentModel> _allModels = new();
+        private readonly List<IncidentModel> _all = new();
 
         public IncidentListViewModel(IIncidentRepository incidents)
         {
             _incidents = incidents ?? throw new ArgumentNullException(nameof(incidents));
+            IsActive = true;
 
             PropertyChanged += (_, e) =>
             {
-                if (e.PropertyName is nameof(SearchText)
-                    or nameof(CategoriaSel)
-                    or nameof(EstadoSel)
-                    or nameof(PrioridadSel)
-                    or nameof(ImpactoSel)
-                    or nameof(FechaDesde)
-                    or nameof(FechaHasta))
-                {
+                if (e.PropertyName == nameof(SearchText))
                     ApplyFilter();
-                }
             };
+        }
+
+        protected override void OnActivated()
+        {
+            base.OnActivated();
+
+            _liveSub ??= _incidents.ObserveAll().Subscribe(OnFirebaseEvent, OnFirebaseError);
+        }
+
+        protected override void OnDeactivated()
+        {
+            base.OnDeactivated();
+            _liveSub?.Dispose();
+            _liveSub = null;
         }
 
         [RelayCommand]
@@ -73,7 +62,7 @@ namespace ReportesDePaqueteria.MVVM.ViewModels
             IsBusy = true;
             try
             {
-                _allModels.Clear();
+                _all.Clear();
                 Incidentes.Clear();
 
                 var dict = await _incidents.GetAllAsync();
@@ -82,7 +71,7 @@ namespace ReportesDePaqueteria.MVVM.ViewModels
                     m.Title ??= string.Empty;
                     m.Description ??= string.Empty;
                     m.ShipmentCode ??= string.Empty;
-                    _allModels.Add(m);
+                    _all.Add(m);
                 }
 
                 ApplyFilter();
@@ -94,102 +83,106 @@ namespace ReportesDePaqueteria.MVVM.ViewModels
             finally
             {
                 IsBusy = false;
-                IsRefreshing = false; 
+                IsRefreshing = false;
             }
-        }
-
-        [RelayCommand]
-        private void ApplyFilters() => ApplyFilter();
-
-        [RelayCommand]
-        private void ClearFilters()
-        {
-            SearchText = string.Empty;
-            CategoriaSel = "Todas";
-            EstadoSel = "Todos";
-            PrioridadSel = "Todas";
-            ImpactoSel = "Todos";
-            FechaDesde = DateTime.Today.AddDays(-30);
-            FechaHasta = DateTime.Today;
-            ApplyFilter();
         }
 
         [RelayCommand]
         private async Task OpenAsync(IncidentModel? item)
         {
-            if (item is null) return;
+            if (item is null || item.Id <= 0) return;
             await Shell.Current.GoToAsync($"{nameof(IncidentDetailPage)}?id={item.Id}");
         }
 
         private void ApplyFilter()
         {
-            Incidentes.Clear();
-
-            var start = FechaDesde.Date;
-            var end = FechaHasta.Date.AddDays(1).AddTicks(-1);
             var q = (SearchText ?? string.Empty).Trim().ToLowerInvariant();
+            var query = string.IsNullOrEmpty(q)
+                ? _all.AsEnumerable()
+                : _all.Where(i =>
+                        (i.Title ?? "").ToLowerInvariant().Contains(q) ||
+                        (i.Description ?? "").ToLowerInvariant().Contains(q) ||
+                        ((i.Assignee?.Name ?? i.Assignee?.Email ?? i.AssigneeId ?? "")
+                            .ToLowerInvariant()
+                            .Contains(q)));
 
-            int? cat = MapCategoryNameToInt(CategoriaSel);
-            int? sts = MapStatusNameToInt(EstadoSel);
-            int? pri = MapPriorityNameToInt(PrioridadSel);
-
-            IEnumerable<IncidentModel> query = _allModels;
-
-            // Fecha
-            query = query.Where(i => i.DateTime >= start && i.DateTime <= end);
-
-            // Categoría
-            if (cat.HasValue)
-                query = query.Where(i => i.Category == cat.Value);
-
-            // Estado
-            if (sts.HasValue)
-                query = query.Where(i => i.Status == sts.Value);
-
-            // Prioridad
-            if (pri.HasValue)
-                query = query.Where(i => i.Priority == pri.Value);
-
-            // Búsqueda en Title/Description/Assignee
-            if (!string.IsNullOrEmpty(q))
-            {
-                query = query.Where(i =>
-                    (i.Title ?? "").ToLowerInvariant().Contains(q) ||
-                    (i.Description ?? "").ToLowerInvariant().Contains(q) ||
-                    ((i.Assignee?.Name ?? i.Assignee?.Email ?? i.AssigneeId ?? "")
-                        .ToLowerInvariant()
-                        .Contains(q)));
-            }
-
+            Incidentes.Clear();
             foreach (var m in query)
                 Incidentes.Add(m);
         }
 
-        private static int? MapCategoryNameToInt(string name) => name switch
+        public void Receive(IncidentSavedMessage message)
         {
-            "Paquete" => 1,
-            "Entrega" => 2,
-            "Pago" => 3,
-            "Otro" => 4,
-            _ => null  // "Todas"
-        };
+            var updated = message.Value;
+            if (updated is null) return;
 
-        private static int? MapStatusNameToInt(string name) => name switch
-        {
-            "Abierto" => 1,
-            "En progreso" => 2,
-            "Resuelto" => 3,
-            "Cerrado" => 4,
-            _ => null // "Todos"
-        };
+            UpsertLocal(updated);
+        }
 
-        private static int? MapPriorityNameToInt(string name) => name switch
+        public void Receive(IncidentDeletedMessage message)
         {
-            "Baja" => 1,
-            "Media" => 2,
-            "Alta" => 3,
-            "Crítica" => 4,
-            _ => null // "Todas"
-        };
+            var id = message.Value;
+            RemoveLocal(id);
+        }
+
+        private void OnFirebaseEvent(FirebaseEvent<IncidentModel> ev)
+        {
+            try
+            {
+                if (ev is null) return;
+                var model = ev.Object;
+                if (model is null) return;
+
+                if (model.Id <= 0 && int.TryParse(ev.Key, out var parsed))
+                    model.Id = parsed;
+
+                switch (ev.EventType)
+                {
+                    case FirebaseEventType.InsertOrUpdate:
+                        UpsertLocal(model);
+                        break;
+
+                    case FirebaseEventType.Delete:
+                        var delId = model.Id > 0 ? model.Id
+                                  : (int.TryParse(ev.Key, out var k) ? k : 0);
+                        if (delId > 0) RemoveLocal(delId);
+                        break;
+
+                    default:
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[IncidentListVM] live event error: {ex}");
+            }
+        }
+
+        private void OnFirebaseError(Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[IncidentListVM] live stream error: {ex}");
+        }
+
+        private void UpsertLocal(IncidentModel updated)
+        {
+            var idx = _all.FindIndex(x => x.Id == updated.Id);
+            if (idx >= 0) _all[idx] = updated;
+            else _all.Insert(0, updated);
+
+            _all.Sort((a, b) => b.DateTime.CompareTo(a.DateTime));
+
+            MainThread.BeginInvokeOnMainThread(ApplyFilter);
+        }
+
+        private void RemoveLocal(int id)
+        {
+            _all.RemoveAll(x => x.Id == id);
+
+            MainThread.BeginInvokeOnMainThread(() =>
+            {
+                var item = Incidentes.FirstOrDefault(x => x.Id == id);
+                if (item != null) Incidentes.Remove(item);
+            });
+        }
     }
 }

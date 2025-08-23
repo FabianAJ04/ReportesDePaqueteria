@@ -11,16 +11,21 @@ namespace ReportesDePaqueteria.MVVM.ViewModels
         private readonly IShipmentRepository _shipments;
         private readonly IUserRepository _users;
 
+        private readonly INotificationRepository _notifications;
+
         [ObservableProperty] private string origin = "";
         [ObservableProperty] private string destination = "";
         [ObservableProperty] private string? receiverName;
         [ObservableProperty] private string? description;
         [ObservableProperty] private bool isBusy;
 
-        public ShipmentFormViewModel(IShipmentRepository shipments, IUserRepository users)
+        public ShipmentFormViewModel(IShipmentRepository shipments,
+                                     IUserRepository users,
+                                     INotificationRepository notifications)
         {
             _shipments = shipments;
             _users = users;
+            _notifications = notifications;       
         }
 
         [RelayCommand]
@@ -37,13 +42,11 @@ namespace ReportesDePaqueteria.MVVM.ViewModels
             IsBusy = true;
             try
             {
-                // Sender = usuario logueado
                 var uid = await SecureStorage.GetAsync("user_id");
                 UserModel? sender = null;
                 if (!string.IsNullOrWhiteSpace(uid))
                     sender = await _users.GetByIdAsync(uid);
 
-                // Generar código único
                 string code;
                 int guard = 0;
                 do
@@ -68,10 +71,32 @@ namespace ReportesDePaqueteria.MVVM.ViewModels
                     Destination = Destination?.Trim() ?? ""
                 };
 
+                // 1) Crear envío
                 await _shipments.CreateAsync(shipment);
 
+                // 2) Crear notificación 
+                try
+                {
+                    var notif = new NotificationModel
+                    {
+                        Type = NotificationType.ShipmentCreated,
+                        Title = "Paquete creado",
+                        Message = $"{shipment.Code} para {shipment.ReceiverName}",
+                        Timestamp = DateTime.UtcNow,
+                        IsRead = false,
+                        ShipmentCode = shipment.Code,
+                        DeepLink = $"/{nameof(ShipmentDetailPage)}?code={Uri.EscapeDataString(shipment.Code)}"
+                    };
+
+                    await _notifications.CreateAsync(notif);
+                }
+                catch (Exception exNotif)
+                {
+                    System.Diagnostics.Debug.WriteLine($"[ShipmentFormVM] Notification create failed: {exNotif}");
+                }
+
                 await Shell.Current.DisplayAlert("Éxito", $"Envío creado: {shipment.Code}", "OK");
-                await Shell.Current.GoToAsync($"{nameof(ShipmentDetailPage)}?code={Uri.EscapeDataString(shipment.Code)}");
+                await Shell.Current.GoToAsync($"/{nameof(ShipmentDetailPage)}?code={Uri.EscapeDataString(shipment.Code)}");
             }
             catch (Exception ex)
             {
