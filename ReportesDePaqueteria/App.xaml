@@ -26,7 +26,6 @@
             <converters:StatusConverter x:Key="StatusConverter" />
             <converters:PriorityConverter x:Key="PriorityConverter"/>
             <converters:CategoryConverter x:Key="CategoryConverter"/>
-            
         </ResourceDictionary>
     </Application.Resources>
 </Application>
