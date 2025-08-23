@@ -24,7 +24,7 @@
             <converters:IsNullConverter x:Key="IsNullConverter" />
             <converters:AllTrueConverter x:Key="AllTrueConverter" />
             <converters:StatusConverter x:Key="StatusConverter" />
-            <converters:PriorityConverter x:Key="PriorityConverter"/>
+            <mvvmConverters:PriorityConverter x:Key="PriorityConverter"/>
             <converters:CategoryConverter x:Key="CategoryConverter"/>
         </ResourceDictionary>
     </Application.Resources>

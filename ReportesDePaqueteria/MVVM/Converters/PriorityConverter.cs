@@ -1,8 +1,7 @@
-﻿using System;
-using System.Globalization;
+﻿using System.Globalization;
 
-namespace ReportesDePaqueteria.MVVM.Converters
-{
+namespace ReportesDePaqueteria.MVVM.Converters;
+
     public class PriorityConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
@@ -42,4 +41,4 @@ namespace ReportesDePaqueteria.MVVM.Converters
             };
         }
     }
-}
+
