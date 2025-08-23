@@ -174,7 +174,6 @@
         </ScrollView>
         <HorizontalStackLayout Grid.Row="1" Spacing="10" Padding="20" HorizontalOptions="Center">
             <Button Text="Marcar todo leído" Style="{StaticResource FlatButton}" Clicked="OnMarkAllReadClicked"/>
-            <Button Text="Limpiar" Style="{StaticResource FlatButton}" Clicked="OnClearAllClicked"/>
         </HorizontalStackLayout>
     </Grid>
 </ContentPage>

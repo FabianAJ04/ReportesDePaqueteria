@@ -18,8 +18,8 @@ namespace ReportesDePaqueteria.MVVM.Models
     public sealed class NotificationRepository : INotificationRepository
     {
         private const string DbUrl = "https://ruby-on-rails-10454-default-rtdb.firebaseio.com/";
-        private const string Root = "NotificationsByUser";
-        private const string Items = "k"; 
+        private const string Root = "Notification";
+
         private readonly FirebaseClient _client;
 
         public NotificationRepository()
@@ -71,7 +71,7 @@ namespace ReportesDePaqueteria.MVVM.Models
 
             try
             {
-                var snapsK = await _client.Child(Root).Child(userId).Child(Items)
+                var snapsK = await _client.Child(Root).Child(userId)
                     .OnceAsync<NotificationModel>().ConfigureAwait(false);
                 foreach (var s in snapsK)
                     if (s.Object?.Id > max) max = s.Object.Id;
@@ -102,7 +102,7 @@ namespace ReportesDePaqueteria.MVVM.Models
             if (n.Timestamp == default) n.Timestamp = DateTime.UtcNow;
             n.RecipientUserId = userId;
 
-            await _client.Child(Root).Child(userId).Child(Items)
+            await _client.Child(Root).Child(userId)
                          .PostAsync(n)
                          .ConfigureAwait(false);
         }
@@ -114,7 +114,7 @@ namespace ReportesDePaqueteria.MVVM.Models
 
             try
             {
-                var snaps = await _client.Child(Root).Child(userId).Child(Items)
+                var snaps = await _client.Child(Root).Child(userId)
                     .OnceAsync<NotificationModel>().ConfigureAwait(false);
 
                 var listK = snaps.Select(s =>
@@ -170,7 +170,7 @@ namespace ReportesDePaqueteria.MVVM.Models
                     return System.Reactive.Disposables.Disposable.Empty;
                 }
 
-                return _client.Child(Root).Child(userId).Child(Items)
+                return _client.Child(Root).Child(userId)
                               .AsObservable<NotificationModel>()
                               .Subscribe(obs);
             });
@@ -183,14 +183,14 @@ namespace ReportesDePaqueteria.MVVM.Models
 
             try
             {
-                var snaps = await _client.Child(Root).Child(userId).Child(Items)
+                var snaps = await _client.Child(Root).Child(userId)
                     .OnceAsync<NotificationModel>().ConfigureAwait(false);
 
                 var target = snaps.FirstOrDefault(s => s.Object?.Id == id);
                 if (target != null && target.Object is NotificationModel notif && !notif.IsRead)
                 {
                     notif.IsRead = true;
-                    await _client.Child(Root).Child(userId).Child(Items).Child(target.Key!)
+                    await _client.Child(Root).Child(userId).Child(target.Key!)
                         .PatchAsync(notif).ConfigureAwait(false);
                     return;
                 }
@@ -221,7 +221,7 @@ namespace ReportesDePaqueteria.MVVM.Models
             try
             {
                 // Delete from new structure (/k/)
-                await _client.Child(Root).Child(userId).Child(Items).DeleteAsync();
+                await _client.Child(Root).Child(userId).DeleteAsync();
 
                 // Delete from old structure (direct under userId)
                 await _client.Child(Root).Child(userId).DeleteAsync();
