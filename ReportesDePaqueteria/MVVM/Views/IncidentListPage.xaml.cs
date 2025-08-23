@@ -1,28 +1,28 @@
+using System;
+using Microsoft.Maui.Controls;
 using ReportesDePaqueteria.MVVM.ViewModels;
-using ReportesDePaqueteria.MVVM.Models; 
 
-namespace ReportesDePaqueteria.MVVM.Views;
-
-public partial class IncidentListPage : ContentPage
+namespace ReportesDePaqueteria.MVVM.Views
 {
-    private readonly IncidentListViewModel _vm;
-
-    public IncidentListPage(IncidentListViewModel vm)
+    public partial class IncidentListPage : ContentPage
     {
-        InitializeComponent();
-        BindingContext = _vm = vm;
-    }
+        public IncidentListPage(IncidentListViewModel vm)
+        {
+            InitializeComponent();
+            BindingContext = vm;
+        }
 
-    protected override async void OnAppearing()
-    {
-        base.OnAppearing();
-        _vm.IsRefreshing = true;
-        await _vm.LoadAsync();
-    }
 
-    private async void OnVerClicked(object sender, EventArgs e)
-    {
-        if ((sender as Button)?.CommandParameter is IncidentModel incident)
-            await Shell.Current.DisplayAlert("Incidente", $"Abrir detalle #{incident.Id}", "OK");
+        protected override async void OnAppearing()
+        {
+            base.OnAppearing();
+            if (BindingContext is IncidentListViewModel vm && vm.Incidentes.Count == 0 && !vm.IsBusy)
+                await vm.LoadAsync();
+        }
+
+        private async void OnHomeClicked(object sender, EventArgs e)
+        {
+            await Shell.Current.GoToAsync("//homepage");
+        }
     }
 }

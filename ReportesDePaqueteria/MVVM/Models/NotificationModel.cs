@@ -1,20 +1,19 @@
-﻿using ReportesDePaqueteria.MVVM.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace ReportesDePaqueteria.MVVM.Models
+﻿namespace ReportesDePaqueteria.MVVM.Models
 {
+    public enum NotificationType { ShipmentCreated = 1, IncidentCreated = 2 }
+
     public class NotificationModel
     {
-        public int Id { get; set; } // Identificador único de la notificación.
-        public string Title { get; set; } // Título de la notificación.
-        public string Message { get; set; } // Mensaje corto de la notificación.
-        public int Priority { get; set; } // Prioridad de la notificación, 1: Low, 2: Medium, 3: High.
-        public bool IsRead { get; set; } // Indica si la notificación ha sido leída o no.
-        public DateTime Timestamp { get; set; } // Fecha y hora de la notificación.
-        public ShipmentModel Shipment { get; set; } //Shipment asociado con la notificación. Este modelo ya contiene información sobre del envio, y los usuarios a ser notificados.
+        public int Id { get; set; }
+        public NotificationType Type { get; set; }
+        public string Title { get; set; } = "";
+        public string Message { get; set; } = "";
+        public DateTime Timestamp { get; set; } = DateTime.UtcNow;
+        public bool IsRead { get; set; }
+
+        public string RecipientUserId { get; set; } = "";  // se completa automáticamente
+        public string? ShipmentCode { get; set; }
+        public int? IncidentId { get; set; }
+        public string? DeepLink { get; set; }
     }
 }

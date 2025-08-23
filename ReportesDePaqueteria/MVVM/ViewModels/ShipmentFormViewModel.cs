@@ -3,6 +3,9 @@ using CommunityToolkit.Mvvm.Input;
 using Microsoft.Maui.Storage;
 using ReportesDePaqueteria.MVVM.Models;
 using ReportesDePaqueteria.MVVM.Views;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace ReportesDePaqueteria.MVVM.ViewModels
 {
@@ -10,6 +13,7 @@ namespace ReportesDePaqueteria.MVVM.ViewModels
     {
         private readonly IShipmentRepository _shipments;
         private readonly IUserRepository _users;
+        private readonly INotificationRepository _notifications;
 
         [ObservableProperty] private string origin = "";
         [ObservableProperty] private string destination = "";
@@ -17,11 +21,15 @@ namespace ReportesDePaqueteria.MVVM.ViewModels
         [ObservableProperty] private string? description;
         [ObservableProperty] private bool isBusy;
 
-        public ShipmentFormViewModel(IShipmentRepository shipments, IUserRepository users)
+        public ShipmentFormViewModel(IShipmentRepository shipments,
+                                     IUserRepository users,
+                                     INotificationRepository notifications)
         {
             _shipments = shipments;
             _users = users;
+            _notifications = notifications;
         }
+
         public ShipmentModel Shipment { get; set; } = new ShipmentModel();
 
         [RelayCommand]
@@ -29,19 +37,16 @@ namespace ReportesDePaqueteria.MVVM.ViewModels
         {
             if (IsBusy) return;
 
-            // Validaciones
             if (string.IsNullOrWhiteSpace(ReceiverName))
             {
                 await Shell.Current.DisplayAlert("Validación", "Ingresa el nombre del destinatario.", "OK");
                 return;
             }
-
             if (string.IsNullOrWhiteSpace(Origin))
             {
                 await Shell.Current.DisplayAlert("Validación", "Ingresa el lugar de origen.", "OK");
                 return;
             }
-
             if (string.IsNullOrWhiteSpace(Destination))
             {
                 await Shell.Current.DisplayAlert("Validación", "Ingresa el lugar de destino.", "OK");
@@ -49,10 +54,8 @@ namespace ReportesDePaqueteria.MVVM.ViewModels
             }
 
             IsBusy = true;
-
             try
             {
-                // Verificar que el usuario actual sea un usuario normal (rol 3)
                 var uid = await SecureStorage.GetAsync("user_id");
                 if (string.IsNullOrWhiteSpace(uid))
                 {
@@ -67,33 +70,29 @@ namespace ReportesDePaqueteria.MVVM.ViewModels
                     return;
                 }
 
-                if (sender.Role != 3) // Solo usuarios normales pueden crear envíos
+                if (sender.Role != 3)
                 {
-                    await Shell.Current.DisplayAlert("Acceso denegado",
-                        "Solo los usuarios pueden crear nuevos envíos.", "OK");
+                    await Shell.Current.DisplayAlert("Acceso denegado", "Solo los usuarios pueden crear nuevos envíos.", "OK");
                     return;
                 }
 
-                // Generar código único de seguimiento
                 string code;
                 int attempts = 0;
                 do
                 {
                     code = TrackingGenerator.NewCode();
                     attempts++;
-                    if (attempts > 12)
-                        throw new Exception("No se pudo generar un código único.");
+                    if (attempts > 12) throw new Exception("No se pudo generar un código único.");
                 }
                 while ((await _shipments.GetByCodeAsync(code)) != null);
 
-                // Crear el envío
                 var shipment = new ShipmentModel
                 {
                     Code = code,
                     Sender = sender,
-                    Worker = null, // No asignado inicialmente
+                    Worker = null,
                     ReceiverName = ReceiverName?.Trim() ?? "",
-                    Status = 1, // Estado: Enviado
+                    Status = 1,
                     CreatedDate = DateTime.UtcNow,
                     Description = Description?.Trim() ?? "",
                     Incident = null,
@@ -101,26 +100,47 @@ namespace ReportesDePaqueteria.MVVM.ViewModels
                     Destination = Destination?.Trim() ?? ""
                 };
 
-                // Guardar el envío en la base de datos
                 await _shipments.CreateAsync(shipment);
 
-                // Crear notificación para TODOS los administradores
-                await CreateAdminNotificationAsync(shipment);
+                try
+                {
+                    var notif = new NotificationModel
+                    {
+                        Type = NotificationType.ShipmentCreated,
+                        Title = "Paquete creado",
+                        Message = $"{shipment.Code} para {shipment.ReceiverName}",
+                        Timestamp = DateTime.UtcNow,
+                        IsRead = false,
+                        ShipmentCode = shipment.Code,
+                        DeepLink = $"/{nameof(ShipmentDetailPage)}?code={Uri.EscapeDataString(shipment.Code)}"
+                    };
+                    await _notifications.CreateAsync(notif);
+                }
+                catch (Exception exNotif)
+                {
+                    System.Diagnostics.Debug.WriteLine($"[ShipmentFormVM] Notification create failed (current user): {exNotif}");
+                }
 
-                // Limpiar el formulario
+                try
+                {
+                    await CreateAdminNotificationsAsync(shipment);
+                }
+                catch (Exception exAdmins)
+                {
+                    System.Diagnostics.Debug.WriteLine($"[ShipmentFormVM] Admin notifications failed: {exAdmins}");
+                }
+
                 Clean();
 
                 await Shell.Current.DisplayAlert("Éxito",
                     $"Envío creado exitosamente.\nCódigo de seguimiento: {shipment.Code}", "OK");
 
-                // Navegar a los detalles del envío
-                await Shell.Current.GoToAsync($"{nameof(ShipmentDetailPage)}?code={Uri.EscapeDataString(shipment.Code)}");
+                await Shell.Current.GoToAsync($"/{nameof(ShipmentDetailPage)}?code={Uri.EscapeDataString(shipment.Code)}");
             }
             catch (Exception ex)
             {
-                await Shell.Current.DisplayAlert("Error",
-                    $"No se pudo crear el envío: {ex.Message}", "OK");
-                System.Diagnostics.Debug.WriteLine($"[ShipmentForm] Error: {ex.Message}");
+                await Shell.Current.DisplayAlert("Error", $"No se pudo crear el envío: {ex.Message}", "OK");
+                System.Diagnostics.Debug.WriteLine($"[ShipmentForm] Error: {ex}");
             }
             finally
             {
@@ -134,60 +154,46 @@ namespace ReportesDePaqueteria.MVVM.ViewModels
             Destination = "";
             ReceiverName = null;
             Description = null;
-        private async Task CreateAdminNotificationAsync(ShipmentModel shipment)
+        }
+
+        private async Task CreateAdminNotificationsAsync(ShipmentModel shipment)
         {
-            try
+            var allUsers = await _users.GetAllAsync();
+            var admins = allUsers.Values.Where(u => u.Role == 1).ToList();
+            if (admins.Count == 0) return;
+
+            if (_notifications is INotificationRepositoryMulti multi)
             {
-                // Obtener todos los administradores
-                var allUsers = await _users.GetAllAsync();
-                var admins = allUsers.Values.Where(u => u.Role == 1).ToList();
-
-                if (!admins.Any())
-                {
-                    System.Diagnostics.Debug.WriteLine("[ShipmentForm] No se encontraron administradores para notificar");
-                    return;
-                }
-
-                // Crear notificación para cada administrador
-                var notificationRepo = new NotificationRepository();
-
                 foreach (var admin in admins)
                 {
-                    var notification = new NotificationModel
+                    var n = new NotificationModel
                     {
-                        Id = DateTime.UtcNow.Ticks.GetHashCode() + admin.GetHashCode(), // ID único por admin
+                        Type = NotificationType.ShipmentCreated,
                         Title = "Nuevo envío creado",
-                        Message = $"Nuevo envío {shipment.Code} de {shipment.Sender?.Name ?? "Usuario"} " +
-                                $"desde {shipment.Origin} hacia {shipment.Destination}",
-                        Priority = 2, // Medium priority
-                        IsRead = false,
+                        Message = $"Nuevo envío {shipment.Code} de {shipment.Sender?.Name ?? "Usuario"} desde {shipment.Origin} hacia {shipment.Destination}",
                         Timestamp = DateTime.UtcNow,
-                        Shipment = shipment
+                        IsRead = false,
+                        ShipmentCode = shipment.Code,
+                        DeepLink = $"/{nameof(ShipmentDetailPage)}?code={Uri.EscapeDataString(shipment.Code)}"
                     };
-
-                    await notificationRepo.CreateDocumentAsync(notification);
-                    System.Diagnostics.Debug.WriteLine($"[ShipmentForm] Notificación enviada al admin {admin.Name}");
+                    await multi.CreateForUserAsync(admin.Id, n);
                 }
-
-                System.Diagnostics.Debug.WriteLine($"[ShipmentForm] {admins.Count} notificaciones creadas para el envío {shipment.Code}");
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"[ShipmentForm] Error al crear notificaciones: {ex.Message}");
-                // No interrumpir el flujo principal por errores de notificaciones
             }
         }
 
         [RelayCommand]
         private async Task CancelAsync()
         {
-            // Limpiar campos y volver atrás
             Origin = "";
             Destination = "";
             ReceiverName = "";
             Description = "";
-
             await Shell.Current.GoToAsync("..");
         }
+    }
+
+    public interface INotificationRepositoryMulti : INotificationRepository
+    {
+        Task CreateForUserAsync(string userId, NotificationModel n);
     }
 }

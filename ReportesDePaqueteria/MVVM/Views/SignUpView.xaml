@@ -59,6 +59,20 @@
                     </VerticalStackLayout>
                 </Frame>
 
+
+                <!-- Username -->
+                <!--<Frame Style="{StaticResource Card}">
+                    <VerticalStackLayout Spacing="4">
+                        <Label Text="Usuario"
+                               FontSize="14"
+                               TextColor="{StaticResource TextLight}"/>
+                        <Entry Placeholder="Nombre de usuario"
+                               Text="{Binding Username}"
+                               BackgroundColor="Transparent"
+                               TextColor="{StaticResource TextDark}"/>
+                    </VerticalStackLayout>
+                </Frame>-->
+
                 <!-- Password -->
                 <Frame Style="{StaticResource Card}">
                     <VerticalStackLayout Spacing="4">
