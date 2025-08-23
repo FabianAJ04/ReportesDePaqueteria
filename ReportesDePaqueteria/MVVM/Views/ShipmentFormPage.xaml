@@ -96,7 +96,7 @@
             <Grid ColumnDefinitions="*,Auto" Padding="12,0">
                 <Button Text="Guardar"
         Style="{StaticResource PrimaryButton}"
-        Clicked="OnGuardarClicked"/>
+        Command="{Binding CreateCommand}"/>
                 <Button Grid.Column="1"
         Text="Cancelar"
         Style="{StaticResource FlatButton}"

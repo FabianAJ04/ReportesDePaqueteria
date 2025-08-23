@@ -15,12 +15,11 @@ public partial class UserProfileViewModel : ObservableObject
     [ObservableProperty] private string userId;
     [ObservableProperty] private string name;
     [ObservableProperty] private string email;
-    [ObservableProperty] private int role;             // 1=Admin, 3=Usuario
+    [ObservableProperty] private int role;             // 1=Admin, 2=Trabajador, 3=Usuario
     [ObservableProperty] private bool isAdmin;
 
     [ObservableProperty] private bool notifyEmail;
     [ObservableProperty] private bool notifyPush;
-    [ObservableProperty] private bool darkTheme;
 
     [ObservableProperty] private bool isBusy;
     [ObservableProperty] private string errorMessage;
@@ -60,11 +59,10 @@ public partial class UserProfileViewModel : ObservableObject
             Name = me.Name;
             Email = me.Email;
             Role = me.Role;
-            IsAdmin = me.Role == 1; // 1=Admin, 3=User
+            IsAdmin = me.Role == 1; // 1=Admin, 2=Trabajador, 3=Usuario
 
             NotifyEmail = Preferences.Default.Get("pref_notify_email", true);
             NotifyPush = Preferences.Default.Get("pref_notify_push", true);
-            DarkTheme = Preferences.Default.Get("pref_dark_theme", false);
         }
         catch (Exception ex)
         {
@@ -90,14 +88,13 @@ public partial class UserProfileViewModel : ObservableObject
                 Id = UserId,
                 Name = Name?.Trim() ?? string.Empty,
                 Email = Email?.Trim().ToLowerInvariant() ?? string.Empty,
-                Role = Role // 1 o 3
+                Role = Role // 1, 2, 3
             };
 
             await _users.UpdateAsync(u);
 
             Preferences.Default.Set("pref_notify_email", NotifyEmail);
             Preferences.Default.Set("pref_notify_push", NotifyPush);
-            Preferences.Default.Set("pref_dark_theme", DarkTheme);
 
             await Shell.Current.DisplayAlert("Perfil", "Cambios guardados.", "OK");
         }

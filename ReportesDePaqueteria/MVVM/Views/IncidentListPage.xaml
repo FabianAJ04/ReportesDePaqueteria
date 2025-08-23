@@ -5,7 +5,8 @@
              xmlns:flex="clr-namespace:Microsoft.Maui.Controls;assembly=Microsoft.Maui.Controls"
              x:Name="ThisPage"
              Title="Incidentes"
-             BackgroundColor="#F5F6F8">
+             BackgroundColor="#F5F6F8"
+             Shell.NavBarIsVisible="True">
 
     <ContentPage.Resources>
         <ResourceDictionary>
@@ -52,16 +53,15 @@
             <Grid ColumnDefinitions="*,Auto">
                 <Label Text="Incidentes" Style="{StaticResource H1}" />
                 <Button Grid.Column="1"
-                Text="Inicio"
-                Style="{StaticResource FlatButton}"
-                Clicked="OnHomeClicked"/>
+                        Text="Inicio"
+                        Style="{StaticResource FlatButton}"
+                        Clicked="OnHomeClicked"/>
             </Grid>
 
             <SearchBar Placeholder="Buscar por palabra clave…"
-                 Margin="0,0,0,4"
-                 Text="{Binding SearchText}" />
+                       Margin="0,0,0,4"
+                       Text="{Binding SearchText}" />
 
-            <!-- Lista -->
             <CollectionView ItemsSource="{Binding Incidentes}" SelectionMode="None">
                 <CollectionView.ItemsLayout>
                     <LinearItemsLayout Orientation="Vertical" ItemSpacing="8"/>
@@ -79,23 +79,23 @@
                         <Frame Style="{StaticResource Card}">
                             <Frame.GestureRecognizers>
                                 <TapGestureRecognizer
-                  Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.OpenCommand}"
-                  CommandParameter="{Binding .}"/>
+                                    Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.OpenCommand}"
+                                    CommandParameter="{Binding .}"/>
                             </Frame.GestureRecognizers>
 
                             <Grid ColumnDefinitions="*,Auto"
-                    RowDefinitions="Auto,Auto,Auto,Auto"
-                    ColumnSpacing="12">
+                                  RowDefinitions="Auto,Auto,Auto,Auto"
+                                  ColumnSpacing="12">
 
                                 <!-- Título -->
                                 <Label Grid.ColumnSpan="2"
-                       Text="{Binding Title}"
-                       FontAttributes="Bold"
-                       FontSize="16"/>
+                                       Text="{Binding Title}"
+                                       FontAttributes="Bold"
+                                       FontSize="16"/>
 
                                 <!-- Chips con wrap -->
                                 <flex:FlexLayout Grid.Row="1" Grid.ColumnSpan="2"
-                                 Direction="Row" Wrap="Wrap" AlignItems="Center" AlignContent="Start">
+                                                 Direction="Row" Wrap="Wrap" AlignItems="Center" AlignContent="Start">
                                     <!-- Status -->
                                     <Frame Style="{StaticResource Chip}">
                                         <Label FontSize="12" Text="{Binding Status, StringFormat='Estado: {0}'}"/>
@@ -142,26 +142,26 @@
 
                                 <!-- Descripción -->
                                 <Label Grid.Row="2" Grid.ColumnSpan="2"
-                       Margin="0,4,0,0"
-                       Text="{Binding Description}"
-                       TextColor="{StaticResource TextLight}"
-                       LineBreakMode="TailTruncation"
-                       MaxLines="2"/>
+                                       Margin="0,4,0,0"
+                                       Text="{Binding Description}"
+                                       TextColor="{StaticResource TextLight}"
+                                       LineBreakMode="TailTruncation"
+                                       MaxLines="2"/>
 
                                 <!-- Fecha + Asignado / Acción -->
                                 <Grid Grid.Row="3" ColumnDefinitions="*,Auto" ColumnSpacing="12" Margin="0,6,0,0">
                                     <VerticalStackLayout Spacing="2">
                                         <Label Text="{Binding DateTime, StringFormat='{0:dd/MM/yyyy}'}"
-                           FontSize="12" TextColor="{StaticResource TextLight}"/>
+                                               FontSize="12" TextColor="{StaticResource TextLight}"/>
                                         <Label Text="{Binding Assignee.Name, StringFormat='Asig.: {0}'}"
-                           FontSize="12" TextColor="{StaticResource TextLight}"/>
+                                               FontSize="12" TextColor="{StaticResource TextLight}"/>
                                     </VerticalStackLayout>
 
                                     <Button Grid.Column="1"
-                          Text="Ver"
-                          Style="{StaticResource FlatButton}"
-                          Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.OpenCommand}"
-                          CommandParameter="{Binding .}" />
+                                            Text="Ver"
+                                            Style="{StaticResource FlatButton}"
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.OpenCommand}"
+                                            CommandParameter="{Binding .}" />
                                 </Grid>
                             </Grid>
                         </Frame>

@@ -161,7 +161,7 @@
                             <Label Text="Seguimiento" Style="{StaticResource H2}"/>
                             <Button Grid.Column="1" Text="Marcar entregado"
                                     Style="{StaticResource FlatButton}"
-                                    Command="{Binding MarkDeliveredCommand}"/>
+                                    Command="{Binding MarkDeliveredCommand}"/>      <!-- Aqui se debe modificar para que los usuarios no puedan marcar como entregado -->
                         </Grid>
 
                         <CollectionView ItemsSource="{Binding Eventos}" Margin="0,6,0,0">

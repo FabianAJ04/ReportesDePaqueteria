@@ -28,6 +28,7 @@ namespace ReportesDePaqueteria.MVVM.Models
             {
                 AuthTokenAsyncFactory = async () => await SecureStorage.GetAsync("id_token")
             });
+
         }
 
         private async Task<string> GetCurrentUserIdAsync()

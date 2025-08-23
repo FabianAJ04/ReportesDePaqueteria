@@ -20,11 +20,31 @@ namespace ReportesDePaqueteria.MVVM.ViewModels
         IRecipient<IncidentDeletedMessage>
     {
         private readonly IIncidentRepository _incidents;
-        private IDisposable? _liveSub;   
+        private IDisposable? _liveSub;
 
         [ObservableProperty] private bool isBusy;
         [ObservableProperty] private bool isRefreshing;
         [ObservableProperty] private string? searchText;
+
+        public ObservableCollection<string> Categorias { get; } =
+            new(new[] { "Todas", "Paquete", "Entrega", "Pago", "Otro" });
+
+        public ObservableCollection<string> Estados { get; } =
+            new(new[] { "Todos", "Abierto", "En progreso", "Resuelto", "Cerrado" });
+
+        public ObservableCollection<string> Prioridades { get; } =
+            new(new[] { "Todas", "Baja", "Media", "Alta", "Crítica" });
+
+        public ObservableCollection<string> Impactos { get; } =
+            new(new[] { "Todos" });
+
+        [ObservableProperty] private string categoriaSel = "Todas";
+        [ObservableProperty] private string estadoSel = "Todos";
+        [ObservableProperty] private string prioridadSel = "Todas";
+        [ObservableProperty] private string impactoSel = "Todos";
+
+        [ObservableProperty] private DateTime fechaDesde = DateTime.Today.AddDays(-30);
+        [ObservableProperty] private DateTime fechaHasta = DateTime.Today;
 
         public ObservableCollection<IncidentModel> Incidentes { get; } = new();
         private readonly List<IncidentModel> _all = new();
@@ -44,7 +64,6 @@ namespace ReportesDePaqueteria.MVVM.ViewModels
         protected override void OnActivated()
         {
             base.OnActivated();
-
             _liveSub ??= _incidents.ObserveAll().Subscribe(OnFirebaseEvent, OnFirebaseError);
         }
 
@@ -56,6 +75,16 @@ namespace ReportesDePaqueteria.MVVM.ViewModels
         }
 
         [RelayCommand]
+        private async Task BackAsync()
+        {
+            var nav = Shell.Current?.Navigation ?? Application.Current?.MainPage?.Navigation;
+            if (nav is null) return;
+
+            if (nav.ModalStack.Count > 0) { await nav.PopModalAsync(); return; }
+            if (nav.NavigationStack.Count > 1) { await nav.PopAsync(); return; }
+            await Shell.Current.GoToAsync("..");
+        }
+
         public async Task LoadAsync()
         {
             if (IsBusy) return;
@@ -115,7 +144,6 @@ namespace ReportesDePaqueteria.MVVM.ViewModels
         {
             var updated = message.Value;
             if (updated is null) return;
-
             UpsertLocal(updated);
         }
 
@@ -147,9 +175,6 @@ namespace ReportesDePaqueteria.MVVM.ViewModels
                                   : (int.TryParse(ev.Key, out var k) ? k : 0);
                         if (delId > 0) RemoveLocal(delId);
                         break;
-
-                    default:
-                        break;
                 }
             }
             catch (Exception ex)
@@ -170,7 +195,6 @@ namespace ReportesDePaqueteria.MVVM.ViewModels
             else _all.Insert(0, updated);
 
             _all.Sort((a, b) => b.DateTime.CompareTo(a.DateTime));
-
             MainThread.BeginInvokeOnMainThread(ApplyFilter);
         }
 

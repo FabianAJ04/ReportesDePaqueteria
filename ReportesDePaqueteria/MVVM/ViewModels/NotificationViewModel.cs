@@ -5,6 +5,11 @@ using ReportesDePaqueteria.MVVM.Models;
 using System.Collections.ObjectModel;
 using System.Reactive.Linq;
 using Firebase.Database.Streaming;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using System;
+using System.Collections.Generic;
 
 namespace ReportesDePaqueteria.MVVM.ViewModels
 {
@@ -18,8 +23,8 @@ namespace ReportesDePaqueteria.MVVM.ViewModels
         [ObservableProperty] private bool isBusy;
         [ObservableProperty] private bool isRefreshing;
         [ObservableProperty] private string? search;
-        [ObservableProperty] private string stateSelected = "Todas";  // Todas | No leídas | Leídas
-        [ObservableProperty] private string typeSelected = "Todos";   // Todos | Paquete | Incidencia
+        [ObservableProperty] private string stateSelected = "Todas";
+        [ObservableProperty] private string typeSelected = "Todos";
 
         public ObservableCollection<string> StateOptions { get; } = new(new[] { "Todas", "No leídas", "Leídas" });
         public ObservableCollection<string> TypeOptions { get; } = new(new[] { "Todos", "Paquete", "Incidencia" });
@@ -100,7 +105,7 @@ namespace ReportesDePaqueteria.MVVM.ViewModels
                         if (idxAll >= 0) _all[idxAll] = n;
                         else _all.Insert(0, n);
 
-                        ApplyFilter(); 
+                        ApplyFilter();
                         break;
                 }
             });
@@ -122,7 +127,7 @@ namespace ReportesDePaqueteria.MVVM.ViewModels
             {
                 try
                 {
-                    await Task.Delay(180, token); 
+                    await Task.Delay(180, token);
                     if (token.IsCancellationRequested) return;
                     MainThread.BeginInvokeOnMainThread(ApplyFilter);
                 }
@@ -183,7 +188,6 @@ namespace ReportesDePaqueteria.MVVM.ViewModels
             {
                 n.IsRead = true;
                 await _repo.MarkAsReadAsync(n.Id);
-
                 ApplyFilter();
             }
             catch (Exception ex)
@@ -217,14 +221,14 @@ namespace ReportesDePaqueteria.MVVM.ViewModels
         {
             if (_repo is INotificationRepositoryBulk bulk)
             {
-                try { await bulk.MarkAllAsReadAsync(); } catch {  }
+                try { await bulk.MarkAllAsReadAsync(); } catch { }
             }
             else
             {
                 foreach (var n in _all.Where(x => !x.IsRead).ToList())
                 {
                     n.IsRead = true;
-                    try { await _repo.MarkAsReadAsync(n.Id); } catch {  }
+                    try { await _repo.MarkAsReadAsync(n.Id); } catch { }
                 }
             }
             ApplyFilter();
@@ -235,7 +239,7 @@ namespace ReportesDePaqueteria.MVVM.ViewModels
         {
             if (_repo is INotificationRepositoryBulk bulk)
             {
-                try { await bulk.ClearAllAsync(); } catch {  }
+                try { await bulk.ClearAllAsync(); } catch { }
                 _all.Clear();
                 Notificaciones.Clear();
             }

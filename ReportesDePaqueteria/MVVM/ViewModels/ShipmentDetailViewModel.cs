@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.Maui.Controls.PlatformConfiguration;
 using ReportesDePaqueteria.MVVM.Models;
 using ReportesDePaqueteria.MVVM.Views;
 using System.Collections.ObjectModel;
@@ -92,7 +93,8 @@ namespace ReportesDePaqueteria.MVVM.ViewModels
         }
 
         [RelayCommand]
-        private async Task MarkDeliveredAsync()
+        private async Task MarkDeliveredAsync() // Aqui se debe modificar para que los usuarios no puedan marcar como entregado 
+
         {
             if (Shipment is null) return;
 
@@ -129,7 +131,7 @@ namespace ReportesDePaqueteria.MVVM.ViewModels
         [RelayCommand]
         private Task MoreOptionsAsync()
         {
-            return Shell.Current.DisplayActionSheet("Opciones", "Cancelar", null, "Asignar trabajador", "Imprimir", "Borrar");
+            return Shell.Current.DisplayActionSheet("Opciones", "Cancelar", null, "Asignar trabajador", "Imprimir", "Borrar"); // Aqui se deberia eliminar las opciones para los usuarios
         }
 
         [RelayCommand]
