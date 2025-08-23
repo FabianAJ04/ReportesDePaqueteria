@@ -252,6 +252,7 @@ namespace ReportesDePaqueteria.MVVM.ViewModels
         }
     }
 
+
     public interface INotificationRepositoryWithDelete : INotificationRepository
     {
         Task DeleteAsync(int id);

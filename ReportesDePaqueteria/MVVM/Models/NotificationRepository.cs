@@ -17,7 +17,7 @@ namespace ReportesDePaqueteria.MVVM.Models
 
     public sealed class NotificationRepository : INotificationRepository
     {
-        private const string DbUrl = "https://react-firebase-6c246-default-rtdb.firebaseio.com/";
+        private const string DbUrl = "https://ruby-on-rails-10454-default-rtdb.firebaseio.com/";
         private const string Root = "NotificationsByUser";
         private const string Items = "k"; 
         private readonly FirebaseClient _client;
@@ -211,6 +211,22 @@ namespace ReportesDePaqueteria.MVVM.Models
             catch
             {
             }
+        }
+
+        public async Task DeleteAllAsync()
+        {
+            var userId = await GetCurrentUserIdAsync();
+            if (string.IsNullOrWhiteSpace(userId)) return;
+
+            try
+            {
+                // Delete from new structure (/k/)
+                await _client.Child(Root).Child(userId).Child(Items).DeleteAsync();
+
+                // Delete from old structure (direct under userId)
+                await _client.Child(Root).Child(userId).DeleteAsync();
+            }
+            catch { }
         }
     }
 }
