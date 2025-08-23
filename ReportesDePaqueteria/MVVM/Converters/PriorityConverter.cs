@@ -1,7 +1,7 @@
 ﻿using System.Globalization;
 
-namespace ReportesDePaqueteria.MVVM.Converters
-{
+namespace ReportesDePaqueteria.MVVM.Converters;
+
     public class PriorityConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
@@ -18,7 +18,15 @@ namespace ReportesDePaqueteria.MVVM.Converters
                 };
             }
 
-            return "Desconocida";
+            var s = value?.ToString();
+            return s switch
+            {
+                "1" => "Baja",
+                "2" => "Media",
+                "3" => "Alta",
+                "4" => "Crítica",
+                _ => "Desconocida"
+            };
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
@@ -33,4 +41,4 @@ namespace ReportesDePaqueteria.MVVM.Converters
             };
         }
     }
-}
+
