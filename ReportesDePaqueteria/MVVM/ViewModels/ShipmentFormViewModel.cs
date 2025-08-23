@@ -134,6 +134,7 @@ namespace ReportesDePaqueteria.MVVM.ViewModels
             Destination = "";
             ReceiverName = null;
             Description = null;
+        }
         private async Task CreateAdminNotificationAsync(ShipmentModel shipment)
         {
             try
