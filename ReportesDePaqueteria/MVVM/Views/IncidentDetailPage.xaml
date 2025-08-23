@@ -280,16 +280,13 @@
 
         <!-- FOOTER ACCIONES -->
         <Grid Grid.Row="2" Padding="16" ColumnDefinitions="*,Auto,Auto" BackgroundColor="#FFFFFFFF">
-            <Button Text="Guardar"
-                    Style="{StaticResource PrimaryButton}"
-                    Command="{Binding SaveCommand}"/>
-            <Button Grid.Column="1"
+            <Button Grid.Column="0"
                     Text="Ir al envío"
-                    Style="{StaticResource FlatButton}"
+                    Style="{StaticResource PrimaryButton}"
                     Command="{Binding GoToShipmentCommand}"/>
-            <Button Grid.Column="2"
+            <Button Grid.Column="1"
                     Text="Eliminar"
-                    Style="{StaticResource FlatButton}"
+                    Style="{StaticResource PrimaryButton}"
                     TextColor="#B91C1C"
                     Command="{Binding DeleteCommand}"/>
         </Grid>
