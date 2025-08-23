@@ -3,7 +3,11 @@ using CommunityToolkit.Mvvm.Input;
 using Microsoft.Maui.Storage;
 using ReportesDePaqueteria.MVVM.Models;
 using ReportesDePaqueteria.MVVM.Views;
+using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace ReportesDePaqueteria.MVVM.ViewModels
 {
@@ -11,6 +15,7 @@ namespace ReportesDePaqueteria.MVVM.ViewModels
     {
         private readonly IShipmentRepository _repo;
         private readonly IUserRepository _users;
+        private readonly INotificationRepository _notifications;
 
         [ObservableProperty] private bool isBusy;
         [ObservableProperty] private string? search;
@@ -22,10 +27,12 @@ namespace ReportesDePaqueteria.MVVM.ViewModels
         public ObservableCollection<ShipmentModel> Items { get; } = new();
         public ObservableCollection<ShipmentModel> ViewItems { get; } = new();
 
-        public ShipmentListViewModel(IShipmentRepository repo, IUserRepository users)
+        public ShipmentListViewModel(IShipmentRepository repo, IUserRepository users, INotificationRepository notifications)
         {
             _repo = repo;
             _users = users;
+            _notifications = notifications;
+
             PropertyChanged += (_, e) =>
             {
                 if (e.PropertyName == nameof(Search) || e.PropertyName == nameof(StatusFilter))
@@ -41,7 +48,6 @@ namespace ReportesDePaqueteria.MVVM.ViewModels
 
             try
             {
-                // Obtener usuario actual
                 var uid = await SecureStorage.GetAsync("user_id");
                 if (string.IsNullOrWhiteSpace(uid))
                 {
@@ -57,7 +63,6 @@ namespace ReportesDePaqueteria.MVVM.ViewModels
                     return;
                 }
 
-                // Determinar rol
                 IsAdmin = currentUser.Role == 1;
                 IsWorker = currentUser.Role == 2;
                 bool isRegularUser = currentUser.Role == 3;
@@ -74,27 +79,21 @@ namespace ReportesDePaqueteria.MVVM.ViewModels
 
                     if (IsAdmin)
                     {
-                        // ADMIN ve TODOS los envíos
                         shouldInclude = true;
                     }
                     else if (IsWorker)
                     {
-                        // TRABAJADOR ve solo los envíos que le fueron ASIGNADOS
                         shouldInclude = shipment.Worker?.Id == CurrentUserId;
                     }
                     else if (isRegularUser)
                     {
-                        // USUARIO NORMAL ve solo los envíos que ÉL CREÓ
                         shouldInclude = shipment.Sender?.Id == CurrentUserId;
                     }
 
                     if (shouldInclude)
-                    {
                         filteredShipments.Add(shipment);
-                    }
                 }
 
-                // Ordenar por fecha de creación (más recientes primero)
                 foreach (var s in filteredShipments.OrderByDescending(x => x.CreatedDate))
                 {
                     Items.Add(s);
@@ -145,19 +144,17 @@ namespace ReportesDePaqueteria.MVVM.ViewModels
         [RelayCommand]
         private async Task NewAsync()
         {
-            // Solo usuarios normales pueden crear nuevos envíos
             var uid = await SecureStorage.GetAsync("user_id");
             if (!string.IsNullOrWhiteSpace(uid))
             {
                 var user = await _users.GetByIdAsync(uid);
-                if (user?.Role == 3) // Usuario normal
+                if (user?.Role == 3)
                 {
                     await Shell.Current.GoToAsync(nameof(ShipmentFormPage));
                 }
                 else
                 {
-                    await Shell.Current.DisplayAlert("Acceso denegado",
-                        "Solo los usuarios pueden crear nuevos envíos.", "OK");
+                    await Shell.Current.DisplayAlert("Acceso denegado", "Solo los usuarios pueden crear nuevos envíos.", "OK");
                 }
             }
         }
@@ -169,73 +166,82 @@ namespace ReportesDePaqueteria.MVVM.ViewModels
 
             try
             {
-                // Obtener lista de trabajadores disponibles
                 var allUsers = await _users.GetAllAsync();
                 var workers = allUsers.Values.Where(u => u.Role == 2).ToList();
 
                 if (!workers.Any())
                 {
-                    await Shell.Current.DisplayAlert("Sin trabajadores",
-                        "No hay trabajadores disponibles para asignar.", "OK");
+                    await Shell.Current.DisplayAlert("Sin trabajadores", "No hay trabajadores disponibles para asignar.", "OK");
                     return;
                 }
 
-                // Crear lista de opciones para mostrar al admin
                 var workerNames = workers.Select(w => $"{w.Name} ({w.Email})").ToArray();
-                var selectedWorker = await Shell.Current.DisplayActionSheet(
-                    "Seleccionar trabajador", "Cancelar", null, workerNames);
+                var selectedWorker = await Shell.Current.DisplayActionSheet("Seleccionar trabajador", "Cancelar", null, workerNames);
 
                 if (selectedWorker != "Cancelar" && selectedWorker != null)
                 {
                     var workerIndex = Array.IndexOf(workerNames, selectedWorker);
                     if (workerIndex >= 0)
                     {
-                        shipment.Worker = workers[workerIndex];
-                        shipment.Status = 2; // Cambiar a "En tránsito"
+                        var worker = workers[workerIndex];
 
+                        shipment.Worker = worker;
+                        shipment.Status = 2; // En tránsito
                         await _repo.UpdateAsync(shipment);
 
-                        // Crear notificación para el trabajador
-                        await CreateWorkerNotificationAsync(shipment);
+                        await CreateWorkerNotificationAsync(shipment, worker);
 
                         await Shell.Current.DisplayAlert("Éxito",
-                            $"Trabajador {workers[workerIndex].Name} asignado al envío {shipment.Code}", "OK");
+                            $"Trabajador {worker.Name} asignado al envío {shipment.Code}", "OK");
 
-                        // Recargar la lista
                         await LoadAsync();
                     }
                 }
             }
             catch (Exception ex)
             {
-                await Shell.Current.DisplayAlert("Error",
-                    $"Error al asignar trabajador: {ex.Message}", "OK");
+                await Shell.Current.DisplayAlert("Error", $"Error al asignar trabajador: {ex.Message}", "OK");
             }
         }
 
-        private async Task CreateWorkerNotificationAsync(ShipmentModel shipment)
+        private async Task CreateWorkerNotificationAsync(ShipmentModel shipment, UserModel worker)
         {
             try
             {
-                var notification = new NotificationModel
+                var n = new NotificationModel
                 {
-                    Id = DateTime.UtcNow.Ticks.GetHashCode(), // ID único
+                    Type = NotificationType.ShipmentCreated, // Reutilizamos el tipo disponible
                     Title = "Nuevo envío asignado",
                     Message = $"Se te ha asignado el envío {shipment.Code} de {shipment.Origin} a {shipment.Destination}",
-                    Priority = 2, // Medium priority
-                    IsRead = false,
                     Timestamp = DateTime.UtcNow,
-                    Shipment = shipment
+                    IsRead = false,
+                    ShipmentCode = shipment.Code,
+                    DeepLink = $"/{nameof(ShipmentDetailPage)}?code={Uri.EscapeDataString(shipment.Code)}"
                 };
 
-                var notificationRepo = new NotificationRepository();
-                await notificationRepo.CreateDocumentAsync(notification);
-
-                System.Diagnostics.Debug.WriteLine($"[ShipmentList] Notificación creada para trabajador {shipment.Worker?.Name}");
+                await _notifications.CreateForUserIfSupportedAsync(worker.Id, n);
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"[ShipmentList] Error al crear notificación: {ex.Message}");
+            }
+        }
+    }
+
+    public static class NotificationRepoCompatExtensions
+    {
+        public static async Task CreateForUserIfSupportedAsync(this INotificationRepository repo, string userId, NotificationModel n)
+        {
+            var mi = repo.GetType().GetMethod("CreateForUserAsync", new[] { typeof(string), typeof(NotificationModel) });
+            if (mi != null)
+            {
+                var task = mi.Invoke(repo, new object[] { userId, n }) as Task;
+                if (task != null) await task.ConfigureAwait(false);
+            }
+            else
+            {
+                // Fallback: crea para el usuario actual (no el destinatario específico)
+                await repo.CreateAsync(n).ConfigureAwait(false);
             }
         }
     }

@@ -71,42 +71,15 @@
     <ScrollView>
         <VerticalStackLayout Padding="16" Spacing="10">
 
-            <!-- Header con información del rol actual -->
-            <Frame Style="{StaticResource Card}" BackgroundColor="#EEF2FF">
-                <VerticalStackLayout Spacing="4">
-                    <Label x:Name="RoleHeader" Style="{StaticResource H1}"/>
-                    <Label x:Name="RoleDescription" TextColor="{StaticResource TextLight}" FontSize="14"/>
-                </VerticalStackLayout>
-            </Frame>
+            <Button Grid.Column="1"
+        Text="Nuevo envío"
+        Style="{StaticResource PrimaryButton}"
+        Command="{Binding NewCommand}" />
 
-            <!-- Botón Nuevo Envío - Solo para usuarios normales -->
-            <Button Text="🚚 Crear Nuevo Envío"
-                    Style="{StaticResource PrimaryButton}"
-                    Command="{Binding NewCommand}"
-                    IsVisible="{Binding IsAdmin, Converter={StaticResource InvertedBoolConverter}}"/>
-
-            <!-- Información para trabajadores -->
-            <Frame Style="{StaticResource Card}" 
-                   BackgroundColor="#F0FDF4" 
-                   IsVisible="{Binding IsWorker}">
-                <Label Text="📦 Aquí verás los envíos que te han sido asignados"
-                       TextColor="{StaticResource Secondary}"
-                       FontAttributes="Italic"/>
-            </Frame>
-
-            <!-- Información para admins -->
-            <Frame Style="{StaticResource Card}" 
-                   BackgroundColor="#FFF7ED" 
-                   IsVisible="{Binding IsAdmin}">
-                <Label Text="👑 Como administrador puedes ver todos los envíos y asignar trabajadores"
-                       TextColor="{StaticResource Warning}"
-                       FontAttributes="Italic"/>
-            </Frame>
 
             <!-- Buscar -->
-            <SearchBar Placeholder="Buscar por código, destinatario u origen..."
-                       Text="{Binding Search}"
-                       BackgroundColor="White" />
+            <SearchBar Placeholder="Buscar por código o destinatario…"
+                       Text="{Binding Search}" />
 
             <!-- Filtro de estado -->
             <Picker Title="Filtrar por estado"
@@ -154,15 +127,12 @@
 
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
-                        <Frame Style="{StaticResource Card}" Margin="0,4">
-                            <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto,Auto" ColumnSpacing="10">
+                        <Frame Style="{StaticResource Card}">
+                            <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto" ColumnSpacing="10">
 
-                                <!-- Header: Código y Estado -->
-                                <HorizontalStackLayout Grid.ColumnSpan="2" Spacing="10">
-                                    <Label Text="{Binding Code}" 
-                                           FontAttributes="Bold" 
-                                           FontSize="16"
-                                           TextColor="{StaticResource Primary}"/>
+                                <!-- Encabezado: Code + Status -->
+                                <HorizontalStackLayout Grid.ColumnSpan="2" Spacing="8">
+                                    <Label Text="{Binding Code}" FontAttributes="Bold" FontSize="16"/>
                                     <Frame Style="{StaticResource Chip}">
                                         <Label FontSize="12" FontAttributes="Bold">
                                             <Label.Text>
@@ -196,59 +166,23 @@
                                     </Frame>
                                 </HorizontalStackLayout>
 
-                                <!-- Información del destinatario y ruta -->
-                                <VerticalStackLayout Grid.Row="1" Grid.ColumnSpan="2" Spacing="2">
-                                    <Label Text="{Binding ReceiverName, StringFormat='Para: {0}'}"
-                                           TextColor="{StaticResource TextDark}"
-                                           FontAttributes="Bold"/>
-                                    <Label Text="{Binding Origin, StringFormat='Desde: {0}'}"
-                                           TextColor="{StaticResource TextLight}"
-                                           FontSize="12"/>
-                                    <Label Text="{Binding Destination, StringFormat='Hacia: {0}'}"
-                                           TextColor="{StaticResource TextLight}"
-                                           FontSize="12"/>
-                                </VerticalStackLayout>
+                                <!-- Resumen: destinatario -->
+                                <Label Grid.Row="1" Grid.ColumnSpan="2"
+                                       Text="{Binding ReceiverName}"
+                                       TextColor="{StaticResource TextLight}"/>
 
-                                <!-- Información adicional -->
-                                <VerticalStackLayout Grid.Row="2" Grid.ColumnSpan="2" Spacing="2">
-                                    <Label Text="{Binding Sender.Name, StringFormat='Enviado por: {0}'}"
-                                           TextColor="{StaticResource TextLight}"
-                                           FontSize="12"
-                                           IsVisible="{Binding Source={x:Reference ThisPage}, Path=BindingContext.IsAdmin}"/>
-                                    <Label Text="{Binding Worker.Name, StringFormat='Trabajador asignado: {0}'}"
-                                           TextColor="{StaticResource Secondary}"
-                                           FontSize="12"
-                                           IsVisible="{Binding Worker, Converter={StaticResource IsNotNullConverter}}"/>
-                                </VerticalStackLayout>
-
-                                <!-- Fecha y botones de acción -->
-                                <Grid Grid.Row="3" ColumnDefinitions="*,Auto" ColumnSpacing="8" Margin="0,8,0,0">
-                                    <Label Text="{Binding CreatedDate, StringFormat='📅 {0:dd/MM/yyyy HH:mm}'}"
-                                           TextColor="{StaticResource TextLight}"
-                                           FontSize="12"
-                                           VerticalOptions="Center"/>
-
-                                    <HorizontalStackLayout Grid.Column="1" Spacing="6">
-                                        <!-- Botón Ver detalles -->
-                                        <Button Text="👁️ Ver"
-                                                Style="{StaticResource FlatButton}"
-                                                Command="{Binding Source={x:Reference ThisPage}, Path=BindingContext.OpenCommand}"
-                                                CommandParameter="{Binding .}" />
-
-                                        <!-- Botón Asignar Trabajador - Solo para admin y envíos sin asignar -->
-                                        <Button Text="👷 Asignar"
-                                                Style="{StaticResource SecondaryButton}"
-                                                Command="{Binding Source={x:Reference ThisPage}, Path=BindingContext.AssignWorkerCommand}"
-                                                CommandParameter="{Binding .}">
-                                            <Button.IsVisible>
-                                                <MultiBinding Converter="{StaticResource AllTrueConverter}">
-                                                    <Binding Source="{x:Reference ThisPage}" Path="BindingContext.IsAdmin"/>
-                                                    <Binding Path="Worker" Converter="{StaticResource IsNullConverter}"/>
-                                                </MultiBinding>
-                                            </Button.IsVisible>
-                                        </Button>
+                                <!-- Fecha + acciones -->
+                                <Grid Grid.Row="2" ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                                    <Label Text="{Binding CreatedDate, StringFormat='Creado: {0:dd/MM/yyyy}'}"
+           TextColor="{StaticResource TextLight}" />
+                                    <HorizontalStackLayout Grid.Column="1" Spacing="8">
+                                        <Button Text="Ver"
+                Style="{StaticResource FlatButton}"
+                Command="{Binding Source={x:Reference ThisPage}, Path=BindingContext.OpenCommand}"
+                CommandParameter="{Binding .}" />
                                     </HorizontalStackLayout>
                                 </Grid>
+
 
                             </Grid>
                         </Frame>
