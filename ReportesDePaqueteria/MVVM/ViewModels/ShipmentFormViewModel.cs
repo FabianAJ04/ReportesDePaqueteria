@@ -22,6 +22,7 @@ namespace ReportesDePaqueteria.MVVM.ViewModels
             _shipments = shipments;
             _users = users;
         }
+        public ShipmentModel Shipment { get; set; } = new ShipmentModel();
 
         [RelayCommand]
         private async Task CreateAsync()
@@ -71,6 +72,7 @@ namespace ReportesDePaqueteria.MVVM.ViewModels
                 await _shipments.CreateAsync(shipment);
 
                 await Shell.Current.DisplayAlert("Éxito", $"Envío creado: {shipment.Code}", "OK");
+                Clean();
                 await Shell.Current.GoToAsync($"{nameof(ShipmentDetailPage)}?code={Uri.EscapeDataString(shipment.Code)}");
             }
             catch (Exception ex)
@@ -81,6 +83,14 @@ namespace ReportesDePaqueteria.MVVM.ViewModels
             {
                 IsBusy = false;
             }
+        }
+
+        private void Clean()
+        {
+            Origin = "";
+            Destination = "";
+            ReceiverName = null;
+            Description = null;
         }
     }
 }
