@@ -35,11 +35,51 @@ namespace ReportesDePaqueteria.MVVM.ViewModels
             IsBusy = true;
             try
             {
+                var uid = await SecureStorage.GetAsync("user_id");
+
                 Items.Clear();
                 ViewItems.Clear();
 
                 var all = await _repo.GetAllAsync();
-                foreach (var s in all.Values.OrderByDescending(x => x.CreatedDate))
+
+               
+                bool IsForUser(ShipmentModel s)
+                {
+                    if (s == null || string.IsNullOrWhiteSpace(uid)) return false;
+
+                    
+                    var shipmentType = s.GetType();
+                    var pid = shipmentType.GetProperty("SenderId");
+                    if (pid != null)
+                    {
+                        var sid = pid.GetValue(s)?.ToString();
+                        if (!string.IsNullOrEmpty(sid)) return sid == uid;
+                    }
+
+                   
+                    if (s.Sender != null)
+                    {
+                        var st = s.Sender.GetType();
+                        var p = st.GetProperty("Id") ?? st.GetProperty("Uid") ?? st.GetProperty("UserId");
+                        if (p != null)
+                        {
+                            var val = p.GetValue(s.Sender)?.ToString();
+                            if (!string.IsNullOrEmpty(val)) return val == uid;
+                        }
+
+                
+                        var str = s.Sender.ToString();
+                        if (!string.IsNullOrEmpty(str) && str == uid) return true;
+                    }
+
+                    return false;
+                }
+
+                var userShipments = all.Values
+                                       .Where(s => IsForUser(s))
+                                       .OrderByDescending(x => x.CreatedDate);
+
+                foreach (var s in userShipments)
                 {
                     Items.Add(s);
                     ViewItems.Add(s);
