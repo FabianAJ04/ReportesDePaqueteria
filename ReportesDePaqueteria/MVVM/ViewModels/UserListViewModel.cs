@@ -14,9 +14,23 @@ namespace ReportesDePaqueteria.MVVM.ViewModels
         [ObservableProperty] private string errorMessage;
         [ObservableProperty] private string searchText;
 
-        public ObservableCollection<UserModel> Users { get; } = new();
+        // Propiedades para el modal de edición
+        [ObservableProperty] private bool isEditModalVisible;
+        [ObservableProperty] private UserModel? selectedUser;
+        [ObservableProperty] private string editName = "";
+        [ObservableProperty] private string editEmail = "";
+        [ObservableProperty] private int selectedRoleIndex = 0; // Para el Picker (0-based)
 
+        public ObservableCollection<UserModel> Users { get; } = new();
         public ObservableCollection<UserModel> UsersView { get; } = new();
+
+        // Opciones para el Picker de roles
+        public ObservableCollection<string> RoleOptions { get; } = new()
+        {
+            "Admin",
+            "Trabajador",
+            "Usuario"
+        };
 
         public UserListViewModel(IUserRepository repo)
         {
@@ -88,26 +102,96 @@ namespace ReportesDePaqueteria.MVVM.ViewModels
         {
             if (user == null) return;
 
-           
-            var nuevoRol = user.Role == 1 ? 3 : 1;
-            var confirm = await Shell.Current.DisplayAlert(
-                "Editar rol",
-                $"Cambiar rol de {user.Name} a {(nuevoRol == 1 ? "Admin" : "Usuario")} ?",
-                "Sí", "No");
+            SelectedUser = user;
+            EditName = user.Name ?? "";
+            EditEmail = user.Email ?? "";
 
-            if (!confirm) return;
+            // Convertir el rol (1, 2, 3) a índice del picker (0, 1, 2)
+            SelectedRoleIndex = user.Role switch
+            {
+                1 => 0, // Admin
+                2 => 1, // Trabajador
+                3 => 2, // Usuario
+                _ => 2  // Default a Usuario
+            };
+
+            IsEditModalVisible = true;
+        }
+
+        [RelayCommand]
+        private async Task GuardarCambiosAsync()
+        {
+            if (SelectedUser == null) return;
+            if (string.IsNullOrWhiteSpace(EditName))
+            {
+                await Shell.Current.DisplayAlert("Validación", "El nombre es requerido.", "OK");
+                return;
+            }
 
             try
             {
-                user.Role = nuevoRol;
-                await _repo.UpdateAsync(user);
-                await Shell.Current.DisplayAlert("Éxito", "Rol actualizado.", "OK");
-                await LoadAsync();
+                IsBusy = true;
+
+                // Convertir índice del picker a valor de rol
+                int newRole = SelectedRoleIndex switch
+                {
+                    0 => 1, // Admin
+                    1 => 2, // Trabajador
+                    2 => 3, // Usuario
+                    _ => 3  // Default a Usuario
+                };
+
+                // Actualizar las propiedades del usuario seleccionado
+                SelectedUser.Name = EditName.Trim();
+                SelectedUser.Email = EditEmail.Trim().ToLowerInvariant();
+                SelectedUser.Role = newRole;
+
+                // Guardar en la base de datos
+                await _repo.UpdateAsync(SelectedUser);
+
+                // Actualizar las colecciones para que la vista se actualice
+                UpdateUserInCollections(SelectedUser);
+
+                IsEditModalVisible = false;
+                await Shell.Current.DisplayAlert("Éxito", "Usuario actualizado correctamente.", "OK");
             }
             catch (Exception ex)
             {
                 await Shell.Current.DisplayAlert("Error", $"No se pudo actualizar: {ex.Message}", "OK");
             }
+            finally
+            {
+                IsBusy = false;
+            }
+        }
+
+        private void UpdateUserInCollections(UserModel updatedUser)
+        {
+            // Buscar y actualizar en la colección Users
+            var userInUsers = Users.FirstOrDefault(u => u.Id == updatedUser.Id);
+            if (userInUsers != null)
+            {
+                var index = Users.IndexOf(userInUsers);
+                Users[index] = updatedUser;
+            }
+
+            // Buscar y actualizar en la colección UsersView
+            var userInView = UsersView.FirstOrDefault(u => u.Id == updatedUser.Id);
+            if (userInView != null)
+            {
+                var index = UsersView.IndexOf(userInView);
+                UsersView[index] = updatedUser;
+            }
+        }
+
+        [RelayCommand]
+        private void CancelarEdicion()
+        {
+            IsEditModalVisible = false;
+            SelectedUser = null;
+            EditName = "";
+            EditEmail = "";
+            SelectedRoleIndex = 0;
         }
 
         [RelayCommand]
@@ -134,5 +218,14 @@ namespace ReportesDePaqueteria.MVVM.ViewModels
                 await Shell.Current.DisplayAlert("Error", $"No se pudo eliminar: {ex.Message}", "OK");
             }
         }
+
+        // Helper para obtener el texto del rol
+        public string GetRoleText(int role) => role switch
+        {
+            1 => "Admin",
+            2 => "Trabajador",
+            3 => "Usuario",
+            _ => "Usuario"
+        };
     }
 }
