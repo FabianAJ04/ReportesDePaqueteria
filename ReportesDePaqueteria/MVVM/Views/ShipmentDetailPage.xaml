@@ -16,6 +16,7 @@
             <Color x:Key="TextLight">#6B7280</Color>
             <Color x:Key="CardBg">#FFFFFF</Color>
             <Color x:Key="ChipBg">#E5E7EB</Color>
+            <Color x:Key="Success">#10B981</Color>
 
             <!-- Tipos -->
             <Style TargetType="Label" x:Key="H1">
@@ -50,6 +51,12 @@
             </Style>
             <Style TargetType="Button" x:Key="PrimaryButton">
                 <Setter Property="BackgroundColor" Value="{StaticResource Primary}"/>
+                <Setter Property="TextColor" Value="White"/>
+                <Setter Property="CornerRadius" Value="12"/>
+                <Setter Property="Padding" Value="14,12"/>
+            </Style>
+            <Style TargetType="Button" x:Key="SuccessButton">
+                <Setter Property="BackgroundColor" Value="{StaticResource Success}"/>
                 <Setter Property="TextColor" Value="White"/>
                 <Setter Property="CornerRadius" Value="12"/>
                 <Setter Property="Padding" Value="14,12"/>
@@ -95,7 +102,30 @@
                 <!-- Chips de estado -->
                 <HorizontalStackLayout Grid.Row="1" Grid.ColumnSpan="2" Spacing="8">
                     <Frame Style="{StaticResource Chip}">
-                        <Label Text="{Binding EstadoText}" FontSize="12"/>
+                        <Label Text="{Binding EstadoText}" FontSize="12">
+                            <Label.Triggers>
+                                <DataTrigger TargetType="Label" Binding="{Binding EstadoText}" Value="Entregado">
+                                    <Setter Property="TextColor" Value="{StaticResource Success}"/>
+                                </DataTrigger>
+                                <DataTrigger TargetType="Label" Binding="{Binding EstadoText}" Value="En tránsito">
+                                    <Setter Property="TextColor" Value="#F59E0B"/>
+                                </DataTrigger>
+                                <DataTrigger TargetType="Label" Binding="{Binding EstadoText}" Value="Enviado">
+                                    <Setter Property="TextColor" Value="#DC2626"/>
+                                </DataTrigger>
+                            </Label.Triggers>
+                        </Label>
+                        <Frame.Triggers>
+                            <DataTrigger TargetType="Frame" Binding="{Binding EstadoText}" Value="Entregado">
+                                <Setter Property="BackgroundColor" Value="#DCFCE7"/>
+                            </DataTrigger>
+                            <DataTrigger TargetType="Frame" Binding="{Binding EstadoText}" Value="En tránsito">
+                                <Setter Property="BackgroundColor" Value="#FEF3C7"/>
+                            </DataTrigger>
+                            <DataTrigger TargetType="Frame" Binding="{Binding EstadoText}" Value="Enviado">
+                                <Setter Property="BackgroundColor" Value="#FEE2E2"/>
+                            </DataTrigger>
+                        </Frame.Triggers>
                     </Frame>
                 </HorizontalStackLayout>
 
@@ -141,14 +171,32 @@
                         <Grid ColumnDefinitions="*,Auto,*" ColumnSpacing="10">
                             <VerticalStackLayout Spacing="2"
                                                  IsVisible="{Binding Shipment.Origin, Converter={StaticResource BoolFromStringConverter}}">
-                                <Label Text="Origin" FontAttributes="Bold"/>
+                                <Label Text="Origen" FontAttributes="Bold"/>
                                 <Label Text="{Binding Shipment.Origin}" TextColor="{StaticResource TextLight}"/>
                             </VerticalStackLayout>
 
+                            <Label Grid.Column="1" Text="→" FontSize="20" VerticalOptions="Center" TextColor="{StaticResource TextLight}"/>
+
                             <VerticalStackLayout Grid.Column="2" Spacing="2"
                                                  IsVisible="{Binding Shipment.Destination, Converter={StaticResource BoolFromStringConverter}}">
-                                <Label Text="Destination" FontAttributes="Bold"/>
+                                <Label Text="Destino" FontAttributes="Bold"/>
                                 <Label Text="{Binding Shipment.Destination}" TextColor="{StaticResource TextLight}"/>
+                            </VerticalStackLayout>
+                        </Grid>
+                    </VerticalStackLayout>
+                </Frame>
+
+                <!-- Información del trabajador asignado -->
+                <Frame Style="{StaticResource Card}" IsVisible="{Binding Shipment.Worker, Converter={StaticResource IsNotNullConverter}}">
+                    <VerticalStackLayout Spacing="6">
+                        <Label Text="Trabajador asignado" Style="{StaticResource H2}"/>
+                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+                            <Frame WidthRequest="40" HeightRequest="40" CornerRadius="20" BackgroundColor="{StaticResource PrimarySoft}" HasShadow="False">
+                                <Label Text="👷" FontSize="20" HorizontalOptions="Center" VerticalOptions="Center"/>
+                            </Frame>
+                            <VerticalStackLayout Grid.Column="1" Spacing="2">
+                                <Label Text="{Binding Shipment.Worker.Name}" FontAttributes="Bold"/>
+                                <Label Text="{Binding Shipment.Worker.Email}" TextColor="{StaticResource TextLight}" FontSize="12"/>
                             </VerticalStackLayout>
                         </Grid>
                     </VerticalStackLayout>
@@ -159,9 +207,11 @@
                     <VerticalStackLayout>
                         <Grid ColumnDefinitions="*,Auto">
                             <Label Text="Seguimiento" Style="{StaticResource H2}"/>
-                            <Button Grid.Column="1" Text="Marcar entregado"
-                                    Style="{StaticResource FlatButton}"
-                                    Command="{Binding MarkDeliveredCommand}"/>      <!-- Aqui se debe modificar para que los usuarios no puedan marcar como entregado -->
+                            <Button Grid.Column="1" 
+                                    Text="✅ Marcar entregado"
+                                    Style="{StaticResource SuccessButton}"
+                                    Command="{Binding MarkDeliveredCommand}"
+                                    IsVisible="{Binding CanMarkDelivered}"/>
                         </Grid>
 
                         <CollectionView ItemsSource="{Binding Eventos}" Margin="0,6,0,0">
@@ -188,8 +238,21 @@
 
                 <!-- Acciones inferiores-->
                 <Grid ColumnDefinitions="*,Auto" Margin="0,4,0,16">
-                    <Button Text="Reportar incidente" Style="{StaticResource FlatButton}" Command="{Binding ReportIncidentCommand}"/>
+                    <Button Text="📝 Reportar incidencia" 
+                            Style="{StaticResource FlatButton}" 
+                            Command="{Binding ReportIncidentCommand}"/>
+                    <Button Grid.Column="1" 
+                            Text="⚙️ Más opciones" 
+                            Style="{StaticResource FlatButton}" 
+                            Command="{Binding MoreOptionsCommand}"
+                            IsVisible="{Binding CanAccessAdminOptions}"/>
                 </Grid>
+
+                <!-- Indicador de carga -->
+                <ActivityIndicator IsRunning="{Binding IsBusy}"
+                                   IsVisible="{Binding IsBusy}"
+                                   Color="{StaticResource Primary}"
+                                   Margin="0,20"/>
 
             </VerticalStackLayout>
         </ScrollView>
