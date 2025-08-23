@@ -9,6 +9,8 @@
     <ContentPage.Resources>
         <ResourceDictionary>
             <Color x:Key="Primary">#FF8302</Color>
+            <Color x:Key="Secondary">#10B981</Color>
+            <Color x:Key="Warning">#F59E0B</Color>
             <Color x:Key="TextDark">#111827</Color>
             <Color x:Key="TextLight">#6B7280</Color>
             <Color x:Key="CardBg">#FFFFFF</Color>
@@ -19,6 +21,7 @@
                 <Setter Property="FontAttributes" Value="Bold"/>
                 <Setter Property="TextColor" Value="{StaticResource TextDark}"/>
             </Style>
+
             <Style TargetType="Frame" x:Key="Card">
                 <Setter Property="Padding" Value="12"/>
                 <Setter Property="Margin" Value="0,6"/>
@@ -26,43 +29,90 @@
                 <Setter Property="CornerRadius" Value="14"/>
                 <Setter Property="HasShadow" Value="True"/>
             </Style>
+
             <Style TargetType="Frame" x:Key="Chip">
                 <Setter Property="Padding" Value="8,4"/>
                 <Setter Property="HasShadow" Value="False"/>
                 <Setter Property="CornerRadius" Value="16"/>
                 <Setter Property="BackgroundColor" Value="{StaticResource ChipBg}"/>
             </Style>
+
             <Style TargetType="Button" x:Key="PrimaryButton">
                 <Setter Property="BackgroundColor" Value="{StaticResource Primary}"/>
                 <Setter Property="TextColor" Value="White"/>
                 <Setter Property="CornerRadius" Value="12"/>
                 <Setter Property="Padding" Value="14,12"/>
             </Style>
+
+            <Style TargetType="Button" x:Key="SecondaryButton">
+                <Setter Property="BackgroundColor" Value="{StaticResource Secondary}"/>
+                <Setter Property="TextColor" Value="White"/>
+                <Setter Property="CornerRadius" Value="8"/>
+                <Setter Property="Padding" Value="10,6"/>
+                <Setter Property="FontSize" Value="12"/>
+            </Style>
+
             <Style TargetType="Button" x:Key="FlatButton">
                 <Setter Property="BackgroundColor" Value="Transparent"/>
                 <Setter Property="TextColor" Value="{StaticResource Primary}"/>
                 <Setter Property="Padding" Value="8,6"/>
             </Style>
+
+            <!-- Convertidor para convertir números de estado a texto -->
+            <x:String x:Key="Status1">Enviado</x:String>
+            <x:String x:Key="Status2">En tránsito</x:String>
+            <x:String x:Key="Status3">Entregado</x:String>
+            <x:String x:Key="Status4">Cancelado</x:String>
+            <x:String x:Key="Status5">Con incidente</x:String>
         </ResourceDictionary>
     </ContentPage.Resources>
 
     <ScrollView>
         <VerticalStackLayout Padding="16" Spacing="10">
 
-            <Button Grid.Column="1"
-        Text="Nuevo envío"
-        Style="{StaticResource PrimaryButton}"
-        Command="{Binding NewCommand}" />
+            <!-- Header con información del rol actual -->
+            <Frame Style="{StaticResource Card}" BackgroundColor="#EEF2FF">
+                <VerticalStackLayout Spacing="4">
+                    <Label x:Name="RoleHeader" Style="{StaticResource H1}"/>
+                    <Label x:Name="RoleDescription" TextColor="{StaticResource TextLight}" FontSize="14"/>
+                </VerticalStackLayout>
+            </Frame>
 
+            <!-- Botón Nuevo Envío - Solo para usuarios normales -->
+            <Button Text="🚚 Crear Nuevo Envío"
+                    Style="{StaticResource PrimaryButton}"
+                    Command="{Binding NewCommand}"
+                    IsVisible="{Binding IsAdmin, Converter={StaticResource InvertedBoolConverter}}"/>
+
+            <!-- Información para trabajadores -->
+            <Frame Style="{StaticResource Card}" 
+                   BackgroundColor="#F0FDF4" 
+                   IsVisible="{Binding IsWorker}">
+                <Label Text="📦 Aquí verás los envíos que te han sido asignados"
+                       TextColor="{StaticResource Secondary}"
+                       FontAttributes="Italic"/>
+            </Frame>
+
+            <!-- Información para admins -->
+            <Frame Style="{StaticResource Card}" 
+                   BackgroundColor="#FFF7ED" 
+                   IsVisible="{Binding IsAdmin}">
+                <Label Text="👑 Como administrador puedes ver todos los envíos y asignar trabajadores"
+                       TextColor="{StaticResource Warning}"
+                       FontAttributes="Italic"/>
+            </Frame>
 
             <!-- Buscar -->
-            <SearchBar Placeholder="Buscar por código o destinatario…"
-                       Text="{Binding Search}" />
+            <SearchBar Placeholder="Buscar por código, destinatario u origen..."
+                       Text="{Binding Search}"
+                       BackgroundColor="White" />
 
-            <Picker Title="Estado"
-                    SelectedIndex="{Binding StatusFilter}">
+            <!-- Filtro de estado -->
+            <Picker Title="Filtrar por estado"
+                    SelectedIndex="{Binding StatusFilter}"
+                    BackgroundColor="White">
                 <Picker.Items>
-                    <x:String>Todos</x:String>
+                    <x:String>Todos los estados</x:String>
                     <x:String>Enviado</x:String>
                     <x:String>En tránsito</x:String>
                     <x:String>Entregado</x:String>
@@ -71,53 +121,139 @@
                 </Picker.Items>
             </Picker>
 
-            <!-- Lista -->
-            <CollectionView ItemsSource="{Binding ViewItems}" SelectionMode="None">
+            <!-- Indicador de carga -->
+            <ActivityIndicator IsRunning="{Binding IsBusy}" 
+                               IsVisible="{Binding IsBusy}"
+                               Color="{StaticResource Primary}"/>
+
+            <!-- Lista de envíos -->
+            <CollectionView ItemsSource="{Binding ViewItems}" 
+                            SelectionMode="None"
+                            IsVisible="{Binding IsBusy, Converter={StaticResource InvertedBoolConverter}}">
+
                 <CollectionView.EmptyView>
-                    <VerticalStackLayout Padding="24" Spacing="6" HorizontalOptions="Center" VerticalOptions="Center">
-                        <Label Text="Sin envíos" FontAttributes="Bold"/>
-                        <Label Text="Crea un nuevo envío para comenzar." TextColor="{StaticResource TextLight}"/>
+                    <VerticalStackLayout Padding="40" Spacing="12" HorizontalOptions="Center">
+                        <Label Text="📭" FontSize="48" HorizontalOptions="Center"/>
+                        <Label Text="Sin envíos disponibles" 
+                               FontAttributes="Bold" 
+                               FontSize="18"
+                               HorizontalOptions="Center"/>
+                        <Label TextColor="{StaticResource TextLight}" 
+                               HorizontalOptions="Center"
+                               HorizontalTextAlignment="Center">
+                            <Label.FormattedText>
+                                <FormattedString>
+                                    <Span Text="No hay envíos para mostrar.&#x0a;"/>
+                                    <Span Text="Los envíos aparecerán aquí según tu rol." FontAttributes="Italic"/>
+                                </FormattedString>
+                            </Label.FormattedText>
+                        </Label>
                     </VerticalStackLayout>
                 </CollectionView.EmptyView>
 
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
-                        <Frame Style="{StaticResource Card}">
-                            <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto" ColumnSpacing="10">
+                        <Frame Style="{StaticResource Card}" Margin="0,4">
+                            <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto,Auto" ColumnSpacing="10">
 
-                                <!-- Encabezado: Code + Status -->
-                                <HorizontalStackLayout Grid.ColumnSpan="2" Spacing="8">
-                                    <Label Text="{Binding Code}" FontAttributes="Bold" FontSize="16"/>
+                                <!-- Header: Código y Estado -->
+                                <HorizontalStackLayout Grid.ColumnSpan="2" Spacing="10">
+                                    <Label Text="{Binding Code}" 
+                                           FontAttributes="Bold" 
+                                           FontSize="16"
+                                           TextColor="{StaticResource Primary}"/>
                                     <Frame Style="{StaticResource Chip}">
-                                        <Label Text="{Binding Status}" FontSize="12"/>
+                                        <Label FontSize="12" FontAttributes="Bold">
+                                            <Label.Text>
+                                                <MultiBinding StringFormat="{}{0}">
+                                                    <Binding Path="Status" />
+                                                </MultiBinding>
+                                            </Label.Text>
+                                            <Label.Triggers>
+                                                <DataTrigger TargetType="Label" Binding="{Binding Status}" Value="1">
+                                                    <Setter Property="Text" Value="📤 Enviado"/>
+                                                    <Setter Property="TextColor" Value="#DC2626"/>
+                                                </DataTrigger>
+                                                <DataTrigger TargetType="Label" Binding="{Binding Status}" Value="2">
+                                                    <Setter Property="Text" Value="🚛 En tránsito"/>
+                                                    <Setter Property="TextColor" Value="#F59E0B"/>
+                                                </DataTrigger>
+                                                <DataTrigger TargetType="Label" Binding="{Binding Status}" Value="3">
+                                                    <Setter Property="Text" Value="✅ Entregado"/>
+                                                    <Setter Property="TextColor" Value="#10B981"/>
+                                                </DataTrigger>
+                                                <DataTrigger TargetType="Label" Binding="{Binding Status}" Value="4">
+                                                    <Setter Property="Text" Value="❌ Cancelado"/>
+                                                    <Setter Property="TextColor" Value="#6B7280"/>
+                                                </DataTrigger>
+                                                <DataTrigger TargetType="Label" Binding="{Binding Status}" Value="5">
+                                                    <Setter Property="Text" Value="⚠️ Con incidente"/>
+                                                    <Setter Property="TextColor" Value="#EF4444"/>
+                                                </DataTrigger>
+                                            </Label.Triggers>
+                                        </Label>
                                     </Frame>
                                 </HorizontalStackLayout>
 
-                                <!-- Resumen: destinatario -->
-                                <Label Grid.Row="1" Grid.ColumnSpan="2"
-                                       Text="{Binding ReceiverName}"
-                                       TextColor="{StaticResource TextLight}"/>
+                                <!-- Información del destinatario y ruta -->
+                                <VerticalStackLayout Grid.Row="1" Grid.ColumnSpan="2" Spacing="2">
+                                    <Label Text="{Binding ReceiverName, StringFormat='Para: {0}'}"
+                                           TextColor="{StaticResource TextDark}"
+                                           FontAttributes="Bold"/>
+                                    <Label Text="{Binding Origin, StringFormat='Desde: {0}'}"
+                                           TextColor="{StaticResource TextLight}"
+                                           FontSize="12"/>
+                                    <Label Text="{Binding Destination, StringFormat='Hacia: {0}'}"
+                                           TextColor="{StaticResource TextLight}"
+                                           FontSize="12"/>
+                                </VerticalStackLayout>
 
-                                <!-- Fecha + acciones -->
-                                <Grid Grid.Row="2" ColumnDefinitions="*,Auto" ColumnSpacing="8">
-                                    <Label Text="{Binding CreatedDate, StringFormat='Creado: {0:dd/MM/yyyy}'}"
-           TextColor="{StaticResource TextLight}" />
-                                    <HorizontalStackLayout Grid.Column="1" Spacing="8">
-                                        <Button Text="Ver"
-                Style="{StaticResource FlatButton}"
-                Command="{Binding Source={x:Reference ThisPage}, Path=BindingContext.OpenCommand}"
-                CommandParameter="{Binding .}" />
+                                <!-- Información adicional -->
+                                <VerticalStackLayout Grid.Row="2" Grid.ColumnSpan="2" Spacing="2">
+                                    <Label Text="{Binding Sender.Name, StringFormat='Enviado por: {0}'}"
+                                           TextColor="{StaticResource TextLight}"
+                                           FontSize="12"
+                                           IsVisible="{Binding Source={x:Reference ThisPage}, Path=BindingContext.IsAdmin}"/>
+                                    <Label Text="{Binding Worker.Name, StringFormat='Trabajador asignado: {0}'}"
+                                           TextColor="{StaticResource Secondary}"
+                                           FontSize="12"
+                                           IsVisible="{Binding Worker, Converter={StaticResource IsNotNullConverter}}"/>
+                                </VerticalStackLayout>
+
+                                <!-- Fecha y botones de acción -->
+                                <Grid Grid.Row="3" ColumnDefinitions="*,Auto" ColumnSpacing="8" Margin="0,8,0,0">
+                                    <Label Text="{Binding CreatedDate, StringFormat='📅 {0:dd/MM/yyyy HH:mm}'}"
+                                           TextColor="{StaticResource TextLight}"
+                                           FontSize="12"
+                                           VerticalOptions="Center"/>
+
+                                    <HorizontalStackLayout Grid.Column="1" Spacing="6">
+                                        <!-- Botón Ver detalles -->
+                                        <Button Text="👁️ Ver"
+                                                Style="{StaticResource FlatButton}"
+                                                Command="{Binding Source={x:Reference ThisPage}, Path=BindingContext.OpenCommand}"
+                                                CommandParameter="{Binding .}" />
+
+                                        <!-- Botón Asignar Trabajador - Solo para admin y envíos sin asignar -->
+                                        <Button Text="👷 Asignar"
+                                                Style="{StaticResource SecondaryButton}"
+                                                Command="{Binding Source={x:Reference ThisPage}, Path=BindingContext.AssignWorkerCommand}"
+                                                CommandParameter="{Binding .}">
+                                            <Button.IsVisible>
+                                                <MultiBinding Converter="{StaticResource AllTrueConverter}">
+                                                    <Binding Source="{x:Reference ThisPage}" Path="BindingContext.IsAdmin"/>
+                                                    <Binding Path="Worker" Converter="{StaticResource IsNullConverter}"/>
+                                                </MultiBinding>
+                                            </Button.IsVisible>
+                                        </Button>
                                     </HorizontalStackLayout>
                                 </Grid>
-
 
                             </Grid>
                         </Frame>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
             </CollectionView>
-
-            <ContentView x:Name="__root" IsVisible="False"/>
 
         </VerticalStackLayout>
     </ScrollView>

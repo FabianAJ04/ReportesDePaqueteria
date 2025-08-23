@@ -2,6 +2,8 @@
 <Application xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:local="clr-namespace:ReportesDePaqueteria"
+             xmlns:converters="clr-namespace:ReportesDePaqueteria.Converters"
+             xmlns:mvvmConverters="clr-namespace:ReportesDePaqueteria.MVVM.Converters"
              x:Class="ReportesDePaqueteria.App">
     <Application.Resources>
         <ResourceDictionary>
@@ -9,6 +11,20 @@
                 <ResourceDictionary Source="Resources/Styles/Colors.xaml" />
                 <ResourceDictionary Source="Resources/Styles/Styles.xaml" />
             </ResourceDictionary.MergedDictionaries>
+
+            <!-- Converters existentes -->
+            <converters:BoolFromStringConverter x:Key="BoolFromStringConverter" />
+            <converters:BoolToStyleConverter x:Key="BoolToStyleConverter" />
+            <converters:IntMinusOneConverter x:Key="IntMinusOneConverter" />
+            <mvvmConverters:RoleToTextConverter x:Key="RoleToTextConverter" />
+
+            <!-- Nuevos converters necesarios para la funcionalidad de envíos -->
+            <converters:InvertedBoolConverter x:Key="InvertedBoolConverter" />
+            <converters:IsNotNullConverter x:Key="IsNotNullConverter" />
+            <converters:IsNullConverter x:Key="IsNullConverter" />
+            <converters:AllTrueConverter x:Key="AllTrueConverter" />
+            <converters:StatusConverter x:Key="StatusConverter" />
+
         </ResourceDictionary>
     </Application.Resources>
 </Application>
