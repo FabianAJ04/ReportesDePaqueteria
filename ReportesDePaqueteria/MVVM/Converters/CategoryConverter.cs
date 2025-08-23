@@ -1,17 +1,20 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace ReportesDePaqueteria.MVVM.Converters
+namespace ReportesDePaqueteria.Converters
 {
-    public class IsNullConverter : IValueConverter
+    public class CategoryConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            return value == null;
+            string categoria = value?.ToString() ?? "";
+            return categoria switch
+            {
+                "1" => "Entrega",
+                "2" => "Devolución",
+                "3" => "Reclamación",
+                _ => "Otro"
+            };
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

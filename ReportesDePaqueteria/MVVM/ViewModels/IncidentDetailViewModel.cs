@@ -5,6 +5,7 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
+using Microsoft.Maui.Storage;
 using ReportesDePaqueteria.MVVM.Messaging;
 using ReportesDePaqueteria.MVVM.Models;
 using ReportesDePaqueteria.MVVM.Views;
@@ -58,6 +59,9 @@ namespace ReportesDePaqueteria.MVVM.ViewModels
         [ObservableProperty] private UserModel? selectedAssignee;
         [ObservableProperty] private string? assigneeId;
 
+        // NUEVO: Propiedad para controlar visibilidad de la sección de asignación
+        [ObservableProperty] private bool canAssignResponsible = true;
+
         public ObservableCollection<Option> StatusOptions { get; } = new();
         public ObservableCollection<Option> PriorityOptions { get; } = new();
         public ObservableCollection<Option> CategoryOptions { get; } = new();
@@ -106,6 +110,9 @@ namespace ReportesDePaqueteria.MVVM.ViewModels
             IsBusy = true;
             try
             {
+                // NUEVO: Verificar rol del usuario actual para controlar permisos
+                await LoadCurrentUserPermissionsAsync();
+
                 var model = await _incidents.GetByIdAsync(Id);
                 if (model is null)
                 {
@@ -123,16 +130,25 @@ namespace ReportesDePaqueteria.MVVM.ViewModels
                 Category = model.Category;
                 AssigneeId = model.AssigneeId;
 
-                Users.Clear();
-                var all = await _users.GetAllAsync();
-                foreach (var kv in all)
+                // Cargar usuarios solo si el usuario puede asignar responsables
+                if (CanAssignResponsible)
                 {
-                    var u = kv.Value;
-                    if (string.IsNullOrEmpty(u.Id)) u.Id = kv.Key;
-                    Users.Add(u);
-                }
+                    Users.Clear();
+                    var all = await _users.GetAllAsync();
+                    foreach (var kv in all)
+                    {
+                        var u = kv.Value;
+                        if (string.IsNullOrEmpty(u.Id)) u.Id = kv.Key;
 
-                SelectedAssignee = Users.FirstOrDefault(u => u.Id == AssigneeId);
+                        // Filtrar solo usuarios con Role = 2 (Trabajadores)
+                        if (u.Role == 2)
+                        {
+                            Users.Add(u);
+                        }
+                    }
+
+                    SelectedAssignee = Users.FirstOrDefault(u => u.Id == AssigneeId);
+                }
 
                 SelectedPriorityOption = PriorityOptions.FirstOrDefault(o => o.Id == Priority);
                 SelectedCategoryOption = CategoryOptions.FirstOrDefault(o => o.Id == Category);
@@ -149,6 +165,36 @@ namespace ReportesDePaqueteria.MVVM.ViewModels
                 await Shell.Current.DisplayAlert("Error", $"No se pudo cargar el incidente: {ex.Message}", "OK");
             }
             finally { IsBusy = false; }
+        }
+
+        // NUEVO MÉTODO: Cargar permisos del usuario actual
+        private async Task LoadCurrentUserPermissionsAsync()
+        {
+            try
+            {
+                var currentUserId = await SecureStorage.GetAsync("user_id");
+
+                if (!string.IsNullOrWhiteSpace(currentUserId))
+                {
+                    var currentUser = await _users.GetByIdAsync(currentUserId);
+                    var currentUserRole = currentUser?.Role ?? 3;
+
+                    // Solo Admin (1) puede asignar responsables
+                    // Trabajadores (2) y usuarios normales (3) no pueden
+                    CanAssignResponsible = currentUserRole == 1;
+
+                    System.Diagnostics.Debug.WriteLine($"[IncidentDetailVM] Current user role: {currentUserRole}, Can assign: {CanAssignResponsible}");
+                }
+                else
+                {
+                    CanAssignResponsible = false;
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[IncidentDetailVM] Error loading user permissions: {ex.Message}");
+                CanAssignResponsible = false;
+            }
         }
 
         [RelayCommand]
@@ -174,8 +220,13 @@ namespace ReportesDePaqueteria.MVVM.ViewModels
                 Incident.Status = Status;
                 Incident.Priority = Priority;
                 Incident.Category = Category;
-                Incident.AssigneeId = AssigneeId;
-                Incident.Assignee = assignee;
+
+                // Solo actualizar asignación si el usuario tiene permisos
+                if (CanAssignResponsible)
+                {
+                    Incident.AssigneeId = AssigneeId;
+                    Incident.Assignee = assignee;
+                }
 
                 if (Incident.Status is 3 or 4 && Incident.ResolvedAt is null)
                     Incident.ResolvedAt = DateTime.UtcNow;
@@ -212,7 +263,7 @@ namespace ReportesDePaqueteria.MVVM.ViewModels
         [RelayCommand]
         private async Task AssignAsync(UserModel? user)
         {
-            if (user is null) return;
+            if (user is null || !CanAssignResponsible) return;
             SelectedAssignee = user;
             await SaveAsync();
         }
