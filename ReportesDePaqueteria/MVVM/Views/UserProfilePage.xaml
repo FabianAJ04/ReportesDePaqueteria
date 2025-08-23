@@ -98,23 +98,6 @@
                 </VerticalStackLayout>
             </Frame>
 
-            <!-- Preferencias -->
-            <Frame Style="{StaticResource Card}">
-                <VerticalStackLayout Spacing="8">
-                    <Label Text="Preferencias" Style="{StaticResource Section}" />
-                    <Grid RowDefinitions="Auto,Auto,Auto"
-                          ColumnDefinitions="*,Auto"
-                          ColumnSpacing="10"
-                          RowSpacing="8">
-                        <Label Text="Notificar por correo" />
-                        <Switch Grid.Column="1" IsToggled="{Binding NotifyEmail}" />
-
-                        <Label Grid.Row="1" Text="Notificar en la app" />
-                        <Switch Grid.Row="1" Grid.Column="1" IsToggled="{Binding NotifyPush}" />
-                    </Grid>
-                </VerticalStackLayout>
-            </Frame>
-
             <Grid ColumnDefinitions="*,Auto">
                 <Button Text="Guardar cambios"
                         Style="{StaticResource PrimaryButton}"

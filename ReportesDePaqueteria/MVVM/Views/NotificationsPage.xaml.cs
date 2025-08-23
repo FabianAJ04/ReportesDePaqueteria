@@ -36,8 +36,10 @@ namespace ReportesDePaqueteria.MVVM.Views
 
         private async void OnClearAllClicked(object sender, EventArgs e)
         {
-            if (_vm is null) return;
-            await _vm.ClearAllAsync();
+            if (BindingContext is NotificationViewModel vm)
+            {
+                await vm.ClearAllAsync();
+            }
         }
 
         private async void OnMarkReadSwipe(object sender, EventArgs e)

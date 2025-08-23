@@ -63,7 +63,6 @@
                 <VerticalStackLayout Spacing="6">
                     <Label Text="Creado por (Id)" FontAttributes="Bold"/>
                     <Label Text="{Binding Incident.CreatedById}" TextColor="{StaticResource TextDark}"/>
-                    <Label Text="Brinda este ID en caso de ocupar ayuda con tus paquetes" Style="{StaticResource Hint}" />
                 </VerticalStackLayout>
             </Frame>
 
